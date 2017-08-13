@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta charset="UTF-8">
+    <meta name="HandheldFriendly" content="True">
+    <link rel="stylesheet" type="text/css" href="{url:#css/common.css}">
+    <link rel="stylesheet" type="text/css" href="{url:#css/simple.css}">
+    <link rel="stylesheet" type="text/css" href="{url:#css/font-awesome.min.css}">
+    <link rel="stylesheet" type="text/css" href="{url:#js/artdialog/tiny-dialog.css}">
+
+    <script src="{url:#js/jquery.min.js}"></script>
+    <script src="{url:#js/artdialog/dialog-plus-min.js}"></script>
+    <script src="{url:#js/common.js}"></script>
+    {echo:JS::import('form')}
+    <title>{if:isset($seo_title) && isset($site_title) && ($seo_title == $site_title)}{$seo_title}{else:}{$seo_title}-{$site_title}{/if}</title>
+</head>
+<body>
+    <!-- S 头部区域 -->
+    <div id="header">
+        <div class="container head-main">
+            <a href="{url:/index/index}" class="sub-1 logo" style="background-image: url({url:@$site_logo});"></a>
+        </div>
+    </div>
+    <!-- E 头部区域 -->
+
+    <!-- S 主控区域 -->
+    <div id="main" class="simple-main">
+        {__viewcontents}
+    </div>
+    <!-- E 主控区域 -->
+
+    <!-- S 底部区域 -->
+    <div id="footer">
+        <div class="promise">
+            <div class="clearfix container">
+                <dl>
+                    <dt class="icon-1"></dt>
+                    <dd>
+                        <p class="title">诚信交易</p>
+                        <p>所有产品均出正规渠道采购</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-2"></dt>
+                    <dd>
+                        <p class="title">60元包邮</p>
+                        <p>全国各地，满60元快递包邮</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-3"></dt>
+                    <dd>
+                        <p class="title">极速更新</p>
+                        <p>所有商品信息及时更新</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-4"></dt>
+                    <dd>
+                        <p class="title">7天退换货</p>
+                        <p>会员享受7天无理由退换货</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-5"></dt>
+                    <dd>
+                        <p class="title">真实拍摄</p>
+                        <p>100%真实拍摄，杜绝虚假</p>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        <div class="helps clearfix container">
+            {query:name=help_category order=sort desc limit=5}
+            <dl >
+                <dt class="clearfix"><span class="icon-{$item['alias']} fl"></span><a href="javascript:;">{$item['name']}</a></dt>
+                {query:name=help where= category_id eq $item[id] item=$help cache=true cacheTime=1200}
+                <dd><a href="{url:/index/help/id/$help[id]}">{$help['title']}</a></dd>
+                {/query}
+            </dl>
+            {/query}
+            <div class="col-contact">
+                <p class="phone">000-000-0000</p>
+                <p>周一至周日 8:00-18:00
+                    <br>（仅收市话费）</p>
+                    <a class="btn btn-main">24小时在线客服</a>
+                </div>
+            </div>
+    <!-- E 底部区域 -->
+</body>
+</html>

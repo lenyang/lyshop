@@ -1,0 +1,17 @@
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<div class="container clearfix">
+    {widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+    <div class="uc-content">
+        <h1 class="title"><span>账号绑定</span></h1>
+        <table class="simple safety-list">
+            {!$index=0;}
+            {list:items=$oauth_login}
+            <tr class="{if:$index++%2==0}even{else:}odd{/if}">
+                <td class="caption"><img src="{url:@protected/classes/oauth/logo/$item[icon]}" > <span>{$item['name']}</span></td>
+                <td>{if:isset($item['binding'])}已绑定账号：{$item['open_name']}{else:}还未绑定账号{/if}</td>
+                <td width="120">{if:isset($item['binding'])}<a href="{url:/ucenter/union_remove/oauth_type/$item[oauth_type]}">解除绑定</a>{else:}<a href="{$item['url']}">绑定</a>{/if}</td>
+            </tr>
+            {/list}
+        </table>
+    </div>
+</div>

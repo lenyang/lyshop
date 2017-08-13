@@ -1,0 +1,63 @@
+{set:$items=array("填写账户信息","验证身份","设置新密码","完成");}
+{widget:name=sub_navs action=crumbs items=$items step=4 current=2}
+<div class="container">
+
+	<div class="mt20 clearfix tc">
+		{if:isset($accountType)}
+		{if:$accountType == 'email'}
+		<div class="message">
+			<div class="header">{if:$status=='success'}
+				<i class="icon-success-48"></i><span>邮件发送成功！</span>{else:}<i class="icon-error-48"></i><span>邮件发送失败！ </span>{/if}
+			</div>
+			{if:$status=='success'}
+			<div class="main">
+				<p>
+					修改密码的链接已经发送到您的邮箱，请查收并设置新密码！
+				</p>
+			</div>
+			{elseif:$status=='error'}
+			<div  class="main">
+				<p>
+					邮件未能正确送达，请联系网站管理人员！
+				</p>
+			</div>
+			{else:}
+			<div  class="main">
+				<p>
+					你的邮箱地址不正确，系统未能正常送达！
+				</p>
+			</div>
+			{/if}
+			<div class="footer"><a href="{url:/index/index}" class="btn btn-gray">返回首页</a>
+		</div>
+		{elseif:$accountType == 'mobile'}
+		<div class="form">
+			<form action="{url:/simple/reset_password}" class="reg-box" method="post" callback="checkReadme">
+				{if:class_exists('SMS') && SMS::getInstance()->getStatus()}
+				{if:$status == 'success'}
+				<ul>
+					<li>
+						<span class="perfix fa">&#xf02a;</span><input type="text" class="input-sm" name="safecode" pattern="\d{6}" alt="6位短信验证码" placeholder="短信验证码"><label></label></dd>
+					</li>
+					<li><button class="btn btn-main " style="padding:10px 40px;">验证手机验证码</button></li>
+				</ul>
+				{elseif:$status == 'error'}
+				<div class="message">
+					<p>
+						短信验证码失败，请也管理人员联系。
+					</p>
+				</div>
+				{else:}
+				<div class="message">
+					<p>
+						平台没有开启短信功能，请联系管理员。
+					</p>
+				</div>
+				{/if}
+				{/if}
+			</form>
+		</div>
+		{/if}
+		{/if}
+	</div>
+</div>

@@ -1,0 +1,80 @@
+{echo:JS::import('form')}
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<div class="container clearfix">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="clearfix uc-content">
+			<h1 class="title"><span>优惠券：</span></h1>
+			{if:isset($msg)}
+			<div class="message_{$msg[0]} ie6png">{$msg[1]}</div>
+			{elseif:isset($validator)}
+			<div class="message_warning ie6png">{$validator['msg']}</div>
+			{/if}
+			<div >
+				<form class="box" action="{url:/ucenter/voucher_activated}" method="post">
+					<h2>实体优惠券激活:</h2>
+				 <table class="form" style="width:600px;margin: auto;">
+				 	<tr><td class="label">账号：</td><td><input name="account" type="text" pattern="required" alt="优惠券账号"></td></tr>
+				 	<tr><td class="label">密码：</td><td><input name="password" type="text" pattern="required" alt="优惠券密码"></td></tr>
+				 	<tr><td class="label"> </td><td><input type="submit" class="btn btn-main" value="激活"></td></tr>
+				 </table>
+				 {token:}
+				</form>
+			</div>
+			<div class="tab">
+				<ul class="tab-head">
+					<li>未使用的优惠券<i></i></li>
+					<li>已使用的优惠券<i></i></li>
+					<li>已过期的优惠券<i></i></li>
+				</ul>
+				<div class="tab-body">
+					<div id="voucher-n" class="js-template">
+						<table class="simple">
+						<tr><th >账号</th> <th width="140">类型</th> <th width="100">面值</th> <th width="140">所需消费金额</th> <th width="180">有效期</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td>{account}</td> <td>{name}</td> <td>{$currency_symbol}{value}</td> <td>{$currency_symbol}{money}</td> <td>{start_time} ~ {end_time}</td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+					<div id="voucher-u" class="js-template">
+						<table class="simple">
+						<tr><th >账号</th> <th width="140">类型</th> <th width="100">面值</th> <th width="140">所需消费金额</th> <th width="180">有效期</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td>{account}</td> <td>{name}</td> <td>{$currency_symbol}{value}</td> <td>{$currency_symbol}{money}</td> <td>{start_time} ~ {end_time}</td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+					<div id="voucher-p" class="js-template">
+						<table class="simple">
+						<tr><th >账号</th> <th width="140">类型</th> <th width="100">面值</th> <th width="140">所需消费金额</th> <th width="180">有效期</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td>{account}</td> <td>{name}</td> <td>{$currency_symbol}{value}</td> <td>{$currency_symbol}{money}</td> <td>{start_time} ~ {end_time}</td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$("#voucher-n").Paging({
+                url:'{url:/ucenter/get_voucher}',
+                params:{status:'n'}
+    });
+    $("#voucher-u").Paging({
+                url:'{url:/ucenter/get_voucher}',
+                params:{status:'u'}
+    });
+    $("#voucher-p").Paging({
+                url:'{url:/ucenter/get_voucher}',
+                params:{status:'p'}
+    });
+</script>

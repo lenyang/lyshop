@@ -1,0 +1,75 @@
+<link type="text/css" rel="stylesheet" href="{url:#css/product.css}" />
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<div class="container clearfix">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="clearfix uc-content">
+		<h1 class="title"><span>商品咨询：</span></h1>
+		<div class="tab">
+			<ul class="tab-head">
+				<li>已经答复咨询<i></i></li>
+				<li>未答复咨询<i></i></li>
+			</ul>
+			<div class="tab-body ucenter">
+				<div id="consult-y" class="clearfix js-template">
+					<div class="page-nav"></div>
+					<div class="page-content consult-item">
+                        <div class="consult-q">
+                            <div class="head">
+                                <img  src="{url:@$user[head_pic]}" style="width:80px;height:80px;">
+                                <strong>我</strong>
+                                <i class="arrow"><b></b></i>
+                            </div>
+                            <div class="consult-content consult-goods">
+                            <a class="goods-img" href="{url:/index/product/id/}{gid}" target="_blank"><img src="{img}" width="100" height="100"></a>
+                            <p class="title"> <a href="{url:/index/product/id/}{gid}" target="_blank">{name}</a>   价格：<b class="red">{$currency_symbol}{sell_price}</b></p>
+                            {question}
+                                <p class="tr">{ask_time}</p>
+                            </div>
+                        </div>
+                        <div class="consult-a {question||hidden} ucenter-a" >
+                            <div class="head">
+                                <img src="{url:#images/no-img.png}" width="80" height="80">
+                                <strong>商城客服</strong>
+                                <i class="arrow"><b></b></i>
+                            </div>
+                            <div class="consult-content">{content}
+                                <p class="tl">{reply_time|今天}</p>
+                            </div>
+                        </div>
+                    </div>
+					<div class="page-nav"></div>
+				</div>
+				<div id="consult-n" class="js-template clearfix">
+					<div class="page-nav"></div>
+
+					<div class="page-content consult-item">
+                        <div class="consult-q">
+                            <div class="head">
+                                <img  src="{url:@$user[head_pic]}" style="width:80px;height:80px;">
+                                <strong>我</strong>
+                                <i class="arrow"><b></b></i>
+                            </div>
+                            <div class="consult-content consult-goods">
+                            <a class="goods-img" href="{url:/index/product/id/}{gid}" target="_blank"><img src="{img}" width="100" height="100"></a>
+                            <p class="title"> <a href="{url:/index/product/id/}{gid}" target="_blank">{name}</a>   价格：<b class="red">{$currency_symbol}{sell_price}</b></p>
+                            {question}
+                                <p class="tr">{ask_time}</p>
+                            </div>
+                        </div>
+                    </div>
+					<div class="page-nav"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$("#consult-n").Paging({
+		url:'{url:/ucenter/get_consult}',
+		params:{status:'n'}
+	});
+	$("#consult-y").Paging({
+		url:'{url:/ucenter/get_consult}',
+		params:{status:'y'}
+	});
+</script>

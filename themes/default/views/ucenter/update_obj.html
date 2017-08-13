@@ -1,0 +1,90 @@
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=tinysimple');}
+{echo:JS::import('dialogtools');}
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<div class="container clearfix">
+    {widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+    {set:$objInfo=array('password'=>'登录密码','email'=>'邮箱','mobile'=>'手机号码','paypwd'=>'支付密码')}
+    <div class="uc-content">
+        <h1 class="title"><span>修改{$objInfo[$obj]}</span></h1>
+        <div>
+            {set:$items=array("验证身份","修改".$objInfo[$obj],"完成");} {widget:name=sub_navs action=crumbs items=$items step=3 current=2}
+        </div>
+        <div class="simple-box " >
+            <form action="{url:/ucenter/update_obj_act}" name="form_update" class="simple" method="post">
+                <ul class="form  ">
+                {if:$obj=='password' || $obj=='paypwd'}
+                    <li><span class="perfix fa">&#xf023;</span><input bind="repassword" minlen=6 maxlen=20 class="input" type="password" name="password" pattern="required" placeholder="密码" alt="6-20任意字符组合"></li>
+                    <li><span class="perfix fa">&#xf084;</span><input bind="password" minlen=6 maxlen=20 class="input" type="password"  name="repassword" pattern="required" placeholder="确认密码" alt="6-20任意字符组合"></li>
+                {elseif:$obj=='mobile'}
+                <li>
+                    <span class="perfix fa">&#xf095;</span><input type="text" id="account" class="input" name="account" pattern="mobi" placeholder="手机号码" value="{$mobile}" alt="正确的手机号码">
+                </li>
+                <li>
+                        <span class="perfix fa">&#xf02a;</span><input type="text"  name="code" pattern="\d{6}" alt="6位短信验证码" placeholder="短信验证码"><label></label>
+                        <input id="sendSMS" type="button" class="btn btn-default" value="获取短信验证码">
+                    </li>
+                {elseif:$obj=='email'}
+                <li>
+                    <span class="perfix fa">&#xf003;</span><input type="text" id="account" class="input" name="account" pattern="email" placeholder="邮箱地址" value="{$account}" alt="正确邮箱地址">
+                </li>
+                <li>
+                    <span class="perfix fa">&#xf02a;</span><input type="text"  name="code" pattern="\d{6}" alt="" placeholder="邮箱收到的验证码"><label></label>
+                        <input id="sendEmail" type="button" class="btn btn-default" value="发送邮件">
+                </li>
+                {/if}
+                <li><div id="msgInfo" ></div></li>
+                    <li><input type="submit" name="" class="btn" value="提交修改"></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+{if:isset($invalid)}
+    var form = new Form("form_update");
+    //autoValidate.showMsg({id:$("input[name='{$invalid['field']}']").get(0),error:true,msg:"{$invalid['msg']}"});
+    $("#msgInfo").text("{$invalid['msg']}");
+{/if}
+   $("#sendSMS").click(function() {
+    var account = $("#account").val();
+    $.post("{url:/ucenter/send_objcode}",{account:account},function(result) {
+        if (result['status'] == 'success') {
+            lockSendButton($("#sendSMS"),120);
+        } else {
+            art.dialog.tips("<p class='fail'>" + result['msg'] + "</p>");
+            lockSendButton($("#sendSMS"),data['haveTime']);
+        }
+    }, 'json');
+});
+
+$("#sendEmail").on('click',function(){
+    var account = $("#account").val();
+    $.post("{url:/ucenter/send_objcode}",{account:account},function(data){
+        if(data['status']=='fail'){
+            art.dialog.tips("<p class='fail'>"+data['msg']+"</p>");
+            lockSendButton($("#sendEmail"),data['haveTime']);
+        }else{
+            lockSendButton($("#sendEmail"),120);
+        }
+    },'json');
+});
+
+function lockSendButton(obj,haveTime){
+    var send_sms = obj;
+    send_sms.attr("disabled", true);
+    send_sms.addClass("btn-disable");
+    var i = haveTime;
+    send_sms.val(i + '秒后重新获取');
+    var timer = setInterval(function() {
+        i--;
+        send_sms.val(i + '秒后重新获取');
+        if (i <= 0) {
+            clearInterval(timer);
+            send_sms.val('获取验证码');
+            send_sms.removeClass("btn-disable");
+            send_sms.attr("disabled", false);
+        }
+    }, 1000);
+}
+</script>

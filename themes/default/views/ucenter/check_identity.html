@@ -1,0 +1,113 @@
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=tinysimple');}
+{echo:JS::import('dialogtools');}
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<style type="text/css">
+.valid-msg,.invalid-msg{
+    display: none;
+}
+</style>
+<div class="container clearfix">
+    {widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+    {set:$objInfo=array('password'=>'登录密码','email'=>'邮箱','mobile'=>'手机号码','paypwd'=>'支付密码')}
+    <div class="uc-content">
+        <h1 class="title"><span>修改{$objInfo[$obj]}</span></h1>
+        {if:$type!=null}
+        <div>
+            {set:$items=array("验证身份","修改".$objInfo[$obj],"完成");} {widget:name=sub_navs action=crumbs items=$items step=3 current=1}
+        </div>
+        <div class="simple-box "  style="">
+            <form action="{url:/ucenter/verified}" class="simple" method="post">
+                <input type="hidden" name="obj" value="{$obj}">
+                <input type="hidden" name="type" value="{$type}">
+                <ul class="form">
+                    <li>
+                        {if:$type=='email'}
+                        已验证邮箱：<strong>{$userInfo['email']}</strong>
+                        {elseif:$type=='mobile'}
+                        已验证手机：<strong>{$userInfo['mobile']}</strong>
+                        {elseif:$type=='paypwd'}
+                        <span class="perfix fa">&#xf02a;</span><input type="password"  name="code" pattern="required" alt="" placeholder="支付密码"><label></label>
+                        {/if}
+                        {list:items=$verified}
+                        <a class="link" href="{url:/ucenter/check_identity/obj/$obj/type/$key}">通过{$item}验证</a>
+                        {/list}
+                    </li>
+                    {if:$type=='email'}
+                    <li>
+                        <span class="perfix fa">&#xf02a;</span><input type="text"  name="code" pattern="\d{6}" alt="" placeholder="邮箱收到的验证码"><label></label>
+                        <input id="sendEmail" type="button" class="btn btn-default" value="发送邮件">
+                    </li>
+                    {elseif:$type=='mobile'}
+                    <li>
+                        <span class="perfix fa">&#xf02a;</span><input type="text"  name="code" pattern="\d{6}" alt="6位短信验证码" placeholder="短信验证码"><label></label>
+                        <input id="sendSMS" type="button" class="btn btn-default" value="获取短信验证码">
+                    </li>
+                    {/if}
+                    <li><div id="msgInfo" ></div></li>
+                    <li><input type="submit" name="" class="btn" value="提交验证"></li>
+                </ul>
+            </form>
+        </div>
+        {else:}
+        <div class="message_error">
+            <p><i class="fail"></i><span >手机验证、邮箱验证、支付密码至少有一种开启才可修改密码。</span></p>
+        </div>
+        {/if}
+        <div class="box" style="padding:20px; border:none;">
+            <h2><strong>为什么要进行身份验证？</strong></h2>
+            <div class="mt10">
+            <p>
+            1. 为保障您的账户信息安全，在变更账户中的重要信息时需要身份验证，感谢您的理解与支持。</p>
+            <p>
+            2. 验证身份遇到问题？请提供用户名，手机号，历史发票，点击联系我司在线客服。</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+{if:isset($invalid)}
+    var form = new Form();
+    autoValidate.showMsg({id:$("input[name='{$invalid['field']}']").get(0),error:true,msg:"{$invalid['msg']}"});
+    $("#msgInfo").text("{$invalid['msg']}");
+{/if}
+$("#sendSMS").click(function() {
+    $.post("{url:/ucenter/send_code}",{type:'mobile',obj:'{$obj}'},function(result) {
+        if (result['status'] == 'success') {
+            lockSendButton($("#sendSMS"),120);
+        } else {
+            art.dialog.tips("<p class='fail'>" + result['msg'] + "</p>");
+            lockSendButton($("#sendSMS"),data['haveTime']);
+        }
+    }, 'json');
+});
+
+$("#sendEmail").on('click',function(){
+    $.post("{url:/ucenter/send_code}",{type:'email',obj:'{$obj}'},function(data){
+        if(data['status']=='fail'){
+            //art.dialog.alert("<p>"+data['msg']+"</p>");
+            lockSendButton($("#sendEmail"),data['haveTime']);
+        }else{
+            lockSendButton($("#sendEmail"),120);
+        }
+    },'json');
+});
+
+function lockSendButton(obj,haveTime){
+    var send_sms = obj;
+    send_sms.attr("disabled", true);
+    send_sms.addClass("btn-disable");
+    var i = haveTime;
+    send_sms.val(i + '秒后重新获取');
+    var timer = setInterval(function() {
+        i--;
+        send_sms.val(i + '秒后重新获取');
+        if (i <= 0) {
+            clearInterval(timer);
+            send_sms.val('获取验证码');
+            send_sms.removeClass("btn-disable");
+            send_sms.attr("disabled", false);
+        }
+    }, 1000);
+}
+</script>

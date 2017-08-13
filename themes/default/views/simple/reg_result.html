@@ -1,0 +1,19 @@
+{echo:JS::import('form')}
+<div class="mt20 dialog clearfix tc">
+	<div class="status-bar">
+            <span><i class="icon-success-48"></i>恭喜您，注册成功！</span>
+       </div>
+	<div class="mt20 tl">
+		{if:Req::args('user_status')==1}
+		<p>
+			您的昵称为：<b>{echo:Req::args('user_name')}</b> 会展示在页面顶部和商品评价等地方，如不希望暴露，建议<b><a href="{url:/ucenter/info}" class="red">修改昵称</a></b>,现在您可以尽情的购物了！
+		</p>
+		{else:}
+		<p>
+			您的昵称为：<b>{echo:Req::args('user_name')}</b> 账户还未激活，请通过邮箱进行 <a href="{echo:Req::args('mail_host')}" class="btn btn-mini" target="_blank">激活账户</a>
+		</p>
+		{/if}
+
+	</div>
+	<div class="mt20"><a href="{url:/index/index}" class="btn btn-gray">返回首页</a> <a href="{url:/ucenter/index}" class="btn btn-main">用户中心</a></div>
+</div>

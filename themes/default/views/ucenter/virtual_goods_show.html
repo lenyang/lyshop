@@ -1,0 +1,57 @@
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<link type="text/css" rel="stylesheet" href="{url:#css/font-awesome.min.css}" />
+<style type="text/css">
+	.card{
+		margin:10px;
+	}
+	.card .content{
+		background-color:#00ddcc;height:120px;padding:10px 30px;border-bottom:5px dotted #FFF;
+		color: #FFFFFF;font-size: 16px;
+	}
+	.card .content h2{
+		text-align: center;
+		margin: 10px 0;
+	}
+	.card .content .item{
+		padding: 5px 0;
+	}
+	.card .footer{
+		height:30px;border:#f0f0f0 solid 1px;border-top:none;
+		padding: 10px;
+	}
+	a{
+		text-decoration: none;
+	}
+</style>
+<div class="">
+	<div class="uc-content" style="margin-left:0;">
+			{if:$payStatus}
+				{if:$goods_type==1 || $goods_type == 2}
+				{list: items=$virtual_list }
+				<div class="card">
+					<div class="content">
+						<h2>{$item['name']}</h2>
+						<div class="item">账号：{$item['account']}</div>
+						<div class="item">密码：{$item['password']}</div>
+					</div>
+					<div class="footer">
+						<div style="width:50%;float:left">{$item['start_time']}</div>
+						<div style="width:50%;float:left;text-align:right;">{$item['end_time']}</div>
+					</div>
+				</div>
+				{/list}
+				{elseif:$goods_type == 3}
+					<div  style="margin:120px 10px 20px 10px;text-align:center;line-height:32px;">
+						<a href="{url:/ucenter/download/code/$code}">
+							<i class="fa fa-file-zip-o" style="font-size:48;color:#cc00dd"></i>
+							<br/>
+						文件下载</a>
+					</div>
+				{/if}
+			{else:}
+				<div  style="margin:120px 10px 20px 10px;text-align:center;line-height:32px;">
+						还没付款，无法获取！
+				</div>
+			{/if}
+	</div>
+</div>

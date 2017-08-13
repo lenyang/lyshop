@@ -1,0 +1,179 @@
+{echo:JS::import('dialog?skin=tinysimple');}
+{echo:JS::import('dialogtools');}
+<!--S 产品展示-->
+<link type="text/css" rel="stylesheet" href="{url:#css/product.css}" />
+<script type='text/javascript' src="{url:#js/jquery.enlarge.js}"></script>
+<script type="text/javascript">
+	//$("body").addClass("screen_960");
+</script>
+
+<div class="bg-base">
+    <ol class="bread-crumb container">
+      {list:items=$category_nav}
+        {if:$item != end($category_nav)}
+        <li><a class="category-{$key}" href="{url:/index/category/cid/$item[id]}">{$item['name']}</a></li>
+        {else:}
+        <li><span class="category-{$key}">{$item['name']}</span></li>
+        {/if}
+      {/list}
+    </ol>
+</div>
+<div class="container">
+<div class="goods-detail mt10 clearfix" style="position: relative;">
+
+    <div class="content">
+        <!--S 筛选部分-->
+        <div id="selector">
+            <div class="spec-attr box">
+                <h2><span class="red" >{$current_category['name']}</span> 商品筛选</h2>
+                <!--S 品牌-->
+                {if:$has_brand}
+                <dl class="attr clearfix">
+                    <dt class="attr-key">品牌：</dt>
+                    <dd class="attr-value">
+                        {list:items=$has_brand}
+                        <a {if:isset($selected['brand']) && $selected['brand']==$item['id']} class="select" {set:$url_tem=str_replace("/brand/$item[id]","",$url);}href="{url:$url_tem}" {else:}href="{url:$url/brand/$item[id]}" {/if} >{$item['name']}({$brand_num[$item['id']]})<i></i></a>
+                        {/list}
+                    </dd>
+                </dl>
+                {/if}
+                <!--E 品牌-->
+                <!--S 价格-->
+                {if:$price_range}
+                <dl class="attr clearfix">
+                    <dt class="attr-key">价格：</dt>
+                    <dd class="attr-value">
+                        {list:items=$price_range}
+                        <a {if:isset($selected['price']) && $selected['price']==$item} class="select" {set:$url_tem=str_replace("/price/$item","",$url);}href="{url:$url_tem}" {else:}href="{url:$url/price/$item}" {/if} >{if:strpos($item,'-')===false}{$item}以上{else:}{$item}{/if}<i></i></a>
+                        {/list}
+                    </dd>
+                </dl>
+                {/if}
+                <!--E 价格-->
+
+                {list:items=$spec_attr}
+                <dl class="attr clearfix">
+                    <dt class="attr-key">{$item['name']}：</dt>
+                    <dd class="attr-value">
+                        {list:items=$item['values'] item=$value}
+                        <a {if:isset($selected[$item['id']]) && $selected[$item['id']]==$value['id']} class="select" {set:$url_tem=str_replace("/$item[id]/$value[id]","",$url);}href="{url:$url_tem}" {else:}href="{url:$url/$item[id]/$value[id]}" {/if} >{$value['name']}<i></i></a>
+                        {/list}
+                    </dd>
+                </dl>
+                {/list}
+            </div>
+            <div id="select-more">
+                <div class="attr-extra"><div></div></div>
+            </div>
+        </div>
+        <!--E 筛选部分-->
+        <!--S 商品部分-->
+        <div class="mt10 product_show  product-list  clearfix">
+            <div class="clearfix" >
+                <div class="sort-bar">
+                    <span>排序：</span>
+                    <a href="{url:$url/sort/0}" {if:$sort==0}class="current"{/if}>默认<i class="ie6png"></i></a>
+
+                    <a href="{url:$url/sort/1}" {if:$sort==1}class="current" {/if}>销量<i></i></a>
+                    <a href="{url:$url/sort/2}" {if:$sort==2}class="current"{/if}>评论数<i class="ie6png"></i></a>
+                    <a {if:$sort==4} href="{url:$url/sort/3}" class="current-2" {elseif:$sort==3}href="{url:$url/sort/4}" class="current"{else:} href="{url:$url/sort/4}" {/if}>价格<i class="ie6png"></i></a>
+                    <a href="{url:$url/sort/5}" {if:$sort==5}class="current"{/if}>最新<i class="ie6png"></i></a>
+                </div>
+            </div>
+            <dl>
+                <dd>
+            <ul class="clearfix">
+                {if:isset($goods['data'])}
+                {list:items=$goods['data']}
+                <li>
+                    <dl class="product">
+                        <dt class="img"><a href="{url:/index/product/id/$item[id]}"><img src="{echo:Common::thumb($item['img'],260,260)}" width=260></a></dt>
+                        <dd class="title"><a href="{url:/index/product/id/$item[id]}">{echo:TString::msubstr($item['name'],0,18)}</a></dd>
+                        <dd><span class="price">{$currency_symbol}{$item['sell_price']}</span></dd>
+                        <dd class="product-ext">
+                            <a href="{url:/index/product/id/$item[id]}" id="add-cart" class="btn btn-main" style="padding:6px 20px;">商品详情</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="javascript:;" class="attention btn btn-info fr" val="{$item['id']}"><i class="icon-hart-16 ie6png"></i><span>关注</span></a>
+                        </dd>
+                    </dl>
+                </li>
+                {/list}
+                {/if}
+            </ul>
+        </dd>
+        </dl>
+        </div>
+        <div class="page-nav">{$goods['html']}</div>
+        <!--E 商品部分-->
+    </div>
+</div>
+</div>
+<!-- S 脚本处理 -->
+<script>
+    var attr_extra = '';
+    $(".attr").each(function(i){
+        var self = $(this);
+        if(i>3){
+            //self.css("display","none");
+           // attr_extra += self.find(".attr-key:eq(0)").text()+"、";
+        }
+        if(self.find(".attr-value").get(0).scrollHeight>self.height()){
+            var span = $("<div class='o-more'>更多<b></b></div>");
+            self.append(span);
+            if(self.find('.select').size()>0){
+                span.html('收起<b></b>');
+                span.parent().addClass("unflod");
+            }
+            span.on("click",function(){
+                if($(this).text()=='更多'){
+                    $(this).html('收起<b></b>');
+                    $(this).parent().addClass("unflod");
+                }
+                else {
+                    $(this).html('更多<b></b>');
+                    $(this).parent().removeClass("unflod");
+                }
+            });
+        }
+    });
+
+    attr_extra = $(".attr:gt(3) .attr-key").text();
+    attr_extra = $.trim(attr_extra);
+    attr_extra = attr_extra.replace(/：/gi,'、');
+    attr_extra = attr_extra.replace(/、$/gi,'');
+    if($(".attr:gt(3)").size()>0){
+
+        if($(".attr:gt(3)").find(".select").size()>0){
+            $(".attr:gt(3)").css("display","block");
+            $(".attr-extra div:eq(0)").html('收起<b></b>');
+            $(".attr-extra").addClass("unflod");
+        }else{
+            $(".attr:gt(3)").css("display","none");
+            $(".attr-extra div:eq(0)").html('更多选项（'+attr_extra+'）<b></b>');
+            $(".attr-extra").removeClass("unflod");
+        }
+    }else{
+        $("#select-more").css("display","none");
+    }
+    $(".attr-extra:eq(0)").on("click",function(){
+        if($(".attr:hidden").size()>0){
+            $(".attr:gt(3)").css("display","block");
+            $(".attr-extra div:eq(0)").html('收起<b></b>');
+            $(".attr-extra").addClass("unflod");
+        }else{
+            $(".attr:gt(3)").css("display","none");
+            $(".attr-extra div:eq(0)").html('更多选项（'+attr_extra+'）<b></b>');
+            $(".attr-extra").removeClass("unflod");
+        }
+
+    })
+
+$(".attention").on("click",function(){
+    var id = $(this).attr("val");
+        $.post("{url:/index/attention}",{goods_id:id},function(data){
+            if(data['status']==2) art.dialog.tips("<p class='warning'>已关注过了该商品！</p>");
+            else if(data['status']==1) art.dialog.tips("<p class='success'>成功关注了该商品!</p>");
+            else art.dialog.tips("<p class='warning'>你还没有登录！</p>");
+        },'json')
+    })
+</script>
+<!-- E 脚本处理 -->

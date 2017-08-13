@@ -1,0 +1,194 @@
+{echo:JS::import('dialog?skin=tinysimple');}
+{echo:JS::import('dialogtools');}
+{set:$config = Config::getInstance(); $other = $config->get('other'); $reg_way = isset($other['other_reg_way'])?$other['other_reg_way']:0;$reg_way = explode(',',$reg_way);$reg_way = array_flip($reg_way);}
+<div class="magic-bg right" >
+    <div class="simple-box "  style="width:480px;height:540px;left:100px">
+        <div class="title">
+        <div class="sub-1"><h1>用户注册</h1></div><div class="sub-2"><a href="{url:/simple/login}">会员登录</a></div>
+        </div>
+        <form action="{url:/simple/reg_act}" class="reg-box" method="post" callback="checkReadme">
+
+            <input type="hidden" name="redirectURL" value="{$redirectURL|$this->perPage()}">
+            <ul class="form  ">
+                {if:isset($reg_way[0])}
+                <li><span class="perfix fa">&#xf003;</span><input name="email" id="email"  class="input" pattern="email" placeholder="邮箱(例如:demo@worlduhot.com)" alt="邮箱格式不正确!"></li>
+                {/if}
+                {if:isset($reg_way[1])}
+                {if:class_exists('SMS')}
+                <li>
+                    <span class="perfix fa">&#xf095;</span><input type="text" id="mobile" class="input" name="mobile" pattern="mobi" placeholder="手机号码" value="{$mobile}" alt="正确的手机号码">
+                </li>
+                {else:}
+                <li>
+                    非对应授权版本无法使用手机注册用户功能！
+                </li>
+                {/if}
+                {/if}
+                <li><span class="perfix fa">&#xf023;</span><input bind="repassword" minlen=6 maxlen=20 class="input" type="password" name="password" pattern="required" placeholder="密码" alt="6-20任意字符组合"></li>
+                <li><span class="perfix fa">&#xf084;</span><input bind="password" minlen=6 maxlen=20 class="input" type="password"  name="repassword" pattern="required" placeholder="确认密码" alt="6-20任意字符组合"></li>
+
+                {if:isset($reg_way[1]) && class_exists('SMS') && SMS::getInstance()->getStatus()}
+                <li>
+                    <span class="perfix fa">&#xf02a;</span><input type="text" class="input-sm" name="mobile_code" pattern="\d{6}" alt="6位短信验证码" placeholder="短信验证码"><label></label><input id="sendSMS" type="button" class="btn btn-default" value="获取短信验证码"></dd>
+                </li>
+                {else:}
+                <li>
+                    <span class="perfix fa">&#xf02a;</span><input type="text" class="input-sm" name="verifyCode" id="verifyCode"  pattern="\w{4}" maxlength="4" style="width: 80px;" alt="验证码不正确" placeholder="验证码"><img id="captcha_img"  src="{url:/index/captcha/h/40/w/120/bc/f8f8f8}"><label><a href="javascript:void(0)" class="red" onclick="document.getElementById('captcha_img').src='{url:/index/captcha/h/40/w/120/bc/f8f8f8/random/}'+Math.random()">换一张</a></label>
+                </li>
+                {/if}
+                <li>
+                <dt>&nbsp;</dt><dd><input id="readme" type="checkbox" alt="同意后才可注册"><label></label><label>我已阅读并同意《<a class="" id="user-license" href="javascript:;">{$site_title}用户注册协议</a>》</label></dd>
+            </li>
+            <li><button class="btn btn-main " style="padding:10px 40px; width:100%">同意协议，立即注册</button></li>
+            {token:key=reg}
+            </ul>
+
+    </form>
+</div>
+</div>
+<div id="license-content" style="display:none;">
+    <div style="height:400px;overflow:auto">
+    {query:name=help where=id eq 14}
+    {$item['content']}
+    {/query}
+    </div>
+    <div class="mt10 tc"><a href="javascript:closeLicense();" class="btn btn-main">同意用户注册协议</a></div>
+</div>
+
+{echo:JS::import('form')}
+<script type="text/javascript">
+
+    var dlg;
+	$("#user-license").on("click",function(){
+		dlg = dialog({id:'license-dialog',opacity:0.3,padding:'20px 10px 10px 20px',width:900,title:'用户注册协议',content:document.getElementById('license-content'),lock:true});
+        dlg.showModal();
+	});
+
+	function closeLicense(){
+		$('#readme').attr("checked",'true');
+		autoValidate.showMsg({id:document.getElementById('readme'),error:false,msg:''});
+		dlg.close().remove();
+	}
+
+	$("#sendSMS").click(function(){
+		var data = 'mobile=' + $("#mobile").val()+'&r=' + Math.random();
+		if(autoValidate.validate(document.getElementById('mobile'))===false)return;
+
+		$.ajax({
+			type: "get",
+			url: "{url:/ajax/send_sms}",
+            data: data,
+            dataType:'json',
+            success:function(result){
+            	if(result['status']=='success'){
+            		$('#mobile').attr("readonly","readonly");
+            		var send_sms = $("#sendSMS");
+            		send_sms.attr("disabled",true);
+            		send_sms.addClass("btn-disable");
+            		var i = 120;
+                    send_sms.val(i + '秒后重新获取');
+                    var timer = setInterval(function () {
+                        i--;
+                        send_sms.val(i + '秒后重新获取');
+                        if (i <= 0) {
+                            clearInterval(timer);
+                            send_sms.val('获取短信验证码');
+                            $('#mobile').removeAttr("readonly");
+                            send_sms.removeClass("btn-disable");
+                            send_sms.attr("disabled",false);
+                        }
+                    }, 1000);
+            	}else{
+            		art.dialog.tips("<p class='fail'>"+result['msg']+"</p>");
+            	}
+            }
+        });
+	});
+
+	$("input[name='email']").on("change",function(event){
+		if(autoValidate.validate(event)){
+			$.post("{url:/ajax/email/email/}"+$(this).val(),function(data){
+			autoValidate.showMsg({id:document.getElementById('email'),error:!data['status'],msg:data['msg']});
+		},'json');
+		}
+	});
+
+    $("input[name='mobile']").on("change",function(event){
+        if(autoValidate.validate(event)){
+            $.post("{url:/ajax/mobile/mobile/}"+$(this).val(),function(data){
+            autoValidate.showMsg({id:document.getElementById('mobile'),error:!data['status'],msg:data['msg']});
+        },'json');
+        }
+    });
+
+	$("input[name='verifyCode']").on("change",function(){
+		$.post("{url:/ajax/verifyCode/verifyCode/}"+$(this).val(),function(data){
+			autoValidate.showMsg({id:document.getElementById('verifyCode'),error:!data['status'],msg:data['msg']});
+		},'json');
+	})
+	$("#readme").on("change",function(){
+		if($("#readme:checked").length>0)autoValidate.showMsg({id:document.getElementById('readme'),error:false,msg:''});
+		else autoValidate.showMsg({id:document.getElementById('readme'),error:true,msg:'同意后才可注册'});
+	});
+	function checkReadme(e){
+		if(e) return false;
+		else{
+			if($("#readme:checked").length>0)return true;
+			{
+				autoValidate.showMsg({id:document.getElementById('readme'),error:true,msg:'同意后才可注册'});
+				return false;
+			}
+		}
+	}
+	{if:isset($invalid)}
+		var form = new Form();
+		form.setValue('email', '{$email}');
+		autoValidate.showMsg({id:$("input[name='{$invalid['field']}']").get(0),error:true,msg:"{$invalid['msg']}"});
+	{/if}
+
+    $("input[pattern]").on("blur",function(event){
+            $(".invalid-msg , .valid-msg").hide();
+            var current_input = $(this);
+            var result = autoValidate.validate(event);
+            if(result){
+                    current_input.parent().removeClass('invalid').addClass('valid');
+                }else{
+                    current_input.parent().removeClass('valid').addClass('invalid');
+                }
+            if(result){
+                if(current_input.attr('id')=='email'){
+                    $.post("{url:/ajax/email/email/}"+$(this).val(),function(data){
+                        var msg = '合法用户';
+                        if(!data['status']){
+                            msg = '用户已存在';
+                            current_input.next().show();
+                            current_input.parent().removeClass('valid').addClass('invalid');
+                        }else{
+                            current_input.parent().removeClass('invalid').addClass('valid');
+                        }
+                        autoValidate.showMsg({id:document.getElementById('email'),error:!data['status'],msg:msg});
+                    },'json');
+                }if(current_input.attr('id')=='mobile'){
+                    $.post("{url:/ajax/mobile/mobile/}"+$(this).val(),function(data){
+                        var msg = '合法用户';
+                        if(!data['status']){
+                            msg = '用户已存在';
+                            current_input.next().show();
+                            current_input.parent().removeClass('valid').addClass('invalid');
+                        }else{
+                            current_input.parent().removeClass('invalid').addClass('valid');
+                        }
+                        autoValidate.showMsg({id:document.getElementById('mobile'),error:!data['status'],msg:msg});
+                    },'json');
+                }else if(current_input.attr('id')=='verifyCode'){
+                    $.post("{url:/ajax/verifyCode/verifyCode/}"+$(this).val(),function(data){
+                        autoValidate.showMsg({id:document.getElementById('verifyCode'),error:!data['status'],msg:data['msg']});
+                        if(!data['status']) current_input.next().show();
+                    },'json');
+                }
+                $(".invalid-msg").show();
+            }else{
+                current_input.next().show();
+            }
+        });
+</script>

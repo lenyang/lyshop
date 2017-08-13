@@ -1,0 +1,65 @@
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<!-- S 面包屑导航 -->
+<div class="bg-base">
+    <ol class="bread-crumb container">
+      <li><a  href="{url:/index/index}">首页</a></li>
+      <li><a  href="{url:/index/help_index}">帮助中心 </a></li>
+    </ol>
+</div>
+<!-- E 面包屑导航 -->
+<div class="container">
+<div class="mt10 clearfix" style="position: relative;">
+    <div class="sidebar fl" style="width:240px;">
+    <h2 class="header">帮助中心</h2>
+        <div class="box mt20">
+            {set:$help_category=array()}
+            {query:name=help}
+            {set:$help_category[$item['category_id']][]=$item}
+            {/query}
+            {query:name=help_category}
+            <h2>{$item['name']}</h2>
+            <ul class="menu-list">
+                {if:isset($help_category[$item['id']])}
+                {list:items=$help_category[$item['id']]}
+                <li><a {if:$id==$item['id']}class="current"{/if}  href="{url:/index/help/id/$item[id]}">{$item['title']}</a></li>
+                {/list}
+                {/if}
+            </ul>
+            {/query}
+        </div>
+    </div>
+	<div class="content" style="margin-left: 262px;">
+	{query:name=help where=id eq $id/}
+		{if:count($items)>0}
+		<div class="help-content p20">
+            {list:}
+			<h1 class="title"><span class="f16">{$item['title']}</span></h1>
+			<div class="mt10">
+                {$item['content']}
+			</div>
+            {/list}
+		</div>
+		{else:}
+		<div class="box help-content p20">
+		<h1 class="title"><span class="f16">帮助中心 - 帮助导航</span></h1>
+		<div class="mt10">
+            {query:name=help_category}
+            <dl class="help-nav">
+            <dt>{$item['name']}</dt>
+            <dd class="help-list">
+            	<ul>
+                {if:isset($help_category[$item['id']])}
+                {list:items=$help_category[$item['id']]}
+                <li><a {if:$id==$item['id']}class="current"{/if}  href="{url:/index/help/id/$item[id]}">{$item['title']}<span class="l-triangle"></span></a></li>
+                {/list}
+                {/if}
+                </ul>
+            </dd>
+            </dl>
+            {/query}
+		</div>
+		</div>
+		{/if}
+	</div>
+</div>
+</div>

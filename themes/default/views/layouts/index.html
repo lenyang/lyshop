@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="HandheldFriendly" content="True">
+    <meta name="keywords" content="{$seo_keywords}">
+    <meta name="description" content="{$seo_description}">
+    <title>{if:isset($seo_title) && isset($site_title) && ($seo_title == $site_title)}{$seo_title}{else:}{$seo_title}-{$site_title}{/if}</title>
+    <link rel="stylesheet" type="text/css" href="{url:#css/common.css}">
+    <link rel="stylesheet" type="text/css" href="{url:#css/font-awesome.min.css}">
+    <link rel="stylesheet" type="text/css" href="{url:#js/artdialog/tiny-dialog.css}">
+    <style type="text/css">
+        .swiper-container {width: 100%;}
+        .js-template{display:none !important;}
+    </style>
+    <script src="{url:#js/jquery.min.js}"></script>
+    <script src="{url:#js/artdialog/dialog-plus-min.js}"></script>
+    <script src="{url:#js/common.js}"></script>
+    <script src="{url:#js/tinyslider.js}"></script>
+    <script type="text/javascript">
+        var server_url = '{url:@}__con__/__act__';
+        var Tiny = {user:{name:'{$user['name']|''}',id:'{$user['id']|0}',online:{$user['id']|'true'|'false'}}};
+    </script>
+</head>
+
+<body>
+    <!-- S 头部区域 -->
+    <div id="header">
+        <div class="topbar">
+            <div class="layout-2 container">
+                <div class="sub-1">{if:isset($user['name'])}你好:{$user['name']} - {/if}{$site_name}！
+                </div>
+                <div class="sub-2">
+                    <ul class="nav-x">
+                        <li class="item down">
+                            <a href="{url:/ucenter/index}">会员中心<i class="fa">&#xf107;</i></a>
+                            <div class="dropdown user-box">
+                                {set:$sidebar_nav = array('我的订单'=>'order', '我的关注'=>'attention', '商品咨询'=>'consult', '商品评价'=>'review', '我的消息'=>'message', '收货地址'=>'address', '我的优惠券'=>'voucher', '账户金额'=>'account');}
+                                <ul class="user-center">
+                                    {list:items=$sidebar_nav }
+                                    <li class="link"><a href="{url:/ucenter/$item}">{$key}</a></li>
+                                    {/list}
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="item split"></li>
+                        <li class="item down"><a href="">关注商城</a>
+                            <div class="dropdown">
+                                <img src="{url:@static/images/weixin.jpg}">
+                            </div>
+                        </li>
+                        <li class="item split"></li>
+                        <li class="item"><a href="{url:/ucenter/order}">我的订单</a></li>
+                        <li class="item split"></li>
+                        {if:$user}
+                        <li class="item"><a href="{url:/simple/logout}">安全退出</a></li>
+                        {else:}
+                        <li class="item"><a class="normal" href="{url:/simple/login}">登录</a>/<a class="normal" href="{url:/simple/reg}">注册</a></li>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container head-main">
+            <div class="sub-1 logo" style="background-image: url({url:@$site_logo});"></div>
+            <div class="sub-2">
+                <form id="search-form" class="search-form" action="{url:/}" method="get">
+                    <input type="hidden" name="con" value="index">
+                    <input type="hidden" name="act" value="search">
+                    {token:}
+                    <input  class="search-keyword" id="search-keyword" class="txt-keyword" name="keyword" value="{$keyword}" type="text">
+                    <button class="btn-search ">搜索</button>
+
+                    <p id="tags-list">{query:name=tags order=is_hot desc,sort desc,num desc limit=3}<a href="#">{$item['name']}</a>{/query}</p>
+                </form>
+            </div>
+            <div class="sub-3">
+                <div class="shopping" id="shopping-cart"><i class="icon-cart-32"></i>购物车
+                    <div class="dropdown">
+                        <ul class="cart-box " id="cart-list">
+                            {set:$total=0.00;}{if:$cart}{list:items=$cart} {set:$total += $item['amount'];}
+                            <li class="cart-item" id="{$item['id']}">
+                                <div class="pic">
+                                    <a class="card-pic" href="{url:/index/product/id/$item[goods_id]}" target="_blank" title="{$item['name']}"><img src="{url:@$item[img]}" width="50" height="50"></a>
+                                </div>
+                                <div class="spec">
+                                    {list:items=$item['spec'] item=$spec}
+                                    <p title="{$spec['name']}:{$spec['value'][2]}">{$spec['value'][2]}</p>
+                                    {/list}
+                                </div>
+                                <div class="num">{$item['num']}</div>
+                                <div class="price" title="{$item['amount']}">{$item['amount']}</div>
+                                <a class="icon-close-16 ie6png" productid="{$item['id']}"></a>
+                            </li>
+                            {/list}
+                            {else:}
+                            <li><div>购物车中还没有商品，赶紧选购吧！</div></li>
+                            {/if}
+
+                        </ul>
+                        <div class="cart-count">
+                            <span>合计：</span><span class="cart-total">{$total}</span>
+                            <a href="{url:/simple/cart}" class="btn btn-main">去购物车结算</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- S 导航栏 -->
+        <div class="nav">
+            <ul class="container">
+                <li class="category-box">
+                    <div class="link">
+                        <a href="javascript:;">全部商品分类<i class="triangle-b"></i></a>
+                    </div>
+                    <ul class="category">
+                        {set:$current_category_ids='';$parent_category='';}
+                        {list:items=$category item=$categ}
+                        {if:$categ['nav_show']==1}
+                        <li>
+                            <a href="{url:/index/category/cid/$categ[id]}">
+                                {if:isset($categ['id'])}
+                                {set:$current_category_ids=$categ['id'].',';$parent_category=$categ['id'];}
+                                {/if} {$categ['title']}<i class="fa">&#xf105;</i>
+                            </a>
+                            <div class="category-sub">
+                                <ul class="sub">
+                                    {list:items=$categ['child'] item=$child}
+                                    {if:$child['nav_show']==1}
+                                    <li>
+                                        <h5>
+                                            <a href="{url:/index/category/cid/$child[id]}">
+                                                {if:isset($child['id'])}
+                                                {set:$current_category_ids.=$child['id'].',';}
+                                                {/if}
+                                                {$child['title']}
+                                            </a>
+                                        </h5>
+                                        <p>
+                                            {if:isset($child['child'])}
+                                            {list:items=$child['child'] item=$grandson}
+                                            {if:$grandson['nav_show']==1}
+                                            <a href="{url:/index/category/cid/$grandson[id]}">
+                                                {if:isset($grandson['id'])}
+                                                {set:$current_category_ids.=$grandson['id'].',';}{/if}
+                                                {$grandson['title']}
+                                            </a>
+                                            {/if}
+                                            {/list}
+                                            {/if}
+                                        </p>
+                                    </li>
+                                    {/if}
+                                    {/list}
+                                </ul>
+                            </div>
+                        </li>
+                        {/if}
+                        {/list}
+                    </ul>
+                </li>
+                <li class="link"><a href="{url:/index/index}">首页</a></li>
+                {query:name=nav where=type eq 'main' and enable eq 1 order=`sort` desc}
+                <li class="link"><a href="{if:strstr($item['link'],'http://')===false}{url:$item[link]}{else:}{$item['link']}{/if}" target="{if:$item['open_type']==1}_blank{else:}_self{/if}" >{$item['name']}</a></li>
+                {/query}
+            </ul>
+        </div>
+        <!-- E 导航栏 -->
+    </div>
+    <!-- E 头部区域 -->
+    <!-- S 主控区域 -->
+    <div id="main">
+        {__viewcontents}
+    </div>
+    <!-- E 主控区域 -->
+
+    <!-- S 底部区域 -->
+    <div id="footer">
+        <div class="promise">
+            <div class="clearfix container">
+                <dl>
+                    <dt class="icon-1"></dt>
+                    <dd>
+                        <p class="title">诚信交易</p>
+                        <p>所有产品均出正规渠道采购</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-2"></dt>
+                    <dd>
+                        <p class="title">60元包邮</p>
+                        <p>全国各地，满60元快递包邮</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-3"></dt>
+                    <dd>
+                        <p class="title">极速更新</p>
+                        <p>所有商品信息及时更新</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-4"></dt>
+                    <dd>
+                        <p class="title">7天退换货</p>
+                        <p>会员享受7天无理由退换货</p>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt class="icon-5"></dt>
+                    <dd>
+                        <p class="title">真实拍摄</p>
+                        <p>100%真实拍摄，杜绝虚假</p>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        <div class="helps clearfix container">
+            {query:name=help_category order=sort desc limit=5}
+            <dl >
+                <dt class="clearfix"><span class="icon-{$item['alias']} fl"></span><a href="javascript:;">{$item['name']}</a></dt>
+                {query:name=help where= category_id eq $item[id] item=$help cache=true cacheTime=1200}
+                <dd><a href="{url:/index/help/id/$help[id]}">{$help['title']}</a></dd>
+                {/query}
+            </dl>
+            {/query}
+            <div class="col-contact">
+                <p class="phone">000-000-0000</p>
+                <p>周一至周日 8:00-18:00
+                    <br>（仅收市话费）</p>
+                    <a class="btn btn-main">24小时在线客服</a>
+                </div>
+            </div>
+                <!-- E 底部区域 -->
+                <script>
+                    $(".slider").Slider();
+                    $(".category li").mouseenter(function() {
+                        $(this).addClass("hover");
+                    }).mouseleave(function() {
+                        $(this).removeClass("hover");
+                    });
+
+                    $("#tags-list a").each(function(){
+                        $(this).on("click",function(){
+                            $("#search-keyword").val($(this).text());
+                            $("#search-form").submit();
+                        })
+                    });
+                    $(".category-box").mouseenter(function(){
+                        $(this).addClass("on");
+                    }).mouseleave(function(){
+                        $(this).removeClass("on");
+                    });
+
+                    function updateCart(data){
+                        var card_items = '';
+                        for(var i in data){
+                            var spec = data[i]['spec'];
+                            var spec_str = '';
+                            for(var k in spec){
+                                spec_str +="<p>"+spec[k]['value'][2]+"</p>";
+                            }
+                            card_items += '<div class="cart-item" id="'+i+'"><div class="pic"><img src="{url:@}'+data[i]['img']+'" width="50" height="50"></div><div class="spec">'+spec_str+'</div><div class="num">'+data[i]['num']+'</div><div class="price">'+(data[i]['amount'])+'</div><a class="icon-close-16 ie6png" productid="'+data[i]['id']+'"></a></div>';
+                        }
+                        $("#cart-list").empty().append(card_items);
+                        changeCartInfo();
+                        bindDelEvent();
+                    }
+                    bindDelEvent();
+                    function bindDelEvent(){
+                        $("#shopping-cart .icon-close-16").on("click",function(){
+                            var btn_close = $(this);
+                            $.post("{url:/index/cart_del}",{id:btn_close.attr("productid")},function(){
+                                btn_close.parent().remove();
+                                changeCartInfo();
+                                $("#card-wrap").css({top:1-$("#card-wrap").outerHeight()},"fast");
+                            },"json");
+                        });
+                    }
+
+                    function changeCartInfo(){
+                        $(".cart-product-num").text($(".cart-item").size());
+                        var total = 0.00;
+                        $(".cart-item .price").each(function(){
+                            total += parseFloat($(this).text());
+                        });
+                        $(".cart-total").text(total.toFixed(2));
+                        if($(".cart-item").size()==0){
+                            $("#cart-list").empty().append('<li><div>购物车中还没有商品，赶紧选购吧！</div></li>');
+                        }
+                    }
+                    $("#tags-list a").each(function(){
+                        $(this).on("click",function(){
+                            $("#search-keyword").val($(this).text());
+                            $("#search-form").submit();
+                        })
+                    });
+                    $(".link a[href='{$url_index}']").addClass("current");
+                </script>
+            </body>
+            </html>

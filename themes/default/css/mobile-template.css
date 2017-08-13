@@ -1,0 +1,157 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline; }
+
+html {
+  line-height: 1; }
+
+ol, ul {
+  list-style: none; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle; }
+
+q, blockquote {
+  quotes: none; }
+  q:before, q:after, blockquote:before, blockquote:after {
+    content: "";
+    content: none; }
+
+a img {
+  border: none; }
+
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+  display: block; }
+
+.viewport {
+  margin: 0 auto; }
+
+@media only screen and (max-width: 300px) {
+  body {
+    font-size: 8.33333px; }
+
+  .viewport {
+    max-width: 300px; } }
+@media only screen and (max-width: 310px) and (min-width: 300px) {
+  body {
+    font-size: 8.33333px; }
+
+  .viewport {
+    max-width: 310px; } }
+@media only screen and (max-width: 320px) and (min-width: 310px) {
+  body {
+    font-size: 8.61111px; }
+
+  .viewport {
+    max-width: 320px; } }
+@media only screen and (max-width: 350px) and (min-width: 320px) {
+  body {
+    font-size: 8.88889px; }
+
+  .viewport {
+    max-width: 350px; } }
+@media only screen and (max-width: 360px) and (min-width: 350px) {
+  body {
+    font-size: 9.72222px; }
+
+  .viewport {
+    max-width: 360px; } }
+@media only screen and (max-width: 400px) and (min-width: 360px) {
+  body {
+    font-size: 10px; }
+
+  .viewport {
+    max-width: 400px; } }
+@media only screen and (max-width: 470px) and (min-width: 400px) {
+  body {
+    font-size: 11.1111px; }
+
+  .viewport {
+    max-width: 470px; } }
+@media only screen and (max-width: 480px) and (min-width: 470px) {
+  body {
+    font-size: 13.0556px; }
+
+  .viewport {
+    max-width: 480px; } }
+@media only screen and (max-width: 540px) and (min-width: 480px) {
+  body {
+    font-size: 13.3333px; }
+
+  .viewport {
+    max-width: 540px; } }
+@media only screen and (max-width: 560px) and (min-width: 540px) {
+  body {
+    font-size: 15px; }
+
+  .viewport {
+    max-width: 560px; } }
+@media only screen and (max-width: 570px) and (min-width: 560px) {
+  body {
+    font-size: 15.5556px; }
+
+  .viewport {
+    max-width: 570px; } }
+@media only screen and (max-width: 630px) and (min-width: 570px) {
+  body {
+    font-size: 15.8333px; }
+
+  .viewport {
+    max-width: 630px; } }
+@media only screen and (max-width: 640px) and (min-width: 630px) {
+  body {
+    font-size: 17.5px; }
+
+  .viewport {
+    max-width: 640px; } }
+@media only screen and (max-width: 710px) and (min-width: 640px) {
+  body {
+    font-size: 17.7778px; }
+
+  .viewport {
+    max-width: 710px; } }
+@media only screen and (max-width: 720px) and (min-width: 710px) {
+  body {
+    font-size: 19.7222px; }
+
+  .viewport {
+    max-width: 720px; } }
+@media only screen and (min-width: 720px) {
+  body {
+    font-size: 20px; }
+
+  .viewport {
+    width: 720px; } }
+html {
+  word-wrap: break-word; }
+
+#header {
+  height: 0;
+  background-color: #f1f1f1; }
+
+#content {
+  background-color: #eb4747; }
+
+/*# sourceMappingURL=mobile-template.css.map */

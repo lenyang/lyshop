@@ -1,0 +1,23 @@
+<div class="bg-base">
+<div class="container">
+<!--S 产品展示-->
+<ol class="bread-crumb">
+  <li><a href="#">商城▪团购</a></li>
+  <li><a href="#">聚划算▪低价团</a></li>
+</ol>
+<ul class="product-list clearfix">
+{query:name=groupbuy as gb fields=*,gb.id as id join=left join goods as go on gb.goods_id eq go.id  order=is_end , goods_num desc limit=12 page=1 id=$groupbuy}
+    <li class="item">
+        <dl class="product">
+            <dt class="img"><a href="{url:/index/groupbuy/id/$item[id]}"><img src="{echo:Common::thumb($item['img'],600,360)}" ></a></dt>
+            <dd class="title"><a href="{url:/index/groupbuy/id/$item[id]}">{echo:TString::msubstr($item['title'],0,15)}</a></dd>
+            <dd class="price"><i>{$currency_symbol}</i>{$item['price']}</dd>
+            <dd class="status">{if:$item['is_end']==0}<a class="btn btn-main" href="{url:/index/groupbuy/id/$item[id]}">立即团购</a>{else:}<span class="btn btn-gray disabled">团购结束</span>{/if}</dd>
+        </dl>
+    </li>
+    {/list}
+</ul>
+<div class=" mt10 page-nav">{echo:$groupbuy->pageBar();}</div>
+<!--E 产品展示-->
+</div>
+</div>

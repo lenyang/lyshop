@@ -1,0 +1,117 @@
+{echo:JS::import('form')}
+<div class="mt20 login clearfix">
+	<div class="line-D">
+		<div class="clearfix oauth-info">
+			<div class="u-img"><img src="{$head_img}"></div>
+			<div class="model-text f16">
+				<p>来自<b>{$type_name}</b>的<b class="green">{$open_name}</b>，你好。</p><p>立即设置一个密码，以后就可以直接登录！</p>
+			</div>
+		</div>
+	</div>
+
+<div class=" login-form " style="border:none; margin:auto;margin-top:40px;width:700px;">
+	<div id="msg-info" style="height: 20px;font-weight: 800;"></div>
+	<form action="{url:/simple/oauth_bind_act}" method="post" callback="checkReadme">
+		<ul class="form">
+		<li><span class="perfix fa">&#xf007;</span><input name="account" id="account"  class="input" pattern="required" placeholder="邮箱/用户名/已验证手机"><label></label></li>
+		<li><span class="perfix fa">&#xf084;</span><input class="input" name="password" id="password" type="password" placeholder="密码" minlen=6 maxlen=20  pattern="required" alt="6-20任意字符组合"></li>
+		{if:$user['name']==null}
+		<li id="repassword-line"> <span class="perfix fa">&#xf084;</span><input class="input" id="repassword" name="repassword" type="password" bind="password" placeholder="确认密码" minlen=6 maxlen=20  pattern="required" alt="6-20任意字符组合"></li>
+		{/if}
+
+		<dl class="clearfix">
+			<dt>&nbsp;</dt><dd><input id="readme" type="checkbox" name="readme" value="1" alt="同意后才可注册"><label></label><label>我已阅读并同意《<a class="" id="user-license" href="javascript:;">{$site_title}用户注册协议</a>》</label></dd>
+		</dl>
+
+		<dl class="clearfix">
+			<dt></dt><dd style="padding-left:200px;"><input type="submit" class="btn btn-main" value="同意协议，立即注册"></dd>
+		</dl>
+		</ul>
+	</form>
+</div>
+</div>
+<div id="license-content" style="display:none;">
+    <div style="height:400px;overflow:auto">
+    {query:name=help where=id eq 14}
+    {$item['content']}
+    {/query}
+    </div>
+    <div class="mt10 tc"><a href="javascript:closeLicense();" class="btn btn-main">同意用户注册协议</a></div>
+</div>
+<script type="text/javascript">
+
+	var dlg;
+	$("#user-license").on("click",function(){
+		dlg = dialog({id:'license-dialog',opacity:0.3,padding:'20px 10px 10px 20px',width:900,title:'用户注册协议',content:document.getElementById('license-content'),lock:true});
+        dlg.showModal();
+	});
+
+	function closeLicense(){
+		$('#readme').attr("checked",'true');
+		autoValidate.showMsg({id:document.getElementById('readme'),error:false,msg:''});
+		dlg.close().remove();
+	}
+
+
+	var msgInfo = $("#msg-info");
+	$("input[pattern]").on("blur",function(event){
+        //$(".invalid-msg , .valid-msg").hide();
+        var current_input = $(this);
+        var result = autoValidate.validate(event);
+        if(result){
+            current_input.parent().removeClass('invalid').addClass('valid');
+        }else{
+            current_input.parent().removeClass('valid').addClass('invalid');
+        }
+        if(result){
+            if(current_input.attr('id')=='account'){
+
+				if(autoValidate.validate(event)){
+					$.post("{url:/ajax/account/account/}"+$(this).val(),function(data){
+						if(data['status']){
+							var account = current_input.val();
+							if(account.search(/^\w+([-+.]\w+)*@\w+([-.]\w+)+$/i) != -1 || account.search(/^1[3-9]\d{9}$/i) != -1){
+								$("#repassword-line").show();
+								$("#repassword").show();
+								msgInfo.text('账户 ('+account+') 不存在，自动注册并绑定!');
+								$("#password-msg").text('6-20任意字符组合');
+							}else{
+								msgInfo.text('系统不存在账户 ('+account+') ,自动注册账号必需为邮箱或者手机号。');
+							}
+
+
+						}else{
+							$("#repassword-line").hide();
+							$("#repassword").hide();
+							msgInfo.text('账户 ('+current_input.val()+') 已存在，填写密码进行绑定!');
+
+						}
+				},'json');
+				}
+			}
+		}
+	});
+	$("#readme").on("change",function(){
+		if($("#readme:checked").length>0)autoValidate.showMsg({id:document.getElementById('readme'),error:false,msg:''});
+		else autoValidate.showMsg({id:document.getElementById('readme'),error:true});
+	});
+	function checkReadme(e){
+		if(e) return false;
+		else{
+			if($("#readme:checked").length>0)return true;
+			{
+				autoValidate.showMsg({id:document.getElementById('readme'),error:true});
+				return false;
+			}
+		}
+	}
+	{if:isset($invalid)}
+		var form = new Form();
+		form.setValue('account', '{$account}');
+		msgInfo.text("{$invalid['msg']}");
+	{/if}
+	{if:isset($invalid['exist']) && $invalid['exist'] == 'yes'}
+	$("#repassword-line").hide();
+	{/if}
+	FireEvent(document.getElementById('account'),"change");
+</script>

@@ -1,0 +1,27 @@
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<link type="text/css" rel="stylesheet" href="{url:#css/simple.css}" />
+<div class="container clearfix">
+    {widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+    {set:$objInfo=array('password'=>'登录密码','email'=>'邮箱','mobile'=>'手机号码','paypwd'=>'支付密码');$obj=Req::args('obj');}
+    <div class="uc-content">
+        <h1 class="title"><span>修改{$objInfo[$obj]}</span></h1>
+        <div>
+            {set:$items=array("验证身份","修改".$objInfo[$obj],"完成");} {widget:name=sub_navs action=crumbs items=$items step=3 current=3}
+
+        </div>
+        <div class="simple-box ">
+            <div class="status-bar">
+                <span><i class="icon-success-48"></i>修改{$objInfo[$obj]}成功！</span>
+            </div>
+        </div>
+        <div class="box" style="padding:20px; border:none;">
+            <h2><strong>安全提示：</strong></h2>
+            <div class="mt10">
+            <p>
+            1. {$objInfo[$obj]}修改成功，请保管好您的{$objInfo[$obj]}。</p>
+            <p>
+            2. 不定期更新密码，可更好的保护您的账户安全性。</p>
+            </div>
+        </div>
+    </div>
+</div>

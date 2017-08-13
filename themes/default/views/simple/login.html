@@ -1,0 +1,60 @@
+<div class="magic-bg">
+    <div class="simple-box " >
+        <div class="title">
+            <div class="sub-1"><h1>会员登录</h1></div>
+            <div class="sub-2"><a href="{url:/simple/reg}">立即注册</a></div>
+        </div>
+        <form action="{url:/simple/login_act}" class="reg-box" method="post" callback="checkReadme">
+            <input type="hidden" name="redirectURL" value="{$redirectURL|$this->perPage()}">
+            <ul class="form  ">
+                <li><span class="perfix fa">&#xf007;</span><input name="account" id="account"  class="input" pattern="required" placeholder="邮箱/用户名/已验证手机"><label></label></li>
+                <li><span class="perfix fa">&#xf084;</span><input class="input" name="password" type="password" placeholder="密码" pattern="required" alt="密码不能为空"></li>
+                <li><input name="autologin" id="readme" type="checkbox" value="1"> <label>自动登录</label> <label>[<a href="{url:/simple/forget_password}">忘记密码?</a>]</label></li>
+                <li><button class="btn btn-main " style="padding:10px 40px; width:100%">登录</button></li>
+                <li class="oauth-list">
+                    <fieldset class="line-title">
+                        <legend align="center" class="txt">其他方式登录</legend>
+                    </fieldset>
+                    {list:items=$oauth_login}
+                    <a href="{url:/simple/login_oauth/id/$item[id]}"><img src="{url:@protected/classes/oauth/logo/$item[icon]}" ></a>
+                    {/list}
+                </li>
+            </ul>
+             {token:key=login}
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    {if:isset($invalid)}
+    var form = new Form();
+    form.setValue('account', '{$account}');
+    autoValidate.showMsg({id:$("input[name='{$invalid['field']}']").get(0),error:true,msg:"{$invalid['msg']}"});
+    $(".invalid-msg").show();
+    {/if}
+    $("input[pattern]").on("blur",function(event){
+        $(".invalid-msg , .valid-msg").hide();
+        var current_input = $(this);
+        var result = autoValidate.validate(event);
+        if(result){
+            current_input.parent().removeClass('invalid').addClass('valid');
+        }else{
+            current_input.parent().removeClass('valid').addClass('invalid');
+        }
+        if(result){
+            if(current_input.attr('id')=='account'){
+                $.post("{url:/ajax/account/account/}"+$(this).val(),function(data){
+                    var msg = '合法用户';
+                    if(data['status']){
+                        msg = '用户不存在';
+                        current_input.next().show();
+                        current_input.parent().removeClass('valid').addClass('invalid');
+                    }
+                    autoValidate.showMsg({id:document.getElementById('account'),error:data['status'],msg:msg});
+                },'json');
+            }
+            $(".invalid-msg").show();
+        }else{
+            current_input.next().show();
+        }
+    });
+</script>

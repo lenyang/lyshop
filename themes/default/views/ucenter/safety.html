@@ -1,0 +1,47 @@
+<link type="text/css" rel="stylesheet" href="{url:#css/ucenter.css}" />
+<div class="container clearfix">
+    {widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+    <div class="uc-content">
+        <h1 class="title"><span>安全中心</span></h1>
+        <table class="simple safety-list">
+            <tr class="even">
+                <td class="caption"><i class="verified"></i>登录密码</td>
+                <td>互联网账号存在被盗风险，建议您定期更改密码以保护账户安全。</td>
+                <td width="120"><a href="{url:/ucenter/check_identity/obj/password}">修改</a></td>
+            </tr>
+            <tr class="odd">
+            	{if:isset($userInfo['email_verified']) && $userInfo['email_verified']==1}
+                <td class="caption"><i  class="verified"></i>邮箱验证</td>
+                <td>您验证的邮箱： {$userInfo['email']}</td>
+                <td><a href="{url:/ucenter/check_identity/obj/email}">修改</a></td>
+                {else:}
+                <td class="caption"><i></i>邮箱验证</td>
+                <td>开启邮箱验证，更好的保护账户安全。</td>
+                <td><a class="btn btn-default" href="{url:/ucenter/activate_obj/obj/email}">验证邮箱</a></td>
+                {/if}
+            </tr>
+            <tr class="even">
+            {if:isset($userInfo['mobile_verified']) && $userInfo['mobile_verified']==1}
+                <td class="caption"><i class="verified"></i>手机验证</td>
+                <td>您验证的手机： {$userInfo['mobile']}    若已丢失或停用，请立即更换，避免账户被盗</td>
+                <td><a href="{url:/ucenter/check_identity/obj/mobile}">修改</a></td>
+                {else:}
+                <td class="caption"><i></i>手机验证</td>
+                <td>开启手机验证，更好的保护账户安全。</td>
+                <td><a class="btn btn-default" href="{url:/ucenter/activate_obj/obj/mobile}">验证手机</a></td>
+                {/if}
+            </tr>
+            <tr class="odd">
+            {if:isset($userInfo['pay_password_open']) && $userInfo['pay_password_open'] == 1}
+                <td class="caption"><i class="verified"></i>支付密码</td>
+                <td>您购买商品使用余额支付时，所需要的支付密码，提高资金的安全性。</td>
+                <td><a href="{url:/ucenter/check_identity/obj/paypwd}">修改</a></td>
+                {else:}
+                <td class="caption"><i></i>支付密码</td>
+                <td>您购买商品使用余额支付时，所需要的支付密码，提高资金的安全性。</td>
+                <td><a class="btn btn-default" href="{url:/ucenter/activate_obj/obj/paypwd}">支付密码管理</a></td>
+                {/if}
+            </tr>
+        </table>
+    </div>
+</div>

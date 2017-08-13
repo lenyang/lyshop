@@ -1,0 +1,255 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<!--E 产品展示-->
+<link type="text/css" rel="stylesheet" href="{url:#css/product.css}" />
+<div class="container ">
+    <!--S 产品展示-->
+    <div class="clearfix mt20" style="position: relative;">
+        <!-- S 抢购推荐 -->
+        <div class="sidebar fr" style="width: 230px;">
+            <div class="mt20">
+                <fieldset class="line-title">
+                    <legend align="center" class="txt">团购推荐</legend>
+                </fieldset>
+                <ul class="content child-category-list ">
+                    {query:name=groupbuy as gb fields=*,gb.id as id join=left join goods as go on gb.goods_id eq go.id where= is_end eq 0  order=goods_num desc limit=10}
+                    {if:$goods['id']!=$item['id']}
+                    <li class="mt20">
+                        <dl>
+                            <dt class="img tc"><a href="{url:/index/groupbuy/id/$item[id]}"><img src="{echo:Common::thumb($item['img'],220,220)}" width=220></a></dt>
+                            <dd><a href="{url:/index/groupbuy/id/$item[id]}">{$item['title']}</a></dd>
+                            <dd><span class="price">团购价：<b class="red">{$currency_symbol}{$item['price']}</b></span><span class="market_price fr">{$item['goods_num']}人已购买</span></dd>
+
+                        </dl>
+                    </li>
+                    {/if}
+                    {/list}
+                </ul>
+            </div>
+        </div>
+        <!-- E 抢购推荐 -->
+        <div class="content" style="margin-right: 240px;">
+            <div class="markting">
+                <div class="sub-1">
+                    <img class="big-pic" src="{echo:Common::thumb($goods['img'],367)}" width='367' height='367'>
+                </div>
+                <div class="sub-2" id="product-intro">
+                    <ul class="product-info" >
+                        <li class="product-title">{echo:TString::msubstr($goods['title'],0,22)}</li>
+                        <li class="product-no"><label>货号：</label><span id="pro-no">{$goods['goods_no']}</span></li>
+
+                        <li class="product-price markting-price {if:$goods['is_end']==1}end{/if}" style="position: relative;"><span id="prom_price" class="price" formula="{$prom['parse']['minus']}">{$goods['price']}{$currency_unit} </span>
+                            <div class="product-btns" style="display:inline;float:right;padding-right: 10px;">
+                                {if:$goods['is_end']==1}
+                                <span class="btn btn-war disabled">已结束</span>
+
+                                {elseif:time() < strtotime($goods['start_time'])}
+                                <span class="btn btn-gray disabled">等待开始</span>
+                                {else:}
+                                <span id="buy-now" class="btn btn-warning">立即团购</span>
+                                {/if}
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="markting-info">
+                        <ul  >
+                            <li >原价<br><del class="del">{$currency_symbol}{$goods['sell_price']}</del></li>
+                            <li >折扣<br><span class="del">{echo:sprintf("%0.2f",$goods['price']*10/$goods['sell_price'])}</span></li>
+                            <li class="end">节省<br><span class="del">{echo:$goods['sell_price']-$goods['price']}</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="content">
+                        <div class="info">
+                            {if:$goods['is_end']==1 }
+                            <p class="markting-ext"><i class="icon-time-16 ie6png"></i> 已结束！<span class="fr"><i class="icon-fire-16 ie6png"></i> 共有{$goods['order_num']}人购买</span></p>
+                            {elseif:time()>strtotime($goods['start_time'])}
+                            <p class="markting-ext"><span > <i class="icon-time-16 ie6png"></i> 还剩：</span><span id="countdown1"  style="color:#666;"></span><span class="fr"><i class="icon-fire-16 ie6png"></i> <b>{$goods['order_num']}</b>人已经购买</span>
+                            </p>
+                            <script type="text/javascript">
+                                $("#countdown1").countdown({end_time:"{echo:date('Y/m/d H:i:s',strtotime($goods['end_time']))}",callback:function(){
+                                    $.post("{url:/ajax/groupbuy_end}",{id:{$id}},function(){
+                                        location.reload();
+                                    });
+                                }});
+                            </script>
+                            {else:}
+                            <p class="markting-ext">
+                                <i class="icon-time-16 ie6png"></i><span>距开始：</span><span id="countdown2"  style="color:#666; "></span>
+                            </p>
+                            <script type="text/javascript">
+                                $("#countdown2").countdown({end_time:"{echo:date('Y/m/d H:i:s',strtotime($goods['start_time']))}",callback:function(){
+                                    location.reload();
+                                }});
+                            </script>
+                            {/if}
+                        </div>
+                    </div>
+                    {set:$specs_array = unserialize($goods['specs']);}
+                    {if:count($specs_array)>0}
+                    <fieldset class="line-title">
+                        <legend align="center" class="txt">商品规格</legend>
+                    </fieldset>
+                    {/if}
+                    <div class="spec-info " style="">
+                        <div class="spec-close"></div>
+                        {list:items=unserialize($goods['specs']) item=$spec}
+                        <dl class="spec-item ">
+                            <dt>{$spec['name']}：</dt>
+                            <dd>
+                                <ul class="spec-values" spec_id="{$spec['id']}">
+                                    {list:items=$spec['value'] item=$value}
+                                    <li data-value="{$spec['id']}:{$value['id']}">{if:$value['img']==''}<span>{$value['name']}</span>{else:}<img src="{echo:Common::thumb($value['img'],100,100)}"  width="36" height="36"><label>{$value['name']}</label>{/if}<i></i></li>
+                                    {/list}
+                                </ul>
+                            </dd>
+                        </dl>
+                        {/list}
+                        <dl id="spec-msg" class="spec-item " style="display: none;">
+                            <dt></dt>
+                            <dd ><p class="msg"><i class="icon icon-alert ie6png"></i><span >请选择您要购买的商品规格</span></p>
+                            </dd>
+                        </dl>
+
+                    </div>
+                </div>
+            </div>
+            <div class="mt10 tab content">
+                <ul class="tab-head">
+                    <li>商品详情<i></i></li>
+                </ul>
+                <div class="tab-body" style="min-height: 200px;">
+                    <!--S 商品详情-->
+                    <div class="p10">
+                        <div>
+                            <ul class="attr-list">
+                                <li>商品名称：{$goods['name']}</li>
+                                <li>商品编号：{$goods['pro_no']}</li>
+                                <li>商品重量：{$goods['weight']}g</li>
+                                <li>上架时间：{$goods['up_time']}</li>
+                                {list:items=$goods_attrs}
+                                <li>{$item['name']}：{$item['vname']}</li>
+                                {/list}
+                            </ul>
+                        </div>
+                        <div class="description">
+                            {if:$goods['description']==''}
+                            {$goods['content']}
+                            {else:}
+                            {$goods['description']}
+                            {/if}
+                        </div>
+                    </div>
+                    <!--E 商品详情-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script type="text/javascript">
+
+    var skuMap = {echo:JSON::encode($skumap)};
+
+    $(".spec-values li").each(function(){
+        $(this).on("click",function(){
+            var disabled = $(this).hasClass('disabled');
+            if(disabled) return;
+            var flage = $(this).hasClass('selected');
+
+            $(this).parent().find("li").removeClass("selected");
+            if(!flage){
+                $(this).addClass("selected");
+            }
+            changeStatus();
+            if($(".spec-values").length == $(".spec-values .selected").length){
+                var sku = new Array();
+                $(".spec-values .selected").each(function(i){
+                    sku[i]= $(this).attr("data-value");
+                })
+                var sku_key = ";"+sku.join(";")+";";
+                if(skuMap[sku_key]!=undefined){
+                    var sku = skuMap[sku_key];
+                    //$("#sell_price").text("{$currency_symbol}"+sku['sell_price']);
+                    //$("#store_nums").text(sku['store_nums']);
+                    //$("#market-price").text(sku['market_price']);
+                    $("#pro-no").text(sku['pro_no']);
+                    specClose();
+                }
+                $("#spec-msg").css("display","none");
+            }
+        })
+})
+function changeStatus(){
+    var specs_array = new Array();
+    $(".spec-values").each(function(i){
+        var selected = $(this).find(".selected");
+        if(selected.length>0)specs_array[i]=selected.attr("data-value");
+        else specs_array[i] = "\\\d+:\\\d+";
+    });
+    $(".spec-values").each(function(i){
+        var selected = $(this).find(".selected");
+        $(this).find("li").removeClass("disabled");
+        var k = i;
+        $(this).find("li").each(function(){
+
+            var temp = specs_array.slice();
+            temp[k] = $(this).attr('data-value');
+            var flage = false;
+            for(sku in skuMap){
+                var reg = new RegExp(';'+temp.join(";")+';');
+                if(reg.test(sku) && skuMap[sku]['store_nums']>0) flage = true;
+            }
+            if(!flage)$(this).addClass("disabled");
+        })
+
+    });
+}
+//关闭信息提示
+$(".spec-close").on("click",function(){
+    specClose();
+});
+function specClose()
+{
+    $(".spec-info").removeClass("noselected");
+}
+
+    //立即团购
+    $("#buy-now").on("click",function(){
+        var product = currentProduct();
+        if(product){
+            var id = product["id"];
+            var url = "{url:/simple/order_info/type/groupbuy/id/$id/pid/}"+id;
+            window.location.href = url;
+        }else{
+            $("#spec-msg").css("display","");
+            showMsgBar('alert',"请选择您要购买的商品规格！");
+        }
+    });
+
+    //取得当前商品
+    function currentProduct(){
+        if($(".spec-values").length==0)return skuMap[''];
+        if($(".spec-values").length == $(".spec-values .selected").length){
+            var sku = new Array();
+            $(".spec-values .selected").each(function(i){
+                sku[i]= $(this).attr("data-value");
+            })
+            var sku_key = ";"+sku.join(";")+";";
+            if(skuMap[sku_key]!=undefined){
+                return skuMap[sku_key];
+            }else return null;
+        }
+        else return null;
+    }
+    //展示信息
+    function showMsgBar(type,text){
+        $(".spec-info").addClass("noselected");
+        $(".msg").find("span").text(text);
+        $(".msg").find("i").attr("class","icon icon-"+type+"-16");
+    }
+
+</script>
+<!--E 产品展示-->

@@ -1,0 +1,26 @@
+{set:$items=array("填写账户信息","验证身份","设置新密码","完成");}
+{widget:name=sub_navs action=crumbs items=$items step=4 current=4}
+<div class="container">
+	<div class="mt20 dialog clearfix tc">
+		<div class="status-bar">
+			{if:$status=='success'}
+			<i class='icon-success-48'></i><span>密码设置成功！</span>{else:}<i class='icon-error-48'></i><span>密码设置失败！</span> {/if}
+		</div>
+		{if:$status=='success'}
+		<div class="mt20 tl">
+			<p>
+				新密码已设置成功，可以用新密码登录了！
+			</p>
+		</div>
+		<div class="mt20"><a href="{url:/simple/login}" class="btn btn-main">立即登录</a></div>
+		{else:}
+		<div class="mt20 tl">
+			<p>
+				密码设置失败，验证码或验证连接失效！
+			</p>
+		</div>
+		<div class="mt20"><a href="{url:/index/index}" class="btn btn-gray">返回首页</a></div>
+		{/if}
+
+	</div>
+</div>
