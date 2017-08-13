@@ -1,0 +1,31 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('validator');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/content/article_del}',method:'get',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a href='{url:/content/article_edit}' class="icon-plus" > 添加</a>
+</div>
+<table class="default">
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th>标题</th>
+        <th style="width:160px">分类</th>
+        <th style="width:160px">日期</th>
+
+    </tr>
+    {query:name=article page=1 id=$obj order=id desc}
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                    <li><a class="icon-pencil" href="{url:/content/article_edit/id/$item[id]}"> 编辑</a></li>
+                    <li><a class="icon-remove-2" href="javascript:confirm_action('{url:/content/article_del/id/$item[id]}')"> 删除</a></li>
+                </ul></div></div> </td>
+        <td><a href="{url:/index/article/id/$item[id]}" target="_blank">{$item['title']}</a></td><td>{$categorys[$item['category_id']]|'默认分类'}</td><td>{$item['publish_time']}</td></tr>
+    {/query}
+</table>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+</form>

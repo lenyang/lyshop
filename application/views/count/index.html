@@ -1,0 +1,67 @@
+{echo:JS::import('highcharts')}
+{echo:JS::import('form')}
+{widget:name=count action=cal}
+<div class="tools_bar clearfix">
+    <form action="{url:/count/index}" method="post">
+<span class="fl">时间：<input name="s_time" type="text" value="{$s_time}" id="datepick" class="middle" readonly="readonly"></span><a href="javascript:tools_submit();" id="condition" class="icon-search" style=""> 查询</a>
+    </form>
+</div>
+<div id="container"></div>
+<script>
+$(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'areaspline'
+            },
+            title: {
+                text: '{$s_time}订单销售统计报表'
+            },
+            xAxis: {
+                categories: [
+                    {$month}
+                ],
+                labels: {
+                    rotation: -45,
+                    align: 'right',
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '销售额 (元)'
+                }
+            },
+            
+            tooltip: {
+                headerFormat: '{point.key}<br/>',
+                pointFormat: '{series.name}: <b>{point.y:.2f} 元</b>',
+                valueSuffix: '元'
+            },
+            series: [{
+                name: '订单总金额',
+                data: [{$real_data}],
+                dataLabels: {
+                    enabled: true,
+                   // rotation: -90,
+                    color: '#000',
+                    //align: 'top',
+                    x: 4,
+                    y: -6,
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'//,
+                        //textShadow: '0 0 3px black'
+                    }
+                }
+            },{
+                name: '商品总金额',
+                data: [{$data}]
+            }]
+        });
+    });
+
+</script>

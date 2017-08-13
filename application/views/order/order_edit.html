@@ -1,0 +1,92 @@
+{echo:JS::import("form")}
+<div style="overflow: auto;width:900px;height: 415px;">
+	<h3 class="lineD">商品信息：</h3>
+	<table class="default" id="attr_values">
+		<tr><td width="40"></td><td width="120">货号</td><td>商品名</td><td width="140">规格</td><td width="60">价格</td><td width="40">数量</td><td width="60">小计</td></tr>
+		{query:name=order_goods as od fields=go.img,go.name,pr.pro_no,od.spec,od.goods_price,od.goods_nums join= left join products as pr on od.product_id eq pr.id  left join goods as go on od.goods_id eq go.id where=order_id eq $id}
+		{set:$spec = unserialize($item['spec']);}
+		<tr><td><img src="{echo:Common::thumb($item['img'],100,100);}" width="40"></td><td>{$item['pro_no']}</td><td>{$item['name']}</td><td>
+			{if:is_array($spec)}
+			{list:items=$spec item=$ite }
+				{$ite['name']}:{$ite['value'][2]}
+			{/list}
+			{/if}
+		</td><td>{$item['goods_price']}</td><td>{$item['goods_nums']}</td><td class="golden">{echo:sprintf("%.2f",($item['goods_price']*$item['goods_nums']))}</td></tr>
+		{/query}
+	</table>
+	<h3 class="lineD mt10">购买人信息：</h3>
+	<table class="default">
+		{query:name=order as o fields=cu.real_name,us.name,us.email,cu.phone,cu.mobile,cu.addr join=left join customer as cu on o.user_id eq cu.user_id left join user as us on o.user_id eq us.id  where=o.id eq $id}
+		<tr><th width="100">用户名：</th><td>{$item['name']}</td><th width="100">姓名：</th><td>{$item['real_name']}</td></tr>
+		<tr><th>手机：</th><td>{$item['mobile']}</td><th>电话：</th><td>{$item['phone']}</td></tr>
+		<tr><th>邮箱：</th><td>{$item['email']}</td><th> 地址：</th><td>{$item['addr']}</td></tr>
+		{/query}
+	</table>
+
+
+		{query:name=order as od fields=od.*,ex.name as exname,py.pay_name as payname join=left join express as ex on od.express eq ex.express_company_id left join payment as py on od.payment eq py.id where=od.id eq $id}
+		{set:$voucher_fee=0;}
+		{if:$item['voucher_id']}
+			{set:$voucher = unserialize($item['voucher']);$voucher_fee = $voucher['value'];}
+		{/if}
+		{set:$amount = $item['real_amount']+$item['real_freight']+$item['handling_fee']+$item['taxes']-$item['discount_amount']-$voucher_fee;}
+		<form class="form2" action="{url:/order/order_save}" method="post" >
+		<input type="hidden" name="id" value="{$id}"/>
+		<h3 class="lineD mt10">订单信息：</h3>
+		<table class="default">
+		<tr><th width="100">订单编号：</th><td><i class="icon-order-{$item['type']}"></i>{$item['order_no']}</td><th width="100">下单时间：</th><td>{$item['create_time']}</td></tr>
+		<tr><th>支付方式：</th><td>{$item['payname']}</td><th>支付手续费：</th><td class="golden">{$item['handling_fee']}</td></tr>
+		<tr><th>配送方式：</th><td>{$item['exname']}</td><th>配送费用：</th><td class="golden">{$item['payable_freight']}</td></tr>
+		<tr><th>实际配送费用：</th><td class="golden">{$item['real_freight']}</td><th>代金券：</th><td class="golden">{if:$item['voucher_id']}{set:$voucher=unserialize($item['voucher'])}{$voucher['value']}{else:}-{/if}</td></tr>
+		<tr><th>应付商品总金额：</th><td class="golden">{$item['payable_amount']}</td><th>实付商品总金额：</th><td class="golden">{$item['real_amount']}</td></tr>
+		{if:$item['is_invoice']==1}
+		{set:$invoice = explode(':',$item['invoice_title'])}
+		<tr><th>发票类型：</th><td ><b>{if:$invoice[0]==1}单位{else:}个人{/if}</b></td><th>发票抬头：</th><td ><b>{$invoice[1]}</b></td></tr>
+		{/if}
+		<tr><th>发票税金：</th><td class="golden">{$item['taxes']}</td><th>活动优惠金额：</th><td class="golden">{$item['discount_amount']}</td></tr>
+		<tr><th>原订单总金额：</th><td colspan=3  class="golden">{echo:sprintf("%.2f",$amount)} 注：记订单在未调价之前的总金额</td></tr>
+		<tr><th>订单折扣或涨价：</th><td colspan=3 ><input onblur="count_amount()" pattern="float" type="text" class="small" name="adjust_amount" id="adjust" value="{$item['adjust_amount']|0}"> <label>要给顾客便宜100元，则输入"-100";要提高订单价格100元，则输入"100"</label></td></tr>
+		<tr><th>调整后订单总金额：</th><td colspan=3   ><span style="display: inline-block;width: 100px" class="golden" id="order_amount">{$item['order_amount']} </span> 注：总金额不会小于0元</td></tr>
+        <tr><th>用户备注：</th><td colspan=3>{$item['user_remark']}</td></tr>
+        <tr><th>管理人员备注：</th><td colspan=3>{$item['admin_remark']}</td></tr>
+		<tr><th>调价原因：</th><td colspan=3><textarea name="adjust_note">{$item['adjust_note']}</textarea></td></tr>
+		</table>
+
+		<h3 class="lineD mt10">收货人信息：</h3>
+		<table class="default">
+		<tr><th width="100"><b class="red">*</b>收货人姓名：</th><td><input pattern="required" type="text" name="accept_name" value="{$item['accept_name']}"/></td><th width="100"><b class="red">*</b>联系手机：</th><td><input pattern="mobi" type="text" name="mobile" value="{$item['mobile']}"/></td></tr>
+		<tr><th>联系电话：</th><td><input type="text" name="phone" value="{$item['phone']}"/></td><th>邮编：</th><td><input type="text" name="zip" value="{$item['zip']}" /></td></tr>
+		<tr><th>收货地区：</th><td colspan=3><select id="province"  name="province" >
+        <option value="0">==省份/直辖市==</option>
+        </select>
+        <select id="city" name="city"><option value="0">==市==</option></select>
+        <select id="county" name="county"><option value="0">==县/区==</option></select><input pattern="^\d+,\d+,\d+$" id="area" type="text" style="visibility:hidden;width:0;" value="{$item['province']},{$item['city']},{$item['county']}" alt="请选择完整地区信息！"><label></label></td></tr>
+		<tr><th><b class="red">*</b>收货地址：</th><td colspan=3><input pattern="required" type="text" name="addr" value="{$item['addr']}"></td></tr>
+		</table>
+		<div class="alone_footer tc"><button class="focus_button" onclick="">保存</button></div>
+		</form>
+		{/query}
+
+</div>
+
+<script type="text/javascript">
+ $("#areas").Linkage({ url:"{url:/ajax/area_data}",selected:[{$item['province']},{$item['city']},{$item['county']}],callback:function(data){
+    var text = new Array();
+    var value = new Array();
+    for(i in data[0]){
+      if(data[0][i]!=0){
+        text.push(data[1][i]);
+        value.push(data[0][i]);
+      }
+    }
+    $("#area").val(value.join(','));
+    FireEvent(document.getElementById("area"),"change");
+    }});
+ function count_amount(){
+ 	var adjust = $("#adjust").val();
+ 	var oldVlaue = parseFloat({$amount});
+ 	var order_amount = parseFloat(oldVlaue)+parseFloat(adjust);
+ 	if(order_amount<0)order_amount = 0.00;
+ 	$("#order_amount").text(order_amount.toFixed(2));
+ }
+</script>

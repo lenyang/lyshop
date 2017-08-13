@@ -1,0 +1,64 @@
+{echo:JS::import('form')}
+<div class="mt20 login box clearfix">
+	<div class="head">用户注册</div>
+<div class="fl login-form mt20">
+	<form action="{url:/simple/reg_act}" method="post" callback="checkReadme">
+		<dl class="clearfix">
+			<dt>电子邮箱：</dt><dd><input class="input"  name="email" id="email"  pattern="email"><label>邮箱(例如:demo@tinyx.com)</label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>密&nbsp;&nbsp;&nbsp;&nbsp;码：</dt><dd><input type="password" bind="repassword" minlen=6 maxlen=20 class="input" name="password" pattern="required"><label>6-20任意字符组合</label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>确认密码：</dt><dd><input type="password"  minlen=6 maxlen=20  bind="password" class="input" name="repassword" pattern="required" ><label>6-20任意字符组合</label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>验证码：</dt><dd style="height:40px;"><input type="text" class="input" name="verifyCode" id="verifyCode"  pattern="\w{4}" maxlength="4" style="width: 80px;" ><img id="captcha_img"  src="{url:/simple/captcha/h/40/w/120}"><label><a href="javascript:void(0)" class="red" onclick="document.getElementById('captcha_img').src='{url:/simple/captcha/h/40/w/120/random/}'+Math.random()">换一张</a></label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>&nbsp;</dt><dd><input id="readme" type="checkbox"><label>我已阅读并同意《TinyShop商城用户注册协议》</label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt></dt><dd style="padding-left:200px;"><input type="submit" class="btn" value="同意协议，立即注册"></dd>
+		</dl>
+	</form>
+</div>
+<div class="login-note mt20">
+	<ul>
+		<li><h1>我已经注册， <a href="{url:/simple/login}" class="red">登录</a></h1></li>
+	</ul>
+</div>
+</div>
+<script type="text/javascript">
+	$("input[name='email']").on("change",function(event){
+		if(autoValidate.validate(event)){
+			$.post("{url:/ajax/email/email/}"+$(this).val(),function(data){
+			autoValidate.showMsg({id:document.getElementById('email'),error:!data['status'],msg:data['msg']});
+		},'json');
+		}
+	})
+	$("input[name='verifyCode']").on("change",function(){
+		$.post("{url:/ajax/verifyCode/verifyCode/}"+$(this).val(),function(data){
+			autoValidate.showMsg({id:document.getElementById('verifyCode'),error:!data['status'],msg:data['msg']});
+		},'json');
+	})
+	$("#readme").on("change",function(){
+		if($("#readme:checked").length>0)autoValidate.showMsg({id:document.getElementById('readme'),error:false,msg:''});
+		else autoValidate.showMsg({id:document.getElementById('readme'),error:true});
+	});
+	function checkReadme(e){
+		if(e) return false;
+		else{
+			if($("#readme:checked").length>0)return true;
+			{
+				autoValidate.showMsg({id:document.getElementById('readme'),error:true});
+				return false;
+			}
+		}
+	}
+	{if:isset($invalid)}
+		var form = new Form();
+		form.setValue('email', '{$email}');
+		autoValidate.showMsg({id:$("input[name='{$invalid['field']}']").get(0),error:true,msg:"{$invalid['msg']}"});
+	{/if}
+</script>

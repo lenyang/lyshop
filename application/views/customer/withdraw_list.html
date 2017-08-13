@@ -1,0 +1,53 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/customer/withdraw_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a class="icon-delicious" href="{url:/customer/withdraw_list}"> 全部记录</a>
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th style="width:80px">用户</th>
+        <th style="width:80px">提现金额</th>
+        <th style="width:100px">账户名</th>
+        <th >名称</th>
+        <th >账号 </th>
+        <th style="width:60px">状态</th>    
+    </tr>
+    {query:name=withdraw as wd fields=wd.*,us.name as uname join= left join user as us on wd.user_id eq us.id where= $where id=$obj page=1 desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                {if:$item['status']==0}
+                <li><a class="icon-pencil" href="javascript:withdrawAction({$item['id']});"> 审批</a></li>
+                {/if}
+                <li> <a class="icon-remove-2" href="javascript:confirm_action('{url:/customer/withdraw_del/id/$item[id]}')"> 删除</a></li>
+            </ul></div></div> </td>
+        <td style="width:80px">{$item['uname']}</td><td style="width:80px">{$item['amount']}</td><td style="width:100px">{$item['name']}</td><td >{$item['type_name']}</td><td >{$item['account']}</td><td style="width:60px">{echo:$item['status']==0?"<span class='red'>等待处理</span>":($item['status']==1?"<b class='green'>同意</b>":"<span class='gray'>拒绝</span>");}</td>
+        </tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<script type="text/javascript">
+    var form =  new Form();
+    $("#condition").on("click",function(){
+        $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/customer/withdraw_list}',method:'get'});},data:{'us.name':{name:'用户名'},'wd.name':{name:'账户名'},'type_name':{name:'名称'},account:{name:'账号'},amount:{name:'提现金额'},'wd.status':{name:'状态',values:{2:'失败',0:'待处理',1:'成功'}}
+        }});
+    });
+    function withdrawAction(id)
+    {
+        art.dialog.open("{url:/customer/withdraw_view/id/}"+id,{id:'withdraw-dialog',title:"审批",width:620});
+    }
+    function close_dialog()
+    {
+        art.dialog({id:"withdraw-dialog"}).close();
+        tools_reload();
+    }
+</script>

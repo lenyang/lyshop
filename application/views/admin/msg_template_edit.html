@@ -1,0 +1,50 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('editor');}
+{echo:JS::import('form');}
+<script>
+    var editor;
+    KindEditor.ready(function(K) {
+      editor = K.create('textarea[name="content"]', {
+        uploadJson : '{url:/admin/upload_image}',
+        resizeType : 1,
+          allowPreviewEmoticons : false,
+          allowImageUpload : false,
+          items : [
+            'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+            'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+            'insertunorderedlist', '|', 'emoticons', 'image', 'link']
+      });
+    });
+</script>
+<h1 class="page_title">信息模板编辑 【 <a href="{url:$nav_link}" class="icon-arrow-left-2 "> 返回</a> 】</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/admin/msg_template_save}" method="post" >
+    <input type="hidden" name="id" value="{$id|0}">
+    <dl class="lineD">
+      <dt>模板名称：</dt>
+      <dd>
+        <label>{$name}</label>
+      </dd>
+      </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>标题：</dt>
+      <dd>
+        <input name="title" type="text" value="{$title}" pattern="\S{2,}" alt="标题至少5个字符！"/><label></label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>内容：</dt>
+      <dd>
+        <textarea name="content" pattern="\S{5,}" alt="内容不能少于5个字符！" style="width:700px;height:260px;visibility:hidden;">{$content}</textarea>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>说明：</dt>
+      <dd>
+        <label>{$variable}</label>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>

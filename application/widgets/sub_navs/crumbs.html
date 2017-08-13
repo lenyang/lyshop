@@ -1,0 +1,6 @@
+<ul class="crumbs clearfix mt15 step-{$step}">
+    {set:$items = array_reverse($items,true)}
+	{list:items=$items}
+    <li {if:$key<$current}class="pass"{/if}>{echo:($key+1)}、{$item}<em></em><i></i></li>
+    {/list}
+</ul>

@@ -1,0 +1,64 @@
+{echo:JS::import('form');}
+{set:$parse = array('weixin'=>array('name'=>'微信','label'=>'微信的OpenId','template_id'=>true),'email'=>array('name'=>'邮件','label'=>'邮箱地址','template'=>true),'sms'=>array('name'=>'短信','label'=>'手机号码','template_id'=>true)); $obj = $parse[$style];
+}
+<h1 class="page_title">提醒编辑 【 <a href="{url:$nav_link}" class="icon-arrow-left-2 "> 返回</a> 】</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/admin/notice_template_save}" method="post" >
+    <input type="hidden" name="id" value="{$id|0}">
+    <input type="hidden" name="style" value="{$style}">
+    <dl class="lineD">
+      <dt>提醒类型：</dt>
+      <dd>
+        <label>{$title}</label>
+      </dd>
+      </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>发送方式：</dt>
+      <dd>
+        {$obj['name']}
+      </dd>
+      </dl>
+      {if:$obje==0}
+      <dl class="lineD">
+        <dt><b class="red">*</b>接收者：</dt>
+        <dd>
+          <input name="tousers" type="text" value="{$tousers}" pattern="required"  alt=""/> <label>{$obj['label']} 接收者可以是多个，不同接收者之间用","分隔</label>
+        </dd>
+      </dl>
+      {/if}
+      {if:isset($obj['template_id'])}
+      <dl class="lineD">
+        <dt><b class="red">*</b>模板ID：</dt>
+        <dd>
+          <input name="template_id" type="text" value="{$template_id}" pattern="required" alt="模板ID不能为空!"/><label></label>
+        </dd>
+      </dl>
+      {/if}
+      <dl class="lineD">
+        <dt><b class="red">*</b>开启状态：</dt>
+        <dd>
+          <input name="status" type="radio" value="1"/><label>开启</label>
+          <input name="status" type="radio" value="0"/><label>关闭</label>
+        </dd>
+      </dl>
+      {if:isset($obj['template'])}
+      <dl class="lineD">
+      <dt><b class="red">*</b>模板内容：</dt>
+      <dd>
+        <textarea name="template" style="width:700px;height:200px;">{$template}</textarea>
+      </dd>
+      </dl>
+      {/if}
+      <dl class="clearfix">
+      <dt>说明：</dt>
+      <dd>
+        <label>{$note}</label>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<script type="text/javascript">
+var form = new Form();
+form.setValue('status',"{$status|0}");
+</script>

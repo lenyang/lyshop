@@ -1,0 +1,45 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('validator');}
+<form id="main_form" action="{url:/admin/zip}" method="post">
+<div class="tools_bar">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('back[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-download-2" href="javascript:;" onclick="tools_submit()" title="打包下载"><i>下载</i></a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/admin/back_del}',msg:'删除后无法恢复，你真的删除吗？',select_id:'back'})" title="删除"><i>删除</i></a>
+    <a  class="icon-upload" href="javascript:;" onclick="upload_recover();return false;" title="本地导入"><i>导入</i></a>
+</div>
+<table class="default">
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th>文件名</th>
+        <th style="width:100px">文件大小</th>
+        
+    </tr>
+    {list:items=$files}
+        {set:$file_name = basename($item);}
+        <tr><td><input type="checkbox" value="{$file_name }" name="back[]" ></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a href="{url:/admin/down/back/$file_name}" class="icon-download-2"> 下载</a></li>
+               <li><a href="javascript:confirm_action('{url:/admin/back_del?back=$file_name}')" class="icon-remove-2"> 删除</a></li>
+               <li><a href="javascript:confirm_action('{url:/admin/back_recover?back=$file_name}','你确定要还原吗？')" class="icon-undo"> 还原</a></li>
+            </ul></div></div> </td>
+        <td>{$file_name}</td>
+        <td>{echo:intval(filesize($item)/1024).'K'}</td>
+        </tr>
+    {/list}
+</table>
+</form>
+<div id="dialog_form" style="display:none">
+<form action="{url:/admin/upload_recover}" method="post" enctype="multipart/form-data" >
+    <input name="sqlfile" type="file">
+    <input type="submit" value="上传" class="button" />
+</form>
+</div>
+<script>
+function upload_recover()
+{
+    art.dialog({title:"恢复数据库：",content:document.getElementById("dialog_form")});
+}
+    
+</script>

@@ -1,0 +1,86 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('validator');}
+{set:$config = Config::getInstance();$email_config = $config->get('email');}
+<h2 class="page_title">{$node_index['name']}</h2>
+<div class="form2">
+  	<form name="email_form" method="post" action="{url:/admin/config/group/email}">
+    <dl class="lineD">
+      <dt>邮件发送方式：</dt>
+      <dd>
+		<select name="email_sendtype">
+			<option value="smtp" selected="">smtp</option>
+		</select>
+    </dd></dl>
+    <dl class="lineD">
+      <dt>SMTP地址：</dt>
+      <dd>
+       		<input size="30" type="text" name="email_host" value="" pattern="\w+\(.\w+){2,}"> 
+			<label>发送邮箱的smtp地址。如: smtp.gmail.com或smtp.qq.com</label>
+      </dd>
+	  
+    </dl>
+      <dl class="lineD">
+      <dt>启用SSL连接：</dt>
+      <dd>
+        <label><input type="radio" name="email_ssl" value="1" checked="checked">是</label>
+        <label><input type="radio" name="email_ssl" value="0">否</label>
+		<label>此选项需要服务器环境支持SSL（如果使用Gmail或QQ邮箱，请选择是）</label>
+    </dd></dl>
+	
+   <dl class="lineD">
+      <dt>端口：</dt>
+      <dd>
+        <input name="email_port" pattern="int" type="text" id="textfield" value="">
+		<label>smtp的端口。默认为25。具体请参看各STMP服务商的设置说明 （如果使用Gmail或QQ邮箱，请将端口设为465）</label>
+    </dd></dl>
+	
+   <dl class="lineD">
+      <dt>邮箱地址：</dt>
+      <dd>
+        <input name="email_account" pattern="email" type="text" id="textfield" value="">
+		<label>邮箱地址请输入完整地址email@email.com格式</label>
+    </dd></dl>
+	
+   <dl class="lineD">
+      <dt>邮箱密码：</dt>
+      <dd>
+        <input name="email_password" pattern="required" type="password" id="textfield" value="{$email_config['email_password']}">
+		<label>邮箱密码</label>
+    </dd></dl>
+	
+   <dl class="lineD">
+      <dt>发送者姓名：</dt>
+      <dd>
+        <input name="email_sender_name" type="text" id="textfield" value="">
+		<label>发送者姓名</label>
+    </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>测试收件地址：</dt>
+      <dd>
+        <input name="test_email" id="test_email" type="text" id="textfield" value="">
+    <label>收件邮箱地址</label> <a href="javascript:;" id="send_email" class="btn btn-mini btn-blue" onclick="">发送测试</a>
+    </dd>
+    </dl>
+
+    <div class="center">
+      <input type="submit" name="submit" class="button action fn" value="确 定">
+    </div>
+	</form>
+  </div>
+<script>
+  {if:isset($message)}
+  art.dialog.tips('<p class="success">{$message}</p>');
+  {/if}
+  var form = new Form('email_form');
+  var data = {echo:JSON::encode($config->get('email'))};
+  form.init(data);
+  $("#send_email").on('click',function(){
+    var email = $("#test_email").val();
+    $.post('{url:/admin/send_email_test}',{email:email},function(data){
+      art.dialog.tips("<p class='"+data['status']+"'>"+data['msg']+"</p>",2);
+    },'json');
+  })
+</script>

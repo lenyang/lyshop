@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{$admin_title}</title>
+<link rel="stylesheet" type="text/css" href="{url:@static/css/base.css}" />
+<link rel="stylesheet" type="text/css" href="{url:@static/css/admin.css}" />
+<link rel="stylesheet" type="text/css" href="{url:@static/css/font_icon.css}" />
+{echo:JS::import('jquery')}
+<script type="text/javascript" src="{url:@static/js/common.js}"></script>
+<!--[if lte IE 7]><script src="{url:@static/css/fonts/lte-ie7.js}"></script><![endif]-->
+</head>
+<body >
+<div id="header">
+	<div class="nav_sub">
+			    	您好[{$manager['name']}]&nbsp; | <a href="{url:/index/index}" target="_blank">返回前台</a> | <a href="{url:/admin/logout}">退出</a>
+	</div>
+    <div id="Logo"><a href=""><img src="{url:@static/images/logo_min.png}"></a></div>
+	<ul id="main_nav" class="clearfix">
+	{list:items = $mainMenu}
+		<li {if:$key==$menu_index['menu']}class="active"{/if}><a href="{url:$item[link]}"  >{$item['name']}</a></li>
+	{/list}
+	</ul>
+</div>
+<div id="mainContent">
+	<div id="sidebar" >
+		<ul class="menu" style="margin-top:15px;">
+		{list:items=$subMenu}
+			<li class="submenu">
+			<ul><li class="sub-index"><b><a href="javascript:;">{$item['name']}</a></b></li>
+			{list:items=$menu->getNodes($item['link'])}
+			{if:substr($item['link'],-5)!='_edit' && !$item['hidden'] }
+				<li><a href='{url:$item[link]}' {if:$item['link']==$nav_link}class="current"{/if} >{$item['name']}</a></li>
+				{/if}
+			{/list}
+			</ul>
+			</li>
+		{/list}
+		</ul>
+	</div>
+	<div id="content" >
+
+		{if:!isset($msg)}{set:$msg=Req::post('msg');}{/if}
+		{if:!isset($validator)}{set:$validator=Req::post('validator');}{/if}
+		{if:isset($msg[0])}
+		<div id="message-bar" class="message_{$msg[0]}">{$msg[1]}</div>
+		{elseif:isset($validator)}
+		<div class="message_warning">{$validator['msg']}</div>
+		{/if}
+		{__viewcontents}
+	</div>
+</div>
+<script type="text/javascript">
+	$(function () {
+		if('{echo:Req::args("con")}'=='admin'){
+			$(".submenu .current").parent().parent().parent().addClass('current');
+		}else{
+			$(".submenu").addClass('current');
+		}
+		$(".submenu .sub-index").on("click",function(){
+			$(this).parent().parent().toggleClass('current');
+		})
+	})
+
+</script>
+</body>
+</html>

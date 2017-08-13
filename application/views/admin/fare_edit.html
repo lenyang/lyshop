@@ -1,0 +1,81 @@
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<h1 class="page_title">运费模板编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/admin/fare_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 模板名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" />
+        <label> </label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>默认运费：</dt>
+      <dd>
+        <input name="first_weight" type="text" pattern="int" class="small"  value="{$first_weight|1000}"> (g)内<label></label>，<input name="first_price" type="text" pattern="float" class="small"  value="{$first_price}"> 元<label></label>；每增加<input name="second_weight" type="text" pattern="int" class="small"  value="{$second_weight|1000}"> (g)<label></label>，增加运费<input name="second_price" type="text" pattern="float" class="small"  value="{$second_price}"> 元<label></label>
+      </dd>
+      </dl><dl>
+      <dt></dt>
+      <dd>
+        <div style="margin-bottom:5px;"><button class="button " type="button" id="add_area">
+                <b class="icon-plus green"></b>
+                为指定地区城市设置运费
+              </button></div>
+        {if:isset($zoning)}
+        {set:$zoning = unserialize($zoning);}
+        {else:}
+        {set:$zoning = array();}
+        {/if}
+        <table class="default" id="area_list" style="display:{if:empty($zoning)}none{/if};">
+          <tr>
+            <th>运送到</th><th style="width:30px;"></th> <th style="width: 130px;">首重(g)</th> <th style="width: 130px;">首费(元)</th> <th style="width: 130px;">续重(kg)</th> <th style="width: 130px;">续费(元)</th> <th style="width: 40px;">操作</th>
+          </tr>
+          {list:items=$zoning item=$area}
+          <tr><td>{$area['names']}<input type='text' style='width:0;visibility:hidden;' name='zoning[]' value='{$area["area"]}' pattern='required' alt='地区不能为空！'><input type='hidden' name='zoning_name[]' value='{$area['names']}'></td><td><a href="javascript:;" class="fr" onclick="fare_show_area(this)">编辑</a></td><td><input type="text" class="small" name="f_weight[]" value="{$area['f_weight']}" pattern="int" value="1000"></td> <td><input type="text" class="small" pattern="float" name="f_price[]" value="{$area['f_price']}"></td> <td><input type="text" class="small" name="s_weight[]" pattern="int" value="1000" value="{$area['s_weight']}"></td> <td><input type="text" class="small"  pattern="float" name="s_price[]" value="{$area['s_price']}"></td> <td><a href="javascript:;" class="icon-close"></a></td> </tr>
+          {/list}
+        </table>
+      </dd>
+      </dl>
+
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<script type="text/javascript">
+  //操作按钮事件绑定
+function bindEvent(){
+  $(".icon-close").off();
+  $(".icon-close").on("click",function(){
+    $(this).parent().parent().remove();
+    if($("#area_list tr").length==1) $("#area_list").css("display","none");
+  });
+}
+function fare_show_area(id){
+  var current_table = $(id).parent().parent().parent();
+  var current_city = $(id).parent().prev().find("input[name='zoning[]']").val();
+  var current_zoning = current_table.find("input[name='zoning[]']");
+  var selected_city = '';
+  current_zoning.each(function(){
+    selected_city += $(this).val()+",";
+  });
+  selected_city = selected_city.replace(current_city,'');
+  art.dialog.data('current', id);
+  var url = "{url:/admin/fare_show_area/selected_city/[0]/current_city/[1]}";
+  url = url.format(selected_city,current_city);
+  art.dialog.open(url,{id:'area_dialog',title:'选择区域',width:760,height:360});
+  
+}
+function setCity(values,names){
+  var current = art.dialog.data('current');
+  $(current).parent().prev().html(names+"<input type='text' style='width:0;visibility:hidden;' name='zoning[]' value='"+values+"' pattern='required' alt='地区不能为空！'><input type='hidden' name='zoning_name[]' value='"+names+"'>");
+  art.dialog({id:'area_dialog'}).close();
+}
+$("#add_area").on("click",function(){
+  $("#area_list").css("display","");
+  $("#area_list").append('<tr><td><input type="text" style="width:0;visibility:hidden;" name="zoning[]" pattern="required" alt="地区不能为空！"></td><td><a href="javascript:;" class="fr" onclick="fare_show_area(this)">编辑</a></td><td><input type="text" class="small" name="f_weight[]" pattern="int" value="1000"></td> <td><input type="text" class="small" pattern="float" name="f_price[]"></td> <td><input type="text" class="small" name="s_weight[]" pattern="int" value="1000"></td> <td><input type="text" class="small"  pattern="float" name="s_price[]"></td> <td><a href="javascript:;" class="icon-close"></a></td> </tr>');
+  bindEvent();
+});
+bindEvent();
+</script>

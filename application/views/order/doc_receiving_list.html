@@ -1,0 +1,62 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a class="icon-delicious" href="{url:/order/doc_receiving_list}"> 显示全部 </a>
+    
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+    
+</div>
+<table class="default" >
+    <tr>
+        <th width="30">选择</th>
+        <th width="70">查看</th>
+        <th width="100">类型</th>
+        <th width="100">支付方式</th>
+        <th width="80">支付状态</th>
+        <th width="80">金额</th>
+        <th width="80">用户</th>
+        <th width="120">订单编号</th>
+        <th width="80">付款时间</th>
+        
+    </tr>
+    {query:name=doc_receiving as dr fields= dr.id,dr.doc_type,py.pay_name,dr.amount,us.name,od.order_no,dr.create_time,dr.payment_time,dr.pay_status as pay_status join= left join user as us on dr.user_id eq us.id left join payment as py on dr.payment_id eq py.id left join order as od on dr.order_id eq od.id where=$where id=$obj page=1 order=dr.id desc}
+        <tr><td width="30"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+            <td width="70"><a href="javascript:view({$item['id']})" class=" icon-eye"> 查看</a></td>
+            <td width="100">{$item['doc_type']|'充值'|'订单支付'}</td>
+            <td width="100">{$item['pay_name']}</td>
+            <td width="80">{$item['pay_status']|'已支付'|'等待支付'}</td>
+            <td width="80">{$item['amount']}</td>
+            <td width="80">{$item['name']}</td>
+            <td width="120">{$item['order_no']|'－'}</td>
+            <td width="80">{echo:substr($item['payment_time'],0,10)}</td>
+            </tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<div id="status_dialog" style="display: none; position: relative;" class="form2">
+    <h3 id="order_title">备注信息：</h3>
+        <input type="hidden" name="id" id="order_id" value="">
+        <input type="hidden" name="status" id="order_status" value="">
+        <input type="hidden" name="op" id="order_op" value="">
+        <textarea id="order_remark" name="remark"></textarea>
+    <div class="tc"><button class="focus_button" onclick="submit_status()">保存</button></div>
+</div>
+<script type="text/javascript">
+    function view(id){
+        art.dialog.open("{url:/order/doc_receiving_view/id/}"+id,{id:'view_dialog',title:'查看发货单',resize:false,width:900,height:320});
+    }
+   {set:$payment=""}
+    {query:name=payment}
+        {set:$payment.=$item['id'].':'."'".$item['pay_name']."',"}
+    {/query}
+    {set:$payment=trim($payment,',');}
+    $("#condition").on("click",function(){
+  $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/order/doc_receiving_list}',method:'get'});},data:{order_no:{name:'订单编号'},'dr.doc_type':{name:'单据类型',values:{0:'订单付款',1:'充值'}},'dr.pay_status':{name:'支付状态',values:{0:'等待支付',1:'已支付'}},'dr.payment_id':{name:'支付方式',values:{{$payment}}}
+  }});
+})
+</script>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>TinyShop商城</title>
+	<link type="text/css" rel="stylesheet" href="{url:@static/css/common.css}" />
+	<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+	{echo:JS::import('jquery');}
+	<script type='text/javascript' src="{url:@static/js/common.js}"></script>
+</head>
+<body style="background: #FFF;">
+	{echo:JS::import('form');}
+	{echo:JS::import('dialog?skin=brief');}
+	{echo:JS::import('dialogtools');}
+	<div class=" p10">
+			<h1 class="title"><span>收货地址：</span></h1>
+			{if:isset($msg)}
+			<div class="message_{$msg[0]} ie6png">{$msg[1]}</div>
+			{elseif:isset($validator)}
+			<div class="message_warning ie6png">{$validator['msg']}</div>
+			{/if}
+			<form id="address-form" class="simple" action="{url:/simple/address_save}" method="post">
+				{if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+				<table class="form">
+					<tr><td class="label">所在地区：</td><td id="areas"><select id="province"  name="province" >
+			        <option value="0">==省份/直辖市==</option>
+			        </select>
+			        <select id="city" name="city"><option value="0">==市==</option></select>
+			        <select id="county" name="county"><option value="0">==县/区==</option></select><input pattern="^\d+,\d+,\d+$" id="test" type="text" style="visibility:hidden;width:0;" value="{$province|0|int},{$city|0|int},{$county|0|int}" alt="请选择完整地区信息！"><label></label></td></tr>
+			        <tr>
+			        	<td class="label">邮政编码：</td><td><input  type="text" name="zip" pattern="zip" value="{$zip}"></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">街道地址：</td><td><textarea name="addr" pattern="required" minlen="5" maxlen="120">{$addr}</textarea> <label>不需要重复填写省市区，必须大于5个字符，小于120个字符</label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">收货人姓名：</td><td><input type="text" pattern="required" name="accept_name" maxlen="10" value="{$accept_name}"> <label>长度不得超过10个字</label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">手机号码：</td><td><input type="text" pattern="mobi" name="mobile" value="{$mobile}"><label></label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">电话号码：</td><td><input type="text" name="phone" pattern="phone" value="{$phone}"><label></label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">设为默认地址：</td><td><input type="checkbox" name="is_default" value="1"><label>设置为默认收货地址</label></td>
+			        </tr>
+			        <tr>
+			        	<td colspan="2" class="tc"><input type="submit" class="btn"></td>
+			        </tr>
+				</table>
+			</form>
+		</div>
+		<script type="text/javascript">
+		var form =  new Form('address-form');
+		form.setValue('is_default','{$is_default}');
+		  $("#areas").Linkage({ url:"{url:/ajax/area_data}",selected:[{$province|0|int},{$city|0|int},{$county|0|int}],callback:function(data){
+		    var text = new Array();
+		    var value = new Array();
+		    for(i in data[0]){
+		      if(data[0][i]!=0){
+		        text.push(data[1][i]);
+		        value.push(data[0][i]);
+		      }
+		    }
+		    $("#test").val(value.join(','));
+		    FireEvent(document.getElementById("test"),"change");
+		    }});
+		    {if:isset($invalid)}
+		  	autoValidate.showMsg({id:$("input[name='{$invalid['name']}']").get(0),error:true,msg:'{$invalid['msg']}'});
+		  {/if}
+		</script>
+</body>
+</html>
+
+
+

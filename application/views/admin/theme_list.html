@@ -1,0 +1,73 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<style type="text/css">
+	#themes-list{margin: auto; text-align: center;}
+	#themes-list .card-wrapper {width: 363px; float: left; margin-left: 12px; }
+	#themes-list .card {position: relative; transition: all 0.3s; filter: alpha(opacity=70); -moz-opacity: 0.7; opacity: 0.7; margin-bottom: 8px; border:#bbb 1px solid;display: block;border-radius: 4px;}
+	#themes-list .card:hover, #themes-list .card.current {filter: alpha(opacity=100); -moz-opacity: 1; opacity: 1; }
+	#themes-list .card.current:hover .action{display: block;}
+	#themes-list .card.current i.selected{display: block;}
+	#themes-list .card i.selected{display: none; position: absolute; bottom: 0; right: 0; color: transparent; padding: 7px 15px; font-size: 20px; transition: all 0.3s; z-index: 10; border-top-left-radius: 80px; background: #7c0000; color: #FFF; }
+	#themes-list .card .action {display: none; position: absolute; top: 36px; left: 0; right: 0; z-index: 999; text-align: center; width: 100%; }
+	#themes-list .card .action .btn{padding: 10px;font-size: 18px;}
+</style>
+<div class="clearfix">
+<h2 class="page_title">主题设置</h2>
+<div class="tab">
+	<ul class="tab-head">
+		<li>PC主题</li>
+		<li>移动主题</li>
+	</ul>
+	<div class="tab-body">
+		<div id="themes-list" >
+		{list:items=$themes_pc}
+		<div class="card-wrapper"><a id="{$item['file']}" class="card theme_pc {if:$current_theme_pc==$item['file']}current{/if}" href="javascript:;">
+		<img src="{url:@themes/$item[file]/preview.jpg}">
+		<i class="icon-checkmark selected"></i>
+		<div class="action"><span class="btn btn-preview btn-orange"><i class="icon-eye-2"></i> 前台预览</span></div>
+		</a><div class="tc">{$item['info']['name']}</div></div>
+		{/list}
+		</div>
+		<div id="themes-list" >
+		{list:items=$themes_mobile}
+		<div class="card-wrapper"><a id="{$item['file']}" class="card theme_mobile {if:$current_theme_mobile==$item['file']}current{/if}" href="javascript:;">
+		<img src="{url:@themes/$item[file]/preview.jpg}">
+		<i class="icon-checkmark selected"></i>
+		<div class="action"><span class="btn btn-preview btn-orange"><i class="icon-eye-2"></i> 前台预览</span></div>
+		</a><div class="tc">{$item['info']['name']}</div></div>
+		{/list}
+		</div>
+	</div>
+</div>
+
+</div>
+<script>
+	$(".theme_pc").on("click",function () {
+		var that = $(this);
+		$(".theme_pc").removeClass("current");
+		var theme = that.attr("id");
+		$.post("{url:/admin/set_theme}",{theme:theme,type:'pc'},function(data){
+			if(data['status']=='success'){
+				art.dialog.tips('<p class="success">PC主题设置成功！</p>');
+				that.addClass("current");
+			}
+		},'json')
+	})
+	$(".theme_mobile").on("click",function () {
+		var that = $(this);
+		$(".theme_mobile").removeClass("current");
+		var theme = that.attr("id");
+		$.post("{url:/admin/set_theme}",{theme:theme,type:'mobile'},function(data){
+			if(data['status']=='success'){
+				art.dialog.tips('<p class="success">移动主题设置成功！</p>');
+				that.addClass("current");
+			}
+		},'json')
+	})
+	$('.btn-preview').on("click",function(e){
+		window.open('{url:/index/index}','_blank');
+		return false;
+	})
+</script>

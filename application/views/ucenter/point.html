@@ -1,0 +1,52 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>我的积分：</span></h1>
+			<div class="box p15 mt10">当前积分：<b class="red f18">{$customer['point']|'0'}</b></div>
+			<div class="mt10 tab">
+				<ul class="tab-head">
+					<li>积分记录</li>
+					<li>积分换卷</li>
+				</ul>
+				<div class="tab-body"  style="padding: 20px 10px;">
+					<div class="mt10">
+					<table class="simple">
+						<tr>
+							<th width="140">时间</th> <th width="120">积分</th><th>当前积分</th><th >备注</th> 
+						</tr>
+						{query:name=point_log where=user_id eq $user[id] order=id desc page=1 id=$obj}
+						<tr {if:$key%2==1}class="even"{/if}>
+							<td>{$item['create_time']}</td><td>{$item['value']}</td><td>{$item['point']}</td><td>{$item['note']}</td>
+						</tr>
+						{/query}
+					</table>
+					<div class="page-nav">{echo:$obj->pagebar()}</div>
+					</div>
+					<div class='p10'>
+						<table class="simple">
+						{query:name=voucher_template where= point gt 0}
+						<tr><td><label><input type="radio" name="id" value="{$item['id']}"><b>{$item['name']}（需{$item['point']}积分）</b></label></td><td>订单需满足{$currency_symbol}{$item['money']} 才可使用</td><td> 自兑换之日起{$item['valid_days']}天内有效</td></tr>
+						{/query}
+						</table>
+						<div class='mt20 tc'><a href="javascript:;" id="point_exchange" class="btn ">兑换代金券</a></div>
+					</div>
+				</div>
+		</div>
+	</div>	
+	</div>
+</div>
+<script type="text/javascript">
+$("#point_exchange").on('click',function(){
+	var id = $("input[name='id']:checked").val();
+	$.post("{url:/ucenter/point_exchange}",{id:id},function(data){
+		if(data['status']=='success'){
+			alert('代金券兑换成功！');
+			location.reload();
+		}else{
+			alert(data['msg']);
+		}
+	},'json');
+});
+</script>

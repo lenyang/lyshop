@@ -1,0 +1,56 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<div class="tab">
+<ul class="tab-head">
+    <li>正在使用支付</li>
+    <li>全部支付方式</li>
+</ul>
+<div class="tab-body">
+    <div>
+        <table class="default" >
+            <tr>
+                <th colspan="2">支付方式</th>
+                <th style="width:120px">状态</th>  
+                <th style="width:120px">操作</th>                
+            </tr>
+        </table>
+        <div style="overflow: auto; height: 480px;">
+        <table class="default" style="border-top: 0">
+            {list:items=$payment_list}
+            {if:class_exists('pay_'.$item['class_name'])}
+                <tr>
+                  <td style="width:160px" class="btn_min">{$item['pay_name']}</td>
+                  <td  class="btn_min"><img src="{url:@application/classes/$item[logo]}"></td>
+                  <td style="width:120px">{if:$item['status']==0}已开启{else:}已关闭{/if}</td>
+                  <td class="btn_min" style="width:120px"><a class="icon-pencil" href="{url:/admin/payment_edit/id/$item[id]}"> 配制</a> <a class="icon-remove-2" href="javascript:confirm_action('{url:/admin/payment_del/id/$item[id]}')"> 删除</a></td></tr>
+            {/if}
+            {/list}
+            </table>
+        </div>
+    </div>
+    <div>
+        <form action="" method="post">
+        <table class="default" >
+            <tr>
+                <th colspan="2" style="width:320px;">支付方式</th>
+                <th>支付描述</th>
+                <th style="width:80px">操作</th>                
+            </tr>
+        </table>
+        <div style="overflow: auto; height: 480px;">
+        <table class="default" style="border-top: 0">
+            {query:name=pay_plugin order=id }
+                <tr>
+                  <td style="width:160px" class="btn_min"><img src="{url:@application/classes/$item[logo]}"></td>
+                  <td style="width:160px" class="btn_min">{$item['name']}</td>
+                  <td>{$item['description']}</td>
+                  <td style="width:80px;"><a href="{url:/admin/payment_edit/plugin_id/$item[id]}">添加</a></td></tr>
+            {/query}
+        </table>
+        </div>
+        </form>
+    </div>
+</div>
+</div>

@@ -1,0 +1,17 @@
+<div class="clearfix">
+<div class="mt10">
+    <h1><b>重要信息:</b></h1>
+    <table class="mt10 default">
+        <tr><th class="caption">待发货订单：</th> <td><a href="{url:/order/order_list?condition=and--pay_status--eq--1__and--delivery_status--eq--0__and--od.status--lt--4}" class="red">{$shipped_num}条</a></td><th class="caption">待回复商品咨询：</th> <td><a href="{url:/customer/ask_list?condition=and--a.status--eq--0}" class="red">{$ask_num}条</a></td></tr>
+        <tr><th class="caption">商品库存报警：</th> <td><a href="{url:/goods/goods_list}" class="red">{$warning_num}条</a></td><th class="caption">待处理的提现申请：</th> <td><a href="{url:/customer/withdraw_list?condition=and--wd.status--eq--0}" class="red">{$withdraw_num}条</a></td></tr>
+        <tr><th class="caption">待处理的退款单：</th> <td><a href="{url:/order/doc_refund_list?condition=and--dr.pay_status--eq--0}" class="red">{$refund_num}条</a></td><th class="caption">商品差评：</th> <td><a href="{url:/customer/review_list?condition=and--a.point--lt--3}" class="red">{$review_num}条</a></td></tr>
+    </table>
+</div>
+<div class="mt10">
+    <h1><b>信息统计:</b></h1>
+    <table class="mt10 default">
+        <tr><th class="caption">会员总数：</th> <td>{$user_num}</td><th class="caption">商品总数：</th> <td>{$goods_num}</td></tr>
+        <tr><th class="caption">订单总数：</th> <td>{$orders_num}</td><th class="caption">订单汇总：</th> <td>{list:items=$orders}<span><i class="icon-order-{$key}"></i>{$item|0}</span>{/list} </td></tr>
+    </table>
+</div>
+</div>

@@ -1,0 +1,118 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+    <div class="tools_bar clearfix">
+        <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+        <a class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/goods/virtual_goods_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+        <a class="icon-plus" href="javascript:create_virtual_dialog()"  title="添加"> 添加</a><a href="javascript:;" class="icon-loop-2"
+        onclick="tools_reload()"> 刷新</a>
+        <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+    </div>
+    <table class="default" >
+        <tr>
+            <th style="width:30px">选择</th>
+            <th style="width:70px">操作</th>
+            <th >名称</th>
+            <th style="width:100px">账号</th>
+            <th style="width:100px">密码</th>
+            <th style="width:60px">面额</th>
+            <th style="width:60px">状态</th>
+            <th style="width:160px">起止日期</th>
+
+        </tr>
+            {query:name=virtual_goods id=$obj where=$where page=1 order=id desc}
+            <tr><td style="width:30px">
+            <input type="checkbox" name="id[]" {if:$item['status']==0}disabled="disabled"{/if}  value="{$item['id']}">
+            </td>
+              <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+              {if:$item['status']==0}
+                <li><a class="icon-close" href="javascript:;" onclick="art.dialog.alert('已交易商品禁止删除！')"> 禁止删除</a></li>
+              {elseif:$item['status']==1}
+                <li><a class="icon-close" href="javascript:;" onclick="confirm_action('{url:/goods/virtual_goods_del/id/$item[id]}')"> 删除</a></li>
+              {/if}
+            </ul></div></div> </td>
+            <td >{$item['name']}</td><td style="width:100px;">{$item['account']}</td><td style="width:100px;">{$item['password']}</td><td style="width:60px;">{$item['value']}</td><td style="width:60px">{!=$item['status']|!==0?'已交易完成':'未交易'}</td><td style="width:160px">{echo:substr($item['start_time'],0,10)}~{echo:substr($item['end_time'],0,10)}</td></tr>
+            {/query}
+        </table>
+</form>
+<div class="page_nav">
+    {echo:$obj->pageBar()}
+</div>
+
+
+  <div id="card_box" style="display: none;width:550px;padding: 5px;" class="box">
+    <h2 class="page_title tc" style="border:none">添加非自动生成式虚拟商品</h2>
+    <div class="form2">
+      <form  id="export_form" action="{url:/goods/create_virtual}" method="post" callback="create_voucher">
+        <input type="hidden"  name="id" value="">
+        <input type="hidden" id="virtual_name" name="name" value="">
+        <dl class="lineD">
+          <dt>虚拟商品模板：</dt>
+          <dd><select name="template_id" id="template_id">
+            {query:name=virtual_template where=auto eq 1}
+              <option value="{$item['id']}">{$item['name']}</option>
+            {/query}
+          </select></dd>
+        </dl>
+        <dl class="lineD">
+          <dt>面值：</dt>
+          <dd id="voucher_value"><input type="text" name="value" value="0" class="small" pattern="float"></dd>
+        </dl>
+        <dl class="lineD">
+          <dt>账号：</dt>
+          <dd id="voucher_value"><input type="text" name="account" pattern="required"></dd>
+        </dl>
+        <dl class="lineD">
+          <dt>密码：</dt>
+          <dd id="voucher_value"><input type="text" name="password" pattern="required"></dd>
+        </dl>
+
+        <dl class="lineD">
+          <dt><b class="red">*</b>有效期：</dt>
+          <dd>
+            <input name="start_time" type="text" class="Wdate small" id="d4321" pattern="required"  onFocus="WdatePicker({maxDate:'#F{ $dp.$D(\'d4322\',{d:0});}',minDate:'%y-%M-{%d}'})" value="{echo:date('Y-m-d')}">
+            <label></label>
+             ~ <input name="end_time" class="Wdate small" type="text" id="d4322" pattern="required"  onFocus="WdatePicker({minDate:'#F{ $dp.$D(\'d4321\',{d:0});}'})">
+            <label></label>
+          </dd>
+        </dl>
+        <div class="tc mt10"><button class="button">添加商品</button></div>
+      </form>
+    </div>
+  </div>
+
+<script type="text/javascript">
+    $("#condition").on("click",function(){
+      $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/goods/virtual_goods_list}',method:'get'});},data:{name:{name:'名称'},account:{name:'账号'},status:{name:'是否交易',values:{0:'已交易',1:'未交易'}}}});
+  });
+
+    $("#template_id").on("change",function(){
+        var name = $('option:selected',this).text();
+        $("#virtual_name").val(name);
+    });
+FireEvent(document.getElementById("template_id"),"change");
+
+
+function create_virtual_dialog(id,name,value){
+      art.dialog({id:'create_virtual_dialog',lock:true,opacity:0.1,title:'添加虚拟商品',width:500,height:200,padding:"15px",content:document.getElementById("card_box")});
+    }
+
+    function create_voucher(e){
+      if(e == null){
+        var fields = $("#export_form").serializeArray();
+        $.post("{url:/goods/create_virtual_goods}",fields,function(data){
+          if(data['status']=='success'){
+            art.dialog({id:'create_virtual_dialog'}).close();
+            tools_reload();
+          }else{
+            art.dialog.tips('<p class="fail">添加失败!</p>');
+          }
+
+
+        },'json');
+      }
+      return false;
+    }
+</script>

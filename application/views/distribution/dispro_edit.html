@@ -1,0 +1,225 @@
+{echo:JS::import('form');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<script type="text/javascript" charset="UTF-8" src="{url:@static/js/jquery.iframe-post-form.js}"></script>
+<script>
+    var editor;
+    KindEditor.ready(function(K) {
+      editor = K.create('textarea[name="content"],textarea[name="sale_protection"]', {
+        uploadJson : '{url:/admin/upload_image}'
+      });
+    });
+</script>
+<h1 class="page_title">分销商品编辑</h1>
+<form action="{url:/distribution/dispro_save}" class=" " method="post" callback="check_tab_location" >
+  {if:isset($id)}
+  <input type="hidden" name="id" value="{$id}">
+  {/if}
+  <div id="obj_form" class="form2 tab">
+    <!-- tab 头 start -->
+    <ul class="tab-head">
+      <li>基本信息</li>
+    </ul>
+    <!-- tab 头 end -->
+    <!-- tab body start -->
+    <div class="tab-body">
+      <!-- 基本信息 start -->
+      <div>
+        <dl class="lineD">
+          <dt>
+            <b class="red">*</b>
+            商品编号：
+          </dt>
+          <dd>
+            <input name="dispro_no" id="dispro_no" type="text" pattern="\w{3,}" alt="请输入3个以上的字符(不能为中文)" value="{$dispro_no}" >
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            <b class="red">*</b>
+            商品名称：
+          </dt>
+          <dd>
+            <input name="name" type="text" pattern="required" value="{$name}" style="width:200px;" alt="不能为空">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            商品规格：
+          </dt>
+          <dd>
+            <input name="type" type="text"  value="{$type}" style="width:200px;" >
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>商品成本价：</dt>
+          <dd>
+            <input name="cost_price" type="text" pattern="float" value="{$cost_price}" style="width:100px;" alt="整数或保留小数点后两位精确度的数">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>商品市场价：</dt>
+          <dd>
+            <input name="market_price" type="text" pattern="float" value="{$market_price}" style="width:100px;" alt="整数或保留小数点后两位精确度的数">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>商品库存：</dt>
+          <dd>
+            <input name="store_nums" type="text" pattern="int" value="{$store_nums}" style="width:100px;" alt="必需为整数">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>商品库存警戒线：</dt>
+          <dd>
+            <input name="warning_line" type="text" pattern="int"  value="{$warning_line}" style="width:100px;" alt="必需为整数">
+            <label></label>
+          </dd>
+        </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>允许上架：</dt>
+      <dd>
+        <label><input type="radio" name="status" value="1" checked="checked">是</label>
+        <label><input type="radio" name="status" value="0">否</label>
+      </dd></dl>
+      <dl class="lineD clearfix">
+          <dt>产品相册：</dt>
+          <dd class="min_inputs ">
+            <button class="button  select_button" type="button" >
+              <b class="icon-plus green"></b>
+              添加图片
+            </button> <b class="red">(注：点选图片，使其成为默认图片)</b>
+
+          </dd>
+        </dl>
+        <dl>
+          <dt></dt>
+          <dd>
+            <ul class="piclist" id="pic_list">
+              {if:isset($imgs) && $imgs =  unserialize($imgs)}
+            {list:items=$imgs}
+              <li {if:$item == $img} class="current" {/if}>
+                <div class="bord">
+                  <input type="hidden" name="imgs[]" value="{$item}">
+                  <img src="{url:@$item}" data-src={$item} onclick="selectImg(this)" width="80" height="80" alt=""></div>
+                <div class="opera">
+                  <a class="icon-arrow-left-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-arrow-right-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-link" href="javascript:;" onclick="linkImg(this)"></a>&nbsp;&nbsp;<a class="icon-close" href="javascript:;" onclick="delImg(this)"></a>
+                </div>
+              </li>
+              {/list}
+            {/if}
+            </ul>
+              <input name="img" type="text" style="visibility: hidden;width:0;" value="{$img}" pattern="required" id="img_index" alt="添加商品图片"/>
+              <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>详细介绍：</dt>
+          <dd>
+            <textarea id="content" pattern="required" name="content" style="width:400px;height:300px;visibility:hidden;">{$content}</textarea>
+        <label></label>
+            <label></label>
+          </dd>
+        </dl>
+        </div>
+      <div>
+  </div>
+</div>
+<!-- tab 头 end -->
+<div style="text-align:center;margin-top:20px;">
+  <input type="submit" class="focus_button" value="提交" >
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="reset" value="重置" class="button"></div>
+</div>
+</form>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('status','{$status|0}');
+{if:isset($products_info)}
+var products_info = {echo:JSON::encode($products_info);};
+{else:}
+var products_info = new Array();
+{/if}
+
+$(".select_button").on("click",function(){
+      uploadFile();
+      return false;
+    });
+function uploadFile(){
+  art.dialog.open('{url:/admin/photoshop}',{id:'upimg_dialog',lock:true,opacity:0.1,title:'选择图片',width:613,height:380});
+}
+function selectImg(id){
+  var img = $(id).attr('data-src');
+  $("#pic_list li").removeClass("current");
+  $(id).parent().parent().addClass("current");
+  $("#img_index").val(img);
+}
+//回写选择图片
+function setImg(value){
+  var show_src = "{url:@}"+value;
+  if(value.indexOf("http://")!=-1) show_src = value;
+
+  if($("#pic_list img[src='"+show_src+"']").get(0)){
+    art.dialog.alert("图片已经添加，请不要重复添加！");
+  }else{
+    $("#pic_list").append('<li> <div class="bord"><input type="hidden" name="imgs[]" value="'+value+'" /> <img src="'+show_src+'" data-src="'+value+'" onclick="selectImg(this)" width="80" height="80" alt=""></div> <div class="opera"><a class="icon-arrow-left-2" href="javascript:;" ></a>&nbsp;&nbsp;<a class="icon-arrow-right-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-link" href="javascript:;" onclick="linkImg(this)"></a>&nbsp;&nbsp;<a class="icon-close" href="javascript:;" onclick="delImg(this)"></a> </div> </li>');
+      bindEvent();
+      if($("#pic_list li.current").length <=0 ){
+        $("#pic_list li:eq(0)").addClass("current");
+        $("#img_index").val(value);
+      }
+      FireEvent(document.getElementById('img_index'),'change');
+      art.dialog({id:'upimg_dialog'}).close();
+  }
+
+}
+function bindEvent(){
+  $(".icon-arrow-right-2").off();
+  $(".icon-arrow-left-2").off();
+  $(".icon-arrow-right-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    current_tr.insertAfter(current_tr.next());
+  });
+    $(".icon-arrow-left-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    if(current_tr.prev().html()!=null)current_tr.insertBefore(current_tr.prev());
+  });
+
+}
+bindEvent();
+//删除添加的图片
+function delImg(id){
+  $(id).parent().parent().remove();
+  if($("#pic_list li:eq(0)").length <= 0)$("#img_index").val('');
+}
+function linkImg(id){
+  var src = $(id).parent().parent().find('img').attr('src');
+  art.dialog({id:'linkDialog',title:'图片地址',content:'<div>图片地址：<input type="text" value='+src+' style="width:300px;"/></div>',width:420});
+}
+
+</script>
+<script type="text/javascript">
+  $("#uploadForm").iframePostForm({
+      iframeID: 'iframe-post-form',
+      json:true,
+      post: function(){
+          $("#upload-btn").text("上传中...")
+      },
+      complete: function(data){
+          if(data['status']!='success'){
+            alert(data['msg']);
+          }else{
+            $("#virtual_extend_input").val(data['fileid']);
+            art.dialog({id:'upfile-dialog'}).close();
+          }
+          $("#upload-btn").text("上传");
+      }
+  });
+</script>

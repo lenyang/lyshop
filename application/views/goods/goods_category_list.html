@@ -1,0 +1,35 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('validator');}
+<form action="" method="post" class="clearfix">
+    <div class="tools_bar">
+        <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+        <a href='{url:/goods/goods_category_edit}' class="icon-plus" > 添加</a>
+    </div>
+    <table class="default">
+        <tr>
+            <th style="width:30px;">选择</th>
+            <th style="width:70px;">操作</th>
+            <th>分类名称</th>
+            <th >上级分类</th>
+            <th style="width:100px;">别名</th>
+            <th style="width:100px;">导航显示</th>
+            <th style="width:100px;">列表显示</th>
+            <th style="width:100px;">排序</th>
+        </tr>
+        {query:name=goods_category order=path,sort desc /}
+        {set:$category_name=array();}
+        {list:}
+        {set:$category_name[$item['id']]=$item['name']}
+        {/list}
+        {set:$goods_category=Common::treeArray($items)}
+        {list:items=$goods_category}
+        <tr><td><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+            <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a class="icon-pencil" href="{url:/goods/goods_category_edit/id/$item[id]}"> 编辑</a> </li>
+                <li><a class="icon-remove-2" href="javascript:;" onclick="confirm_action('{url:/goods/goods_category_del/id/$item[id]}')"> 删除</a></li>
+            </ul></div></div></td>
+            <td>{echo:str_repeat('— ',count(explode(',',$item['path']))-3)}{$item['name']}</td><td>{$category_name[$item['parent_id']]}</td><td>{$item['alias']}</td><td>{if:$item['nav_show']==1}<b class="green">显示</b>{else:}<b class="red">隐藏</b>{/if}</td><td>{if:$item['list_show']==1}<b class="green">显示</b>{else:}<b class="red">隐藏</b>{/if}</td><td>{$item['sort']}</td></tr>
+            {/list}
+        </table>
+    </form>

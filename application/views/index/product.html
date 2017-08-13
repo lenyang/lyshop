@@ -1,0 +1,669 @@
+{echo:JS::import('dialog?skin=simple');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<!--S 产品展示-->
+<link type="text/css" rel="stylesheet" href="{url:@static/css/product.css}" />
+<script type='text/javascript' src="{url:@static/js/jquery.enlarge.js}"></script>
+<script type="text/javascript">
+	//$("body").addClass("screen_960");
+</script>
+<div class="nav-bar mt5 clearfix">
+    {list:items=$category_nav}
+    <a class="category-{$key}" href="{url:/index/category/cid/$item[id]}">{$item['name']} {if:$item!=end($category_nav)}&gt;{/if}</a>
+    {/list}
+</div>
+<div id="product-intro" class="clearfix mt10" style="position: relative;">
+	<ul class="product-info">
+        <li class="product-title"><h1>{$goods['name']}</h1></li>
+        <li class="clearfix"><p class="fl"><label>市场价：</label><s id="market-price">{$currency_symbol}{$goods['market_price']}</s></p><p class="fr"><label>货号：</label><span id="pro-no">{$goods['goods_no']}</span></p></li>
+        
+        <li >
+        <ul class=" prom">
+        {if:!empty($prom)}
+        {if:isset($user['group_id'])}
+                {set:$group_id = ','.$user['group_id'].',';}
+            {/if}
+        <li class="product-price"><label>促销价：</label><span id="prom_price" class="price" formula="{$prom['parse']['minus']}">{$currency_symbol} {$prom['parse']['real_price']}</span><em class="promo-type">{$prom['name']}【{$prom['parse']['note']}】</em>
+        {if:isset($group_id)}
+                {if:stripos(','.$prom['group'].',',$group_id)===false}
+                    你的会员级别，无法享受此活动。
+                {/if}
+            {else:}
+                登录后查看是否享受此活动。
+            {/if}
+        </li>
+        <li><label></label><span>销售价&nbsp;&nbsp;</span><s id="sell_price"> {$currency_symbol}{$goods['sell_price']}</s></li>
+        {else:}
+        <li class="product-price"><label>销售价：</label><span></span><span id="sell_price" class="price">{$currency_symbol}{$goods['sell_price']}</span></li>
+        {/if}
+        {if:$goods['store_nums']>0}
+        <li class="clearfix"><label></label><span>库存&nbsp;&nbsp;</span><span id="goods_nums">({$goods['store_nums']})</span></li>
+        {else:}
+        <li class="clearfix"><label><b class="f16">无货</b></label><span>此商品暂时售完</span>  <span class="btn btn-gray btn-mini" id="goods-notify">到货通知</span></li>
+        {/if}
+        </ul>
+        </li>
+        <li class="clearfix" style="height:24px; line-height:24px;"><label class="fl">商品评价：</label><span class="score fl"><i style="width:{$comment['a']['percent']}%"></i></span><span>[ 共有({$comment['total']})人参与评价 ]</span></li>
+
+    </ul>
+    <div class="spec-info mt10">
+        {list:items=unserialize($goods['specs']) item=$spec}
+        <dl class="spec-item clearfix">
+            <dt>{$spec['name']}：</dt>
+            <dd>
+                <ul class="spec-values" spec_id="{$spec['id']}">
+                {list:items=$spec['value'] item=$value}
+                <li data-value="{$spec['id']}:{$value['id']}">{if:$value['img']==''}<span>{$value['name']}</span>{else:}<img src="{url:@}{echo:Common::thumb($value['img'],100)}"  width="36" height="36"><label>{$value['name']}</label>{/if}<i></i></li>
+                {/list}
+                </ul>
+            </dd>
+        </dl>
+        {/list}
+        <dl class="spec-item clearfix">
+            <dt>购买数量：</dt>
+            <dd class="buy-num" id="buy-num-bar"><a href="javascript:;">-</a><input id="buy-num" name="buy_num" value="1"  maxlength=5><a href="javascript:;">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<span>可购数量：<b id="store_nums" class="red">{$goods['store_nums']}</b></span></dd>
+        </dl>
+        <dl id="spec-msg" class="spec-item clearfix" style="display: none;">
+            <dt></dt>
+            <dd ><p class="msg"><i class="icon icon-alert"></i><span >请选择您要购买的商品规格</span></p>
+            </dd>
+        </dl>
+        <dl class="spec-item clearfix">
+            <dt></dt>
+            <dd>
+                <a href="javascript:;" id="add-cart" class="btn" style="padding:6px 20px;"><i class="icon-cart ie6png"></i> 加入购物车</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="javascript:;" id="attention" class="btn btn-gray"><i class="icon-plus-1 ie6png"></i>关注</a>
+            </dd>
+        </dl>
+    </div>
+	<div id="preview" >
+	<div id="imgmini" style="width: 367px;height:367px;border: 1px #ccc solid;"><img class="big-pic" width="367"  src="{url:@}{echo:Common::thumb($goods['img'],367)}" source="{url:@$goods[img]}"></div>
+	   <div id="gallery">
+        <a class="turn-left"></a>
+        <div class="show-list">
+        <div style="position: absolute;width:800px;">
+    		{list:items=unserialize($goods['imgs']) item=$img}
+            <a class="small-img" href="javascript:;"><img src="{url:@}{echo:Common::thumb($img,367)}"  source="{url:@$img}"></a>
+    		{/list}
+        </div>
+        </div>
+        <a class="turn-right"></a>
+	</div>
+</div>
+</div>
+<!--S 商品详情-->
+<div class="goods-detail clearfix">
+    <div class="sidebar">
+        <div class="box">
+            <h2>同类其它产品</h2>
+            <ul class="content child-category-list ">
+                {set:$path_like = "like '$goods[path]%'";}
+                {query:name=goods where=category_id in (select id from tiny_goods_category where path $path_like) order=sort desc limit=10}
+                {if:$goods['id']!=$item['id']}
+                <li>
+                    <dl>
+                        <dt class="img tc"><a href="{url:/index/product/id/$item[id]}"><img src="{url:@$item[img]__220_220.jpg}" onerro="{url:@}{echo:Common::thumb($item['img'],220,220)}" width=220></a></dt>
+                        <dd><a href="{url:/index/product/id/$item[id]}">{$item['name']}</a></dd>
+                        <dd><span class="price">售价：<b class="red">{$currency_symbol}{$item['sell_price']}</b></span><span class="market_price fr">市场价：<s>{$currency_symbol}{$item['market_price']}</s></span></dd>
+                    </dl>
+                </li>
+                {/if}
+                {/list} 
+            </ul>
+        </div>
+    </div>
+    <div class="content " style="margin-left: 12px;">
+        <!--S 捆绑销售 -->
+        {query:name=bundling where=CONCAT(',',goods_id,',') like '%,$goods[id],%' and status eq 1 items=$bundling/}
+        {if:$bundling}
+
+        <div class="tab">
+        <h1 class="f18">套装组合：</h1>
+                <ul class="tab-head">
+                {list:items=$bundling}
+                    <li>套装{echo:($key+1)}</li>
+                {/list}
+                </ul>
+                <div class="tab-body bundling-list " style="min-height: 180px;">
+                    {list:items=$bundling item=$bun}
+                    {set:$gids = $goods['id'].','.$bun['goods_id'];$total_price=0.00;}
+                    <div class="group-item">
+                        {query:name=goods where=id in($gids) order=field(`id`,$gids)}
+                        {set:$total_price+=$item['sell_price'];}
+                        <div class="goods-item">
+                            {if:$key!=0}<s class="icon-add"></s>{/if}
+                            <div><a href="{url:/index/product/id/$item[id]}"><img src="{url:@$item[img]__100_100.jpg}" onerro="{url:@}{echo:Common::thumb($item['img'],100,100)}"  width="100" height="100"></a></div>
+                            <div style="overflow:hidden;height:36px;">{$item['name']}</div>
+                        </div>
+                        {/query}
+                        <div class="goods-item" style="width:200px;padding-left:20px">
+                            <s class="icon-equal"></s>
+                            <div class="title"><b>{$bun['title']}</b></div>
+                            <div>套&nbsp;&nbsp;装&nbsp;&nbsp;价： {$currency_symbol}{$bun['price']}</div>
+                            <div>原　　价： <del>{$currency_symbol}{$total_price}</del></div>
+                            <div>立即节省： {$currency_symbol}{echo:$total_price-$bun['price']}</div>
+                            <div class="mt10"><a href="{url:/index/bundbuy/id/$bun[id]}" class="btn btn-mini">购买套装</a></div>
+                        </div>
+                    </div>
+                    {/list}
+                </div>
+        </div>
+        {/if}
+        <!--S 捆绑销售 -->
+        <div class="tab mt10">
+            <ul class="tab-head">
+                <li>商品详情</li>
+                <li>商品评价</li>
+                <li>商品咨询</li>
+                <li>售后服务</li>
+            </ul>
+            <div class="tab-body" style="min-height: 200px;">
+                <!--S 商品详情-->
+                <div class="p10 clearfix">
+                    <ul class="attr-list">
+                        <li>商品名称：{$goods['name']}</li>
+                        <li>商品编号：{$goods['pro_no']}</li>
+                        <li>商品重量：{$goods['weight']}g</li>
+                        <li>上架时间：{$goods['up_time']}</li>
+                        {list:items=$goods_attrs}
+                        <li>{$item['name']}：{$item['vname']}</li>
+                        {/list}
+                    </ul>
+                    <div class="clearfix" >
+                    {$goods['content']}
+                    </div>
+                </div>
+                <!--E 商品详情-->
+                <!--S 商品评价-->
+                <div style="padding: 20px;" class="comment-list">
+                    <div class="comment-top clearfix">
+                        <ul>
+                            <li>
+                                <div class="tc comment-score"><em class="tc circle">{$comment['a']['percent']}<i style="font-size: 18px;">%</i></em>- 好评度 -</div>
+                                <div class="mt10 score "><i style="width:{$comment['a']['percent']}%"></i></div>
+                            </li>
+                            <li class="comment-grade">
+                                <div>
+                                    <h1>共有({$comment['total']})人参考评价</h1>
+                                    <dl class="comment-percent">
+                                        <dt>很好</dt>
+                                        <dd class="bar"><i style="width:{$comment['a']['percent']}%"></i></dd>
+                                        <dd class="percent">{$comment['a']['percent']}%</dd>
+                                        <dt>较好</dt>
+                                        <dd class="bar"><i style="width:{$comment['b']['percent']}%"></i></dd>
+                                        <dd class="percent">{$comment['b']['percent']}%</dd>
+                                        <dt>一般</dt>
+                                        <dd class="bar"><i style="width:{$comment['c']['percent']}%"></i></dd>
+                                        <dd class="percent">{$comment['c']['percent']}%</dd>
+                                    </dl>
+                                </div>
+                            </li>
+                            <li class="comment-action">
+                                <div>
+                                    {set:$uid = isset($user['id'])?$user['id']:0;}
+                                    {query:name=review where=goods_id eq $id and user_id eq $uid and status eq 0 limit=1 /}
+                                    {if:$items}
+                                    {list:}
+                                    <a href="{url:/index/review/id/$item[id]}" class="btn">我要评论</a>
+                                    {/list}
+                                    {else:}
+                                    <a href="javascript:;" class="btn btn-disable">我要评论</a>
+                                    {/if}
+                                    <p>仅对购买过该商品的用户开放！</p>
+
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="comment tab" id="comment">
+                        <ul class="tab-head">
+                            <li>全部({$comment['total']})</li>
+                            <li>很好({$comment['a']['num']})</li>
+                            <li>较好({$comment['b']['num']})</li>
+                            <li>一般({$comment['c']['num']})</li>
+                        </ul>
+                        <div class="tab-body">
+                            <div id="comment-all">
+                                <div class="page-nav"></div>
+                                <div class="page-content">
+                                    <div class="comment-item">
+                                        <div class="consult-q">
+                                            <div class="head">
+                                                <img src="{head_pic}" width="80" height="80">
+                                                <strong cla>{uname}</strong>
+                                                <i class="arrow"><b></b></i>
+                                            </div>
+                                            <div class="comment-content">
+                                                <p class="top"><span class="score "><i style="width:{point}%"></i></span><span class="fr">{comment_time|今天}</span></p>
+                                                <p >{content}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="page-nav"></div>
+                            </div>
+
+                            <div id="comment-a">
+                                <div class="page-nav"></div>
+                                <div class="page-content">
+                                    <div class="comment-item">
+                                        <div class="consult-q">
+                                            <div class="head">
+                                                <img src="{head_pic}" width="80" height="80">
+                                                <strong>{uname}</strong>
+                                                <i class="arrow"><b></b></i>
+                                            </div>
+                                            <div class="comment-content">
+                                                <p class="top"><span class="score "><i style="width:{point}%"></i></span><span class="fr">{comment_time|今天}</span></p>
+                                                <p >{content}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="page-nav"></div>
+                            </div>
+
+                            <div id="comment-b">
+                                <div class="page-nav"></div>
+                                <div class="page-content">
+                                    <div class="comment-item">
+                                        <div class="consult-q">
+                                            <div class="head">
+                                                <img src="{head_pic}" width="80" height="80">
+                                                <strong>{uname}</strong>
+                                                <i class="arrow"><b></b></i>
+                                            </div>
+                                            <div class="comment-content">
+                                                <p class="top"><span class="score "><i style="width:{point}%"></i></span><span class="fr">{comment_time|今天}</span></p>
+                                                <p >{content}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="page-nav"></div>
+                            </div>
+
+                            <div id="comment-c">
+                                <div class="page-nav"></div>
+                                <div class="page-content">
+                                    <div class="comment-item">
+                                        <div class="consult-q">
+                                            <div class="head">
+                                                <img src="{head_pic}" width="80" height="80">
+                                                <strong>{uname}</strong>
+                                                <i class="arrow"><b></b></i>
+                                            </div>
+                                            <div class="comment-content">
+                                                <p class="top"><span class="score "><i style="width:{point}%"></i></span><span class="fr">{comment_time|今天}</span></p>
+                                                <p >{content}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="page-nav"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <!--E 商品评价-->
+                <!--S 商品咨询-->
+                <div class="consult clearfix" id="goods-consult">
+                    <form  style="overflow:hidden;width:100%">
+                    <div class="box" style="margin:20px;">
+                        <h2>商品咨询：</h2>
+                        <div class="p15">
+                            <div class="txt-panel mb5">
+                                <textarea name="content" id="consult-content"  class="p5 "></textarea>
+                            </div>
+                            <div class="clearfix"><span class="fl"><input type="text" class="input" name="verifyCode" id="verifyCode" style="width: 80px;" ><img id="captcha_img"  src="{url:/simple/captcha/h/40/w/120}"><label><a href="javascript:void(0)" class="red" onclick="document.getElementById('captcha_img').src='{url:/simple/captcha/h/40/w/120/random/}'+Math.random()" id="change-img">换一张</a></label></span>
+                            <span class="fr">
+                                <input type="submit" id="consult" value="咨询" class="btn"> <input type="reset" value="取消" class="btn btn-gray">
+                            </span></div>
+                        </div>
+
+                    </div>
+                    </form>
+                    <div class="page-nav"></div>
+                    <div  class="page-content" id="page-content">
+                    <div class="consult-item">
+                        <div class="consult-q">
+                            <div class="head">
+                                <img src="{head_pic}" width="80" height="80">
+                                <strong>{uname|网友}</strong>
+                                <i class="arrow"><b></b></i>
+                            </div>
+                            <div class="consult-content">{question}
+                                <p class="tr">{ask_time}</p>
+                            </div>
+                        </div>
+                        <div class="consult-a {content||hidden}" >
+                            <div class="head">
+                                <img src="{url:@static/images/no-img.png}" width="80" height="80">
+                                <strong>商城客服</strong>
+                                <i class="arrow"><b></b></i>
+                            </div>
+                            <div class="consult-content">{content}
+                                <p class="tl">{reply_time|今天}</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="page-nav"></div>
+                </div>
+                <!--E 商品咨询-->
+            </div>
+        </div>
+    </div>
+</div>
+<!--E 商品详情-->
+<div  id="notify-dialog" class="hidden">
+<form id="notify_form"  method="post"  callback="submit_notify">
+<h1>订阅到货通知：</h1>
+    <table class="form" style="width:400px;">
+        <tr>
+            <td class="label"><b class="red">*</b> 邮箱地址：</td>
+            <td> <input type="text" id="n_email" name="email" pattern="email" ></td>
+        </tr>
+        <tr>
+            <td class="label">手机号码：</td>
+            <td><input type="text" id="n_mobile" empty name="mobile"   pattern="mobi"></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc"><input type="submit" class="btn" value="到货通知"></td>
+        </tr>
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+$("#goods-consult").Paging({
+                url:'{url:/index/get_ask}',
+                params:{id:{$goods['id']}}
+            });
+$("#comment-all").Paging({
+                url:'{url:/index/get_review}',
+                params:{id:{$goods['id']}}
+            });
+$("#comment-a").Paging({
+                url:'{url:/index/get_review}',
+                params:{id:{$goods['id']},score:'a'}
+            });
+$("#comment-b").Paging({
+                url:'{url:/index/get_review}',
+                params:{id:{$goods['id']},score:'b'}
+            });
+$("#comment-c").Paging({
+                url:'{url:/index/get_review}',
+                params:{id:{$goods['id']},score:'c'}
+            });
+
+$("#consult").on("click",function(){
+    var content = $("#consult-content").val();
+    var verifyCode = $("#verifyCode").val();
+    if(!Tiny.user.online)art.dialog.alert('登录后确认才能咨询！');
+    else if(content=='')art.dialog.alert("内容不能为空！");
+    else if(verifyCode=='')art.dialog.alert("验证码不能为空！");
+    else{
+        $.post("{url:/index/goods_consult}",{id:'{$goods['id']}',content:content,verifyCode:verifyCode},function(data){
+                if(data['status']=='success'){
+                    $("#goods-consult").Paging({
+                    url:'{url:/index/get_ask}',
+                    params:{id:{$goods['id']}}
+                });
+                    $("#consult-content").val('');
+                    $("#verifyCode").val('');
+                    FireEvent(document.getElementById('change-img'),"click");
+                    art.dialog.tips("<p class='success'>发布成功!</p>");
+            }else{
+                art.dialog.alert("<p class='fail'>"+data['msg']+"</p>");
+            }
+        },'json')
+    }
+    
+    return false;
+})
+
+	$("#imgmini").enlarge({
+        // 鼠标遮罩层样式
+        shadecolor: "#FFF",
+        shadeborder: "#FF8000",
+        shadeopacity: 0.5,
+        cursor: "move",
+
+        // 大图外层样式
+        layerwidth: 367,
+        layerheight: 367,
+        layerborder: "#DDD",
+        fade: true});
+    var skuMap = {echo:JSON::encode($skumap)};
+    //更新库存信息
+    var store_nums = 0;
+    for(i in skuMap){
+        store_nums += parseInt(skuMap[i]['store_nums']);
+    }
+    $("#store_nums").text(store_nums);
+    $("#goods_nums").text(store_nums);
+
+    $("#gallery  .small-img").each(function(i){
+        if(i==0)$(this).addClass("current");
+    	$(this).on("mouseenter",function(){
+            $(this).parent().find("a").removeClass("current");
+            $(this).addClass("current");
+            $("#imgmini img").attr("src",$(this).find("img").attr("src"));
+            $("#imgmini img").attr("source",$(this).find("img").attr("source"));
+    	})
+    });
+    $(".spec-values li").each(function(){
+        $(this).on("click",function(){
+            var disabled = $(this).hasClass('disabled');
+            if(disabled) return;
+            var flage = $(this).hasClass('selected');
+            
+            $(this).parent().find("li").removeClass("selected");
+            if(!flage){
+                $(this).addClass("selected");
+            }
+            changeStatus();
+             if($(".spec-values").length == $(".spec-values .selected").length){
+                var sku = new Array();
+                $(".spec-values .selected").each(function(i){
+                    sku[i]= $(this).attr("data-value");
+                })
+                var sku_key = ";"+sku.join(";")+";";
+                if(skuMap[sku_key]!=undefined){
+                    var sku = skuMap[sku_key];
+                    $("#sell_price").text("{$currency_symbol}"+sku['sell_price']);
+                    $("#store_nums").text(sku['store_nums']);
+                    $("#goods_nums").text(sku['store_nums']);
+                    if($("#prom_price").size()>0){
+                        var formula = $("#prom_price").attr('formula');
+                        var prom_price = eval(sku['sell_price']+formula);
+                        if(prom_price<=0)prom_price = 0;
+                        $("#prom_price").text("{$currency_symbol} "+prom_price.toFixed(2));
+                    }
+                    
+                    $("#market-price").text(sku['market_price']);
+                    $("#pro-no").text(sku['pro_no']);
+                }
+                $("#spec-msg").css("display","none");
+             }
+        })
+    })
+    function changeStatus(){
+        var specs_array = new Array();
+        $(".spec-values").each(function(i){
+            var selected = $(this).find(".selected");
+            if(selected.length>0)specs_array[i]=selected.attr("data-value");
+            else specs_array[i] = "\\\d+:\\\d+";
+        });
+        $(".spec-values").each(function(i){
+            var selected = $(this).find(".selected");
+            $(this).find("li").removeClass("disabled");
+            var k = i;
+            $(this).find("li").each(function(){
+                
+                var temp = specs_array.slice();
+                temp[k] = $(this).attr('data-value');
+                var flage = false;
+                for(sku in skuMap){
+                    var reg = new RegExp(';'+temp.join(";")+';');
+                    if(reg.test(sku) && skuMap[sku]['store_nums']>0) flage = true;
+                }
+                if(!flage)$(this).addClass("disabled");
+            })
+
+        });
+    }
+    $("#buy-num-bar a:eq(0)").on("click",function(){
+        var num = $("#buy-num-bar input").val();
+        if(num>1) num--;
+        else num=1;
+        $("#buy-num-bar input").val(num);
+    });
+    $("#buy-num-bar a:eq(1)").on("click",function(){
+        var num = $("#buy-num-bar input").val();
+        var max = parseInt($("#store_nums").text());
+        if(num<max) num++;
+        else num=max;
+        $("#buy-num-bar input").val(num);
+    });
+    $("#buy-num-bar input").on("change",function(){
+        var value = $(this).val();
+        var max = parseInt($("#store_nums").text());
+        if((/^\d+$/i).test(value)){
+            value = Math.abs(parseInt(value));
+            if(value>max) value = max;
+        }else{
+            value = 1;
+        }
+        $(this).val(value);
+    })
+    $("#buy-now").on("click",function(){
+        if($(".spec-values").length == $(".spec-values .selected").length){
+
+            $(".spec-values .selected").each(function(){
+
+            })
+
+        }else{
+            $("#spec-msg").css("display","");
+        }
+    })
+    //添加到购物车
+    $("#add-cart").on("click",function(){
+        var product = currentProduct();
+        if(product){
+            var id = product["id"];
+            var num = parseInt($("#buy-num").val());
+            var max = parseInt($("#store_nums").text());
+            var cart_num = parseInt($("#"+id).find(".num").text());
+            if((num+cart_num)>max){
+                $("#spec-msg").css("display","");
+                showMsgBar('stop',"连同购物车里的商品数量，超出了允许购买的最大量！");
+                return false;
+            }else if(max<=0){
+                $("#spec-msg").css("display","");
+                showMsgBar('stop',"库存不足！");
+                return false;
+            }
+            else{
+                $("#spec-msg").css("display","none");
+            }
+            $.post("{url:/index/cart_add}",{id:id,num:num},function(data){
+                updateCart(data);
+
+                var tmp=$($("#imgmini img").get(0).cloneNode(true));
+                tmp.css({position: 'absolute','z-index':'9998', border:'solid 1px #ccc', background:'#aaf','overflow':'hidden' ,background:'#fff'});
+                var imgView=$("#imgmini").offset();
+                tmp.css(imgView);
+                tmp.appendTo($('body'));
+                var end = $("#shopping-cart").offset();
+                step1 = {top:end.top-160,left:end.left+100,width:100,height:100,opacity:0.8};
+                step2 = {top:end.top,left:end.left+100,width:100,height:100,opacity:0};
+
+                $(tmp).animate(step1,"slow",function(){$("#card-wrap").animate({top:-15}).animate({top:-5});}).animate(step2, "slow",function(){
+                        tmp.remove();  
+                      });
+            },"json");
+        }else{
+            $("#spec-msg").css("display","");
+            showMsgBar('alert',"请选择您要购买的商品规格！");
+        }
+    });
+    
+    //取得当前商品
+    function currentProduct(){
+        if($(".spec-values").length==0){
+            return skuMap[''];
+        }
+        if($(".spec-values").length == $(".spec-values .selected").not(".disabled").length){
+            var sku = new Array();
+            $(".spec-values .selected").each(function(i){
+                sku[i]= $(this).attr("data-value");
+            })
+            var sku_key = ";"+sku.join(";")+";";
+            if(skuMap[sku_key]!=undefined){
+                return skuMap[sku_key];
+            }else return null;
+         }
+         else return null;
+    }
+    //展示信息
+    function showMsgBar(type,text){
+        $(".msg").find("span").text(text);
+        $(".msg").find("i").attr("class","icon icon-"+type);
+    }
+    //切换画廊图片
+    $(".turn-right,.turn-left").on("click",function(){
+        var canvas = $(".show-list >div");
+        var num = canvas.find("a").size();
+        var flage = -1;
+        var current = 0;
+        var width = 66;
+        var show_num = 5;
+        var left = 0;
+        current = Math.round((Math.abs(canvas.position().left)/width));
+        if($(this).attr("class")=="turn-left"){
+            current--;
+        }else{
+            current++;
+        }
+        if(num-current>=show_num && current>=0){
+            left = current*flage*width;
+            canvas.animate({left:left},200);
+        }
+    })
+
+    $("#attention").on("click",function(){
+        $.post("{url:/index/attention}",{goods_id:{$id}},function(data){
+            if(data['status']==2) art.dialog.tips("<p class='warning'>已关注过了该商品！</p>");
+            else if(data['status']==1) art.dialog.tips("<p class='success'>成功关注了该商品!</p>");
+            else art.dialog.tips("<p class='warning'>你还没有登录！</p>");
+        },'json')
+    })
+    //到货通知
+    $("#goods-notify").on("click",function(){
+        if(Tiny['user']['online']){
+            art.dialog({id:'notify-dialog',content:document.getElementById('notify-dialog')});
+        }else{
+            art.dialog.tips("<p class='warning'>你还没有登录！</p>");
+        }
+        
+    })
+    function submit_notify(e)
+    {
+         if(e==null){
+            var email = $("#n_email").val();
+            var mobile = $("#n_mobile").val();
+            $.post("{url:/index/notify}",{goods_id:{$goods['id']},email:email,mobile:mobile},function(data){
+                if(data['status']!= undefined){
+                    art.dialog({id:'notify-dialog'}).close();
+                    art.dialog.tips('<p class="'+data['status']+'">'+data['msg']+'</p>');
+                }
+            },'json');
+            return false;
+        }
+        return false;
+    }
+    </script>
+<!--E 产品展示-->

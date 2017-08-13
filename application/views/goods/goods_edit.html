@@ -1,0 +1,721 @@
+{echo:JS::import('form');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<script type="text/javascript" charset="UTF-8" src="{url:@static/js/jquery.iframe-post-form.js}"></script>
+<script>
+    var editor;
+    KindEditor.ready(function(K) {
+      editor = K.create('textarea[name="content"],textarea[name="sale_protection"]', {
+        uploadJson : '{url:/admin/upload_image}'
+      });
+    });
+</script>
+<h1 class="page_title">商品编辑</h1>
+<form action="{url:/goods/goods_save}" class=" " method="post" callback="check_tab_location" >
+  {if:isset($id)}
+  <input type="hidden" name="id" value="{$id}">
+  {/if}
+  <div id="obj_form" class="form2 tab">
+    <!-- tab 头 start -->
+    <ul class="tab-head">
+      <li>基本信息</li>
+      <li>描述信息</li>
+<!--       <li>SEO信息</li>
+      <li>售后保障</li> -->
+    </ul>
+    <!-- tab 头 end -->
+    <!-- tab body start -->
+    <div class="tab-body">
+      <!-- 基本信息 start -->
+      <div>
+       <dl class="lineD">
+          <dt>
+            商品类型：
+          </dt>
+          <dd>
+            <select name="goods_type" id="goods_type">
+              <option value="0">实物商品</option>
+              <option value="1">虚拟自动生成商品</option>
+              <option value="2">虚拟非自动生成商品</option>
+         <!--      <option value="3">虚拟文件下载商品</option> -->
+            </select>
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt> <b class="red">*</b>
+            分类：
+          </dt>
+          <dd>
+            <select name="category_id" id="category_id" pattern="[1-9]\d*" alt="选择分类，若无分类请先创建。">
+              <option value="0">选择分类</option>
+              {set:$id=isset($id)?$id:0;}
+              {query:name=goods_category order=path/}
+              {set:$goods_category = Common::treeArray($items)}
+              {list:items=$goods_category}
+              {if:!isset($path) || strpos($item['path'],$path)===false}
+              {set:$num = count(explode(',',$item['path']))-3;}
+                    <option value="{$item['id']}">{if:$num>0}├{/if}{echo:str_repeat('──',$num)}{$item['name']}</option>
+                    {/if}
+              {/list}
+            </select>
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            类型：
+          </dt>
+          <dd>
+            <select name="type_id" id="type_id">
+              <option value="0">请选择类型...</option>
+              {set:$id=isset($id)?$id:0;}
+              {query:name=goods_type}
+              <option value="{$item['id']}">{$item['name']}</option>
+              {/query}
+            </select>
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            品牌：
+          </dt>
+          <dd>
+            <select name="brand_id">
+              <option value="0">请选择品牌...</option>
+              {query:name=brand}
+              <option value="{$item['id']}">{$item['name']}</option>
+              {/query}
+            </select>
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            <b class="red">*</b>
+            商品名称：
+          </dt>
+          <dd>
+            <input name="name" type="text" pattern="required" value="{$name}" style="width:400px;" alt="不能为空">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            商品副标题：
+          </dt>
+          <dd>
+            <input name="subtitle" type="text"  value="{$subtitle}" style="width:400px;" >
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>商品关键词：</dt>
+          <dd>
+            <input name="tag_ids" type="text"  value="{$tag_ids}" style="width:400px;">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>
+            <b class="red">*</b>
+            商品编号：
+          </dt>
+          <dd>
+            <input name="goods_no" id="goods_no" type="text" pattern="\w{3,}" alt="请输入3个以上的字符(不能为中文)" value="{$goods_no}" >
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt></dt>
+          <dd >
+            <table class="default border" style="width:auto;">
+              <thead>
+                <tr>
+                  <th >积分</th>
+                  <th >排序</th>
+                  <th >计量单位</th>
+                  <th style="width:100px;">是否上架</th>
+                </tr>
+                <tr class="min_inputs">
+                  <td>
+                    <input class="small" name="point" id="point" type="text" empty="" pattern="int" value="{$point|0}"></td>
+                  <td>
+                    <input class="small" name="sort" id="sort" type="text" pattern="int" empty="" value="{$sort|1}"></td>
+                  <td>
+                    <input class="small" name="unit" pattern="required" type="text" value="{$unit|'件'}"></td>
+
+                  <td class="tc">
+                    <input type="checkbox" checked="checked" value="0" name="is_online"/>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+          </dd>
+        </dl>
+        <dl class="lineD clearfix">
+          <dt>产品相册：</dt>
+          <dd class="min_inputs ">
+
+            <button class="button  select_button" type="button" >
+              <b class="icon-plus green"></b>
+              添加图片
+            </button> <b class="red">(注：点选图片，使其成为默认图片)</b>
+
+          </dd>
+        </dl>
+        <dl>
+          <dt></dt>
+          <dd>
+            <ul class="piclist" id="pic_list">
+              {if:isset($imgs) && $imgs =  unserialize($imgs)}
+            {list:items=$imgs}
+              <li {if:$item == $img} class="current" {/if}>
+                <div class="bord">
+                  <input type="hidden" name="imgs[]" value="{$item}">
+                  <img src="{url:@$item}" data-src={$item} onclick="selectImg(this)" width="80" height="80" alt=""></div>
+                <div class="opera">
+                  <a class="icon-arrow-left-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-arrow-right-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-link" href="javascript:;" onclick="linkImg(this)"></a>&nbsp;&nbsp;<a class="icon-close" href="javascript:;" onclick="delImg(this)"></a>
+                </div>
+              </li>
+              {/list}
+            {/if}
+            </ul>
+              <input name="img" type="text" style="visibility: hidden;width:0;" value="{$img}" pattern="required" id="img_index" alt="添加商品图片"/>
+              <label></label>
+          </dd>
+        </dl>
+
+        <h3 class="mt">产品规格</h3>
+        <div id="goods_list" >
+          <table class="default border">
+            <colgroup>
+            <col width="160"/>
+            <col/>
+          </colgroup>
+          <thead>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              货号：
+            </td>
+            <td>
+              <input  type="text" pattern="\w{3,}" name="pro_no" alt="请输入3个以上的字符(不能为中文)" value="{$goods_no}"/>
+              <label></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              库存：
+            </td>
+            <td>
+              <input class="small" pattern="int" type="text" name="store_nums" value="{$store_nums}" alt="必需为整数" />
+              <label></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              预警线：
+            </td>
+            <td>
+              <input class="small" type="text" pattern="int" name="warning_line" value="{$warning_line|2}" alt="必需为整数"/>
+              <label></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              重量(g)：
+            </td>
+            <td>
+              <input class="small" type="text" pattern="int" name="weight" value="{$weight|0}" alt="必需为整数"/>
+              <label></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              零售价：
+            </td>
+            <td>
+              <input class="small" type="text" pattern="float" name="sell_price" value="{$sell_price}" alt="整数或保留小数点后两位精确度的数" />
+              <label></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              市场价：
+            </td>
+            <td>
+              <input class="small" pattern="float" type="text" name="market_price" value="{$market_price}" alt="整数或保留小数点后两位精确度的数"/>
+              <label></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              成本价：
+            </td>
+            <td>
+              <input class="small" pattern="float" type="text" name="cost_price" value="{$cost_price|0}" alt="整数或保留小数点后两位精确度的数"/>
+              <label></label>
+            </td>
+          </tr>
+          </thead>
+          <tbody id="virtual_extend">
+          </tbody>
+          <tfoot>
+          <tr>
+            <td class="tr">
+              <b class="red">*</b>
+              规格：
+            </td>
+            <td>
+              <button class="button " type="button" id="open_spec">
+                <b class="icon-plus green"></b>
+                开启规格
+              </button>
+            </td>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="overflow: auto;" id="spec_list">
+
+        {if:isset($specs) && strlen($specs)>6}
+        <!--隐藏goods规格信息-->
+        <script type="text/javascript">
+          $("#goods_list").css({display:'none'});
+          $("#goods_list input").attr("disabled","disabled");
+        </script>
+        {set: $specs = unserialize($specs); $spec_ids='';}
+        <div style="margin:10px 0;"><button onclick="edit_spec()" type="button" class="button"><b class=" icon-pencil-2 green"></b> 编辑规格</button> <button id="close_spec_button" type="button" onclick="close_spec()" class="button"><b class="icon-close red"></b> 关闭规格</button></div><table class="default" style="width:auto"><tbody><tr><th>商品货号</th>{list:items=$specs}<th>{$item['name']}{set:$spec_ids .= $item['id'].','}</th>{/list}<th><input name="spec_items" type="hidden" value="{echo:rtrim($spec_ids,",")}">库存</th><th>预警线</th><th>零售价</th><th>市场价</th><th>成本价</th><th>重量(g)</th><th>操作</th></tr>
+        {set:$products_info=array();}
+        {query:name=products where=goods_id eq $id order=id}
+        {set:$spec = unserialize($item['spec']);$spec_str = '';}
+        <tr class="min_inputs"><td><input type="text" pattern="required" name="pro_no[]" value="{$item['pro_no']}" style="width:160px"></td>{list:items=$spec item=$spc}<td>{$spc['value'][2]}{set:$spec_str .= implode(":",$spc['value']).","}</td>{/list}<td>{set:$spec_item_key = trim($spec_str,',');$products_info[$spec_item_key]=array('store_nums'=>$item['store_nums'],'warning_line'=>$item['warning_line'],'sell_price'=>$item['sell_price'],'market_price'=>$item['market_price'],'cost_price'=>$item['cost_price'],'weight'=>$item['weight']);}<input name="spec_item[]" type="hidden" value="{echo:trim($spec_str,',')}"><input type="text" pattern="int" class="small" name="store_nums[]" value="{$item['store_nums']}"></td><td><input pattern="int" class="small" type="text" name="warning_line[]" value="{$item['warning_line']}"></td><td><input class="small" pattern="float" type="text" name="sell_price[]" value="{$item['sell_price']}"></td><td><input class="small" pattern="float" type="text" name="market_price[]" value="{$item['market_price']}"></td><td><input pattern="float" class="small" type="text" name="cost_price[]" value="{$item['cost_price']}"></td><td><input class="small" pattern="int" type="text" name="weight[]" value="{$item['weight']}"></td><td><a href="javascript:;" class="icon-close" onclick="spec_del(this)"></a></td></tr>
+        {/query}
+        </tbody></table>
+        {/if}
+      </div>
+
+      <div id="goods_attr" style="display:{if:isset($attrs) && strlen($attrs) > 6 }{else:}none{/if}" >
+        <h3 class="mt mt10">产品属性</h3>
+        <div id="attr_list">
+          <table class="default">
+            <colgroup>
+            <col width="160" />
+            <col />
+          </colgroup>
+          {if:isset($type_id) && $type_id}
+            {query:name=goods_type where=id eq $type_id  /}
+            {set:$_attrs = unserialize($items[0]['attr']); $attrs = unserialize($attrs);}
+            {if:$_attrs}
+              {list:items=$_attrs}
+          <tr>
+            <td class='tr'>{$item['name']}</td>
+            <td>
+              {if:$item['show_type']<= 2}
+                <select name="attr[{$item['id']}]">
+                {list:items=$item['values'] item = $value}
+                <option value="{$value['id']}" {if:isset($attrs[$item['id']]) && $attrs[$item['id']]==$value['id']} selected="selected" {/if} >{$value['name']}</option>
+                {/list}
+              </select>
+              {else:}
+              <input name="attr[{$item['id']}]" type="text" value="{$attrs[$item['id']]}" />
+              {/if}
+            </td>
+          </tr>
+          {/list}
+          {/if}
+        {/if}
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- 描述信息 start -->
+  <div>
+    <h2>详细介绍：</h2>
+    <div>
+      <textarea id="content" pattern="required" name="content" style="width:700px;height:360px;visibility:hidden;">{$content}</textarea>
+      <label></label>
+    </div>
+  </div>
+  <!-- 描述信息 end -->
+  <!-- 基本信息 end -->
+  <!-- SEO 信息 start -->
+  <div>
+    <dl class="lineD">
+      <dt>页面标题：</dt>
+      <dd>
+        <input name="seo_title" type="text" value="{$seo_title}">
+        <label>页面标题(TITLE)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>页面关键词：</dt>
+      <dd>
+        <input name="seo_keywords" type="text" value="{$seo_keywords}">
+        <label>页面关键词(META_KEYWORDS)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>页面描述：</dt>
+      <dd>
+        <input name="seo_description" type="text" value="{$seo_description}">
+        <label>页面描述(META_DESCRIPTION)</label>
+      </dd>
+    </dl>
+  </div>
+  <!-- SEO 信息 end -->
+  <!-- 售后保障 start -->
+  <div>
+    <h2>售后保障：</h2>
+    <div>
+      <textarea id="sale_protection"  name="sale_protection" style="width:700px;height:360px;visibility:hidden;">{$sale_protection}</textarea>
+      <label></label>
+    </div>
+  </div>
+  <!-- 售后保障 end -->
+</div>
+<!-- tab 头 end -->
+<div style="text-align:center;margin-top:20px;">
+  <input type="submit" class="focus_button" value="提交" >
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="reset" value="重置" class="button"></div>
+</div>
+</form>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('category_id','{$category_id}');
+form.setValue('type_id','{$type_id}');
+form.setValue('brand_id','{$brand_id}');
+form.setValue('is_online','{$is_online|0}');
+form.setValue('goods_type','{$goods_type}');
+$("#type_id").change();
+
+{if:isset($products_info)}
+var products_info = {echo:JSON::encode($products_info);};
+{else:}
+var products_info = new Array();
+{/if}
+
+$(".select_button").on("click",function(){
+      uploadFile();
+      return false;
+    });
+$("#goods_no").on("change",function(){
+  var that = $(this);
+  if(that.val()){
+    var old_val = $("input[name='pro_no']").val();
+    $("input[name='pro_no']").val(that.val());
+    $("input[name='pro_no[]']").each(function(i){
+      var current_value = $(this).val();
+      var temp = old_val+'_'+(i+1);
+      if(current_value=='' || current_value==temp) $(this).val(that.val()+'_'+(i+1));
+    });
+  }
+
+})
+function uploadFile(){
+  art.dialog.open('{url:/admin/photoshop}',{id:'upimg_dialog',lock:true,opacity:0.1,title:'选择图片',width:613,height:380});
+}
+function selectImg(id){
+  var img = $(id).attr('data-src');
+  $("#pic_list li").removeClass("current");
+  $(id).parent().parent().addClass("current");
+  $("#img_index").val(img);
+}
+//回写选择图片
+function setImg(value){
+  var show_src = "{url:@}"+value;
+  if(value.indexOf("http://")!=-1) show_src = value;
+
+  if($("#pic_list img[src='"+show_src+"']").get(0)){
+    art.dialog.alert("图片已经添加，请不要重复添加！");
+  }else{
+    $("#pic_list").append('<li> <div class="bord"><input type="hidden" name="imgs[]" value="'+value+'" /> <img src="'+show_src+'" data-src="'+value+'" onclick="selectImg(this)" width="80" height="80" alt=""></div> <div class="opera"><a class="icon-arrow-left-2" href="javascript:;" ></a>&nbsp;&nbsp;<a class="icon-arrow-right-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-link" href="javascript:;" onclick="linkImg(this)"></a>&nbsp;&nbsp;<a class="icon-close" href="javascript:;" onclick="delImg(this)"></a> </div> </li>');
+      bindEvent();
+      if($("#pic_list li.current").length <=0 ){
+        $("#pic_list li:eq(0)").addClass("current");
+        $("#img_index").val(value);
+      }
+      FireEvent(document.getElementById('img_index'),'change');
+      art.dialog({id:'upimg_dialog'}).close();
+  }
+
+}
+//删除添加的图片
+function delImg(id){
+  $(id).parent().parent().remove();
+  if($("#pic_list li:eq(0)").length <= 0)$("#img_index").val('');
+}
+function linkImg(id){
+  var src = $(id).parent().parent().find('img').attr('src');
+  art.dialog({id:'linkDialog',title:'图片地址',content:'<div>图片地址：<input type="text" value='+src+' style="width:300px;"/></div>',width:420});
+}
+
+//开启规格
+$("#open_spec").on("click",function(){
+      //art.dialog.open('{url:/goods/show_spec_select}',{id:'spec_list',title:'选择图片',width:800,height:460});
+      //art.dialog({id:'spec_list'}).show();
+      edit_spec();
+      return false;
+    });
+
+//添加规格
+
+
+function addSpec(specs){
+  specs = specs.split(";");
+
+  var str_ths ='<tr><th>商品货号</th>';
+  var spec_array = new Array();
+  var spec_items = '';
+  var num = 0;
+  for(i in specs){
+    var spec_str = specs[i].split("=");
+    var spec = spec_str[0].split(":");
+    var values = spec_str[1].split(",");
+    var values_array = new Array();
+    var index = 0;
+    for(v in values){
+      var value = values[v].split(':');
+      //values_array[index++] = value[0]+":"+(value[2]==''?value[1]:value[2]);
+      values_array[index++] = values[v];
+    }
+    spec_array[num++] = values_array;
+    spec_items += spec[0]+',';
+    str_ths += '<th>'+spec[1]+'</th>';
+  }
+  spec_items = spec_items.slice(0,-1);
+
+  str_ths += '<th><input name="spec_items" type="hidden" value="'+spec_items+'"/>库存</th><th>预警线</th><th>零售价</th><th>市场价</th><th>成本价</th><th>重量(g)</th><th>操作</th></tr>';
+ var str_tds = '';
+ specs = descartes(spec_array);
+ var pro_no_per = $("#goods_no").val();
+ var store_nums = $("input[name='store_nums']").val();
+ var warning_line = $("input[name='warning_line']").val();
+ var sell_price = $("input[name='sell_price']").val();
+ var market_price = $("input[name='market_price']").val();
+ var cost_price = $("input[name='cost_price']").val();
+ var weight = $("input[name='weight']").val();
+  for(i in specs){
+    var spec_item = '';
+    str_tds += '<tr class="min_inputs"><td><input type="text" pattern="required" name="pro_no[]"  value="'+(pro_no_per==''?'':pro_no_per+'_'+(parseInt(i)+1))+'" style="width:160px"></td>';
+
+    if(typeof specs[i] == "object"){
+        for(j in specs[i]){
+          spec_item += specs[i][j]+',';
+          var value = specs[i][j].split(":");
+        str_tds +='<td>'+(value[2]==''?value[1]:value[2])+'</td>';
+      }
+    }
+    else{
+      spec_item = specs[i]+',';
+      var value = specs[i].split(":");
+      str_tds +='<td>'+(value[2]==''?value[1]:value[2])+'</td>';
+    }
+    spec_item = spec_item.slice(0,-1);
+    if(products_info!=undefined && products_info[spec_item]!=undefined){
+      var s_item = products_info[spec_item];
+      store_nums = s_item['store_nums']!=undefined?s_item['store_nums']:'';
+      warning_line = s_item['warning_line']!=undefined?s_item['warning_line']:'';
+      sell_price = s_item['sell_price']!=undefined?s_item['sell_price']:'';
+      market_price = s_item['market_price']!=undefined?s_item['market_price']:'';
+      cost_price = s_item['cost_price']!=undefined?s_item['cost_price']:'';
+      weight = s_item['weight']!=undefined?s_item['weight']:'';
+
+    }
+    str_tds += '<td><input name="spec_item[]" type="hidden" value="'+spec_item+'"/><input type="text" pattern="int" class="small" name="store_nums[]" value="'+store_nums+'"></td><td><input  pattern="int" class="small" type="text" name="warning_line[]" value="'+warning_line+'"></td><td><input class="small" pattern="float" type="text" name="sell_price[]" value="'+sell_price+'"></td><td><input class="small" pattern="float" type="text" name="market_price[]" value="'+market_price+'"></td><td><input pattern="float" class="small" type="text" name="cost_price[]" value="'+cost_price+'"></td><td><input class="small" pattern="int" type="text" name="weight[]" value="'+weight+'"></td><td><a href="javascript:;" class="icon-close" onclick="spec_del(this)" ></a></td></tr>';
+  }
+  $("#spec_list").css({display:''});
+
+  $("#spec_list").html('<div style="margin:10px 0;"><button onclick="edit_spec()" type="button" class="button"><b class=" icon-pencil-2 green"></b> 编辑规格</button> <button id="close_spec_button" onclick="close_spec()" class="button" type="button"><b class="icon-close red"></b> 关闭规格</button></div><table class="default" style="width:auto">'+str_ths+str_tds+'</table>');
+  $("#goods_list").css({display:'none'});
+  $("#goods_list input").attr("disabled","disabled");
+  art.dialog({id:'spec_list'}).hide();
+  $("#spec_list input").on("change",function(){
+    changeProductsInfo($(this));
+    // var parent = $(this).parent().parent();
+    // var spec_item = $("input[name='spec_item[]']",parent).val();
+    // var name = $(this).attr("name");
+    // var value = $(this).val();
+    // name = name.replace("[]",'');
+    // if(products_info[spec_item]==undefined) products_info[spec_item] = new Array();
+    // products_info[spec_item][name] = value;
+  });
+}
+$("#spec_list input").on("change",function(){
+  changeProductsInfo($(this));
+});
+
+function changeProductsInfo(el)
+{
+    var parent = el.parent().parent();
+    var spec_item = $("input[name='spec_item[]']",parent).val();
+    var name = el.attr("name");
+    var value = el.val();
+    name = name.replace("[]",'');
+    if(products_info[spec_item]==undefined) products_info[spec_item] = new Array();
+    products_info[spec_item][name] = value;
+}
+//关闭规格
+function close_spec(){
+  $("#spec_list").css({display:'none'});
+  $("#spec_list input").attr("disabled","disabled");
+  $("#goods_list input").removeAttr("disabled");
+  $("#goods_list").css({display:''});
+  return false;
+}
+
+function edit_spec(){
+  var spec_dcr_str = '';
+  $("input[name='spec_item[]']").each(function(){
+    spec_dcr_str += $(this).val()+",";
+  })
+  art.dialog.data("spec_init_data",spec_dcr_str.slice(0,-1));
+  if($("iframe[name='Openspec_list']").length>0)art.dialog({id:'spec_list'}).show();
+  else{
+    art.dialog.open('{url:/goods/show_spec_select}',{id:'spec_list',resize:false,title:'选择图片',width:800,height:460});
+  }
+  return false;
+}
+
+//删除规格
+function spec_del(id){
+  if($("#spec_list tr").length>2) $(id).parent().parent().remove();
+  else {
+    art.dialog.confirm('你确认删除操作？', function(){
+      close_spec();
+    });
+  }
+}
+//选择分类
+$("#category_id").on("change",function(){
+  $.post("{url:/ajax/category_type}", {id: $(this).val()},function(data){
+    form.setValue('type_id',data.type_id);
+    $("#type_id").change();
+  },"json");
+})
+
+//改变类型处理操作
+$("#type_id").on("change",function(){
+  $("#goods_attr").css({display:'none'});
+  $("#attr_list table tr").remove();
+
+  $.post("{url:/ajax/type_attr}", {id: $(this).val()},function(data){
+    if(data){
+      $("#goods_attr").css({display:''});
+      var tr = "";
+
+      for(var i in data){
+        tr += "<tr><td class='tr'>"+data[i].name+"：</td><td>";
+        var values = data[i].values;
+        if(data[i].show_type<=2){
+          tr += '<select name="attr['+data[i].id+']">';
+          for(var j in values){
+            tr += '<option value="'+values[j].id+'">'+values[j].name+'</option>';
+          }
+          tr += '</select>';
+        }
+        else{
+          tr += '<input type="text" pattern="required" name="attr['+data[i].id+']" />';
+        }
+
+        tr += "</td></tr>";
+      }
+      $("#attr_list table").append(tr);
+    }
+
+  },"json");
+})
+
+{!$vtemplate = array(0=>array(),1=>array());}
+{query:name=virtual_template}
+  {!$vtemplate[$item['auto']][$item['id']]=$item['name']}
+{/query}
+
+$("#goods_type").on('change',function(){
+
+  var val = $(this).val();
+  var virtual_auto = {!=JSON::encode($vtemplate[0])};
+  var virtual = {!=JSON::encode($vtemplate[1])};
+  var virtual_extend = '';
+  if(val==1 || val == 2){
+    virtual_extend = '<tr> <td class="tr"> <b class="red">*</b> 虚拟商品模板： </td> <td> <select name="virtual_extend">';
+    var virtual_template={};
+    if (val == 1 ){
+      virtual_template = virtual_auto;
+    }else{
+      virtual_template = virtual;
+    }
+    for (var i in  virtual_template){
+      virtual_extend += '<option value="'+i+'">'+virtual_template[i]+'</option>';
+    }
+    virtual_extend += '</select> <label></label> </td> </tr>';
+
+  }else if(val == 3){
+    virtual_extend = '<tr> <td class="tr"> <b class="red">*</b> 文件： </td> <td> <input name="virtual_extend"  readonly="readonly" id="virtual_extend_input" > <a href="javascript:;" id="upload-link">上传文件</a></tr>';
+
+  }
+  $('#virtual_extend').html(virtual_extend);
+  $("#upload-link").on("click",function (){
+        art.dialog({id:'upfile-dialog',title:'上传文件',content:document.getElementById('upfile-dialog')});
+      });
+});
+FireEvent(document.getElementById('goods_type'),'change');
+form.setValue("virtual_extend","{$virtual_extend}");
+//操作左右按钮事件绑定
+function bindEvent(){
+  $(".icon-arrow-right-2").off();
+  $(".icon-arrow-left-2").off();
+  $(".icon-arrow-right-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    current_tr.insertAfter(current_tr.next());
+  });
+    $(".icon-arrow-left-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    if(current_tr.prev().html()!=null)current_tr.insertBefore(current_tr.prev());
+  });
+
+}
+bindEvent();
+</script>
+
+<div id="upfile-dialog" style="display: none">
+  <div class="box" style="width:400px;">
+    <h2>上传文件：</h2>
+    <div class="content mt20 p10">
+      <form enctype="multipart/form-data" action="{url:/goods/upload_file}" method="post"  id="uploadForm">
+        <p><input type="file" name="upfile"></p>
+        <p class="mt20 tc"><button class="btn" id="upload-btn">上传文件(仅限RAR,ZIP压缩文件)</button></p>
+      </form>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+
+  $("#uploadForm").iframePostForm({
+      iframeID: 'iframe-post-form',
+      json:true,
+      post: function(){
+          $("#upload-btn").text("上传中...")
+      },
+      complete: function(data){
+          if(data['status']!='success'){
+            alert(data['msg']);
+          }else{
+            $("#virtual_extend_input").val(data['fileid']);
+            art.dialog({id:'upfile-dialog'}).close();
+          }
+          $("#upload-btn").text("上传");
+      }
+  });
+</script>

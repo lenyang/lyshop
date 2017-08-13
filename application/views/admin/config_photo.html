@@ -1,0 +1,34 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('validator');}
+<h2 class="page_title">{$node_index['name']}</h2>
+<div class="form2">
+  	<form name="config_form" method="post" action="{url:/admin/config/group/photo}" enctype="multipart/form-data">
+    <dl class="lineD">
+      <dt>瀑布流图片宽度：</dt>
+      <dd>
+        <input name="photo_small_width" type="text" pattern="[1-9]\d{1,2}" value="">
+        <label>必需为(10-999)的数字</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>正常图片宽度：</dt>
+      <dd>
+        <input name="photo_width" type="text"  pattern="[1-9]\d{1,2}" value="">
+        <label>必需为(10-999)的数字</label>
+      </dd>
+    </dl>
+	<div class="center">
+      <input type="submit" name="submit" class="button action fn" value="确 定">
+    </div>
+  </div>
+  <script>
+	{if:isset($message)}
+	art.dialog.tips('<p class="success">{$message}</p>');
+	{/if}
+	var form = new Form('config_form');
+	{set:$config = Config::getInstance();}
+	var data = {echo:JSON::encode($config->get('photo'))};
+	form.init(data);
+</script>

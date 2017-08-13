@@ -1,0 +1,10 @@
+<table class="default mt10" >
+<tr><th style="width:60px;">选择</th><th style="width:160px;">商品货号</th><th>规格</th><th style="width:100px;">库存</th><th style="width:100px;">销售价</th><th style="width:100px;">成本价</th></tr>
+{set:$goods_id = Req::args('id')}
+  {query:name=products where=goods_id eq $goods_id}
+  {set:$spec = unserialize($item['spec']);$spec_str = '';}
+  <tr><td><input name="product_id" type="radio"></td><td>{$item['pro_no']}</td><td>{list:items=$spec item=$spc}
+  {$spc['name']}：{$spc['value'][2]}{set:$spec_str .= implode(":",$spc['value']).","}&nbsp;&nbsp;
+  {/list}</td><td>{$item['store_nums']}</td><td>{$item['sell_price']}</td><td>{$item['cost_price']}</td></tr>
+  {/query}
+</table>

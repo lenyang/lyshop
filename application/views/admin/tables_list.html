@@ -1,0 +1,26 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('validator');}
+<form action="{url:/admin/tables_back}" method="post">
+<div class="tools_bar">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="$('input[name=\'tables[]\']').attr('checked',$(this).hasClass('icon-checkbox-unchecked'));$(this).toggleClass('icon-checkbox-unchecked');return false;" title="全选" data="true"><i>全选</i></a><a  class="icon-drawer-2" href="javascript:;" onclick="$('form').submit();return false;" title="备份"><i>备份</i></a>
+</div>
+<table class="default">
+    <tr>
+        <th style="width:30px;">选择</th>
+        <th style="width:200px;">表名</th>
+        <th style="width:120px;">记录条数</th>
+        <th style="width:110px;">占用空间</th>
+        <th style="width:150px;">编码</th>
+        <th >说明</th>
+    </tr>
+    {list:items=$tables}
+        <tr><td><input type="checkbox" value="{echo:current($item)}" name="tables[]" ></td>
+        <td>{$item['Name']}</td>
+                    <td>{$item['Rows']}</td>
+                    <td>{echo:$item['Data_length']>=1024 ? ($item['Data_length']>>10).' KB':$item['Data_length'].' B'}</td>
+                    <td>{$item['Collation']}</td>
+                    <td>{$item['Comment']}</td></tr>
+    {/list}
+</table>
+</form>

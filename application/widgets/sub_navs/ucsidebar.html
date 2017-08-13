@@ -1,0 +1,13 @@
+<div class="sidebar fl" style="width:200px;">
+<h2 class="header">用户中心</h2>
+	<div class="box">
+		{list:items=$sidebar}
+		<h2>{$key}</h2>
+		<ul class="menu-list">
+			{list:items=$item item=$v}
+			<li><a {if:$act==$v}class="current"{/if} href="{url:/ucenter/$v}">{$key}<span class="l-triangle"></span></a></li>
+			{/list}
+		</ul>
+		{/list}	
+	</div>
+</div>

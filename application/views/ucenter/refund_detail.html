@@ -1,0 +1,46 @@
+{echo:JS::import('form')}
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content" style="margin-left: 212px;">
+		<div class="box p10">
+			<h1 class="title"><span>退款详情：</span></h1>
+			<div class=" box mt10" >
+				<h2>申请详情:</h2>
+				<div class="p10">
+					<table class="simple">
+						<tr> <td><b>订单编号：</b><a href="{url:/ucenter/order_detail/id/$refund[order_id]}" target="_blank">{$refund['order_no']}</a></td> <td><b>创建时间：</b>{$refund['create_time']}</td> </tr> 
+						{if:$refund['refund_type']==0}
+						<tr> <td><b>退款方式：</b>账户余额</td> <td></td> </tr>
+						{elseif:$refund['refund_type']==1}
+						<tr> <td><b>退款方式：</b>银行卡</td> <td><b>开户银行：</b>{$refund['account_bank']}</td></tr>
+						<tr> <td><b>开户名称：</b>{$refund['account_name']}</td> <td><b>银行账号：</b>{$refund['refund_account']}</td></tr>
+						{else:}
+						<tr> <td><b>退款方式：</b>其它</td> <td><b>对应方式：</b>{$refund['account_bank']}</td></tr>
+						<tr> <td><b>对应账号：</b>{$refund['refund_account']}</td> <td></td></tr>
+						{/if}
+						<tr> <td colspan=2><b>退款原因：</b>{$refund['content']}</td> </tr> 
+					</table>
+				</div>
+			</div>
+			<div class=" box mt20" >
+				<h2>处理详情：</h2>
+				<div class="p10">
+					<table class="simple">
+						{if:$refund['pay_status']==0}
+						<tr><td>正在处理中……</td></tr>
+						{elseif:$refund['pay_status']==2}
+						<tr><td><b>处理结果：</b>退款成功</td><td><b>处理时间：</b>{$refund['handling_time']}</td></tr>
+						<tr><td><b>退到渠道：</b>{$refund['channel']}</td><td><b>退款账号：</b>{$refund['bank_account']}</td></tr>
+						<tr><td colspan=2><b>退款金额：</b>{$refund['amount']}</td></tr>
+						{else:}
+						<tr><td><b>处理结果：</b>不予退款</td><td><b>处理时间：</b>{$refund['handling_time']}</td></tr>
+						<tr><td colspan=2><b>处理意见：</b>{$refund['handling_idea']}</td></tr>
+						{/if}
+					</table>
+				</div>
+			</div>
+			<p class="tc mt20"><a href="javascript:history.go(-1);" class="btn ">返回</a></p>
+		</div>
+	</div>
+</div>

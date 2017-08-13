@@ -1,0 +1,46 @@
+{echo:JS::import('form')}
+<div style="overflow: auto;width:900px;height: 380px;border:none;margin-top:40px;">
+	<h3 class="lineD alone_header">退货单详情：</h3>
+
+	<h3 class="lineD mt10">所购商品：</h3>
+	<table class="default" id="attr_values">
+		<tr><td widtd="120">货号</td><td>商品名</td><td>规格</td><td widtd="60">价格</td><td widtd="40">数量</td><td widtd="60">小计</td></tr>
+		{query:name=doc_returns as di fields=go.name,pr.pro_no,od.spec,od.goods_price,od.goods_nums join= left join order_goods as od on od.order_id eq di.order_id left join products as pr on od.product_id eq pr.id  left join goods as go on od.goods_id eq go.id where=di.id eq $id}
+		{set:$spec = unserialize($item['spec']);}
+		<tr><td>{$item['pro_no']}</td><td>{$item['name']}</td><td>
+			{if:is_array($spec)}
+			{list:items=$spec item=$ite }
+				{$ite['name']}:{$ite['value'][2]}
+			{/list}
+			{/if}
+		</td><td>{$item['goods_price']}</td><td>{$item['goods_nums']}</td><td class="golden">{echo:sprintf("%.2f",($item['goods_price']*$item['goods_nums']))}</td></tr>
+		{/query}
+	</table>
+	{query:name=doc_returns as dr fields=dr.*,us.name as uname, ma.name as mname,od.real_amount,od.real_freight,od.handling_fee,od.taxes,od.adjust_amount,od.order_amount,od.order_amount,od.discount_amount join=left join user as us on dr.user_id eq us.id left join manager as ma on dr.admin_id eq ma.id left join order as od on dr.order_no eq od.order_no where=dr.id eq $id /}
+	{set:$item = $items[0];}
+		<h3 class="lineD  mt10">退货单详情：</h3>
+		<form class="form2" action="{url:/order/doc_returns_save}" method="post">
+			<input name="id" type="hidden" value="{$id}">
+		<table class="default no_lr_border">
+		<tr><th width="100">订单编号：</th><td>{$item['order_no']}</td><th width="100">申请时间：</th><td>{$item['create_time']}</td></tr>
+		<tr><th>物流公司：</th><td class="golden">{$item['express']}</td><th>物流单号：</th><td class="golden">{$item['express_no']}</td></tr>
+		<tr><th width="100">发货人：</th><td>{$item['name']}</td><th width="100">联系手机：</th><td>{$item['mobile']}</td></tr>
+		<tr><th>联系电话：</th><td>{$item['phone']}</td><th>状态：</th><td>{$parse_status[$item['status']]}</td></tr>
+		<tr><th>收货地址：</th><td colspan=3>{$areas[$item['province']]},{$areas[$item['city']]},{$areas[$item['county']]}{$item['addr']}</td></tr>
+
+		<tr><th colspan=4>申请原因：</th></tr>
+		<tr><td colspan=4 class="red">{$item['reason']}</td></tr>
+
+		<tr><th width="100">实付商品金额：</th><td>{$item['real_amount']|'-'}</td><th width="100">实付运费金额：</th><td>{$item['real_freight']}</td></tr>
+		<tr><th width="100">保价：</th><td>-</td><th width="100">手续费：</th><td>{$item['handling_fee']}</td></tr>
+		<tr><th width="100">税金：</th><td>{$item['taxes']|'-'}</td><th width="100">调价：</th><td>{$item['adjust_amount']}</td></tr>
+		<tr><th width="100">订单总金额：</th><td>{$item['order_amount']|'-'}</td><th width="100">优惠金额：</th><td>{$item['discount_amount']}</td></tr>
+		<tr><th >处理方式：</th><td colspan=3><input name="status" type="radio" value="1" checked="checked" ><label>同意退货</label> <input name="status" type="radio" value="2" {if:$item['status']==2} checked="checked" {/if}><label>拒绝退货</label></td></tr>
+		<tr><th colspan=4>处理意见：</th></tr>
+		<tr><td colspan=4><textarea name="handling_idea" pattern="required" alt="处理信息不能为空！" > {$item['handling_idea']}</textarea> <label></label></td></tr>
+
+		</table>
+			<div class="alone_footer tc"><button class="focus_button" onclick="">处 理</button></div>
+		    
+		</form>
+</div>

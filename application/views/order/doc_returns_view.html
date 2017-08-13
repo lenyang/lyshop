@@ -1,0 +1,32 @@
+{echo:JS::import("form")}
+<div style="overflow: auto;width:900px;height: 415px;">
+		{query:name=doc_returns where=id eq $id /}
+		{set:$returns = $items[0]; $area_ids=array($returns['province']|0,$returns['city']|0,$returns['county']|0);$area_ids = implode(',',$area_ids);$areas=array();}
+		{query:name=area where=id in ($area_ids)}
+		{set:$areas[$item['id']]=$item['name']}
+		{/query}
+		<h3 class="lineD ">退货信息：</h3>
+
+		<table class="default">
+		<tr><th width="100">订单编号：</th><td>{$returns['order_no']}</td><th width="100">申请时间：</th><td>{$returns['create_time']}</td></tr>
+		<tr><th>物流公司：</th><td class="golden">{$returns['express']}</td><th>物流单号：</th><td class="golden">{$returns['express_no']}</td></tr>
+		<tr><th width="100">发货人：</th><td>{$returns['name']}</td><th width="100">联系手机：</th><td>{$returns['mobile']}</td></tr>
+		<tr><th>联系电话：</th><td>{$returns['phone']}</td><th>状态：</th><td>{$parse_status[$returns['status']]}</td></tr>
+		<tr><th>收货地址：</th><td colspan=3>{$areas[$returns['province']]},{$areas[$returns['city']]},{$areas[$returns['county']]}{$returns['addr']}</td></tr>
+		</table>
+	
+	<h3 class="lineD mt10">所购商品详情：</h3>
+	<table class="default" id="attr_values">
+		<tr><td style="width:120px;">货号</td><td>商品名</td><td style="width:180px;">规格</td><td style="width:60px;">价格</td><td style="width:40px;">数量</td><td style="width:60px;">小计</td></tr>
+		{query:name=doc_returns as di fields=go.name,pr.pro_no,od.spec,od.goods_price,od.goods_nums join= left join order_goods as od on od.order_id eq di.order_id left join products as pr on od.product_id eq pr.id  left join goods as go on od.goods_id eq go.id where=di.id eq $id}
+		{set:$spec = unserialize($item['spec']);}
+		<tr><td>{$item['pro_no']}</td><td>{$item['name']}</td><td>
+			{if:is_array($spec)}
+			{list:items=$spec item=$ite }
+				{$ite['name']}:{$ite['value'][2]}
+			{/list}
+			{/if}
+		</td><td>{$item['goods_price']}</td><td>{$item['goods_nums']}</td><td class="golden">{echo:sprintf("%.2f",($item['goods_price']*$item['goods_nums']))}</td></tr>
+		{/query}
+	</table>
+</div>

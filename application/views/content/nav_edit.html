@@ -1,0 +1,62 @@
+{echo:JS::import('form');}
+<h1 class="page_title">导航编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/content/nav_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt>导航名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}">
+        <label>导航名称</label>
+      </dd>
+      </dl>
+       <dl class="lineD">
+      <dt>连接地址：</dt>
+      <dd>
+        <input name="link" type="text" class="big" pattern="required" value="{$link}" alt="绝对地址或相对地址(如:/ucenter/index)">
+        <label></label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>类型：</dt>
+      <dd>
+        <select name='type'>
+          <option value="main">主导航</option>
+          <option value="bottom">底部导航</option>
+        </select>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>排序：</dt>
+      <dd>
+        <input name="sort" type="text" class="small" pattern="int" value="{$sort|1}">
+        <label>数值越大越靠前</label>
+      </dd>
+      </dl>
+       <dl class="lineD">
+      <dt>打开方式：</dt>
+      <dd>
+        <input name="open_type" type="radio" value="0" checked="checked">
+        <label>本窗口</label>
+        <input name="open_type" type="radio" value="1" >
+        <label>新窗口</label>
+      </dd>
+      </dl>
+       <dl class="lineD">
+      <dt>是否开启：</dt>
+      <dd>
+        <input name="enable" type="radio" value="1" checked="checked">
+        <label>开启</label>
+        <input name="enable" type="radio" value="0" >
+        <label>关闭</label>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('open_type','{$open_type}');
+form.setValue('enable','{$enable}');
+form.setValue('type','{$type}');
+</script>

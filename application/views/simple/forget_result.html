@@ -1,0 +1,29 @@
+<div class="ma20 dialog p20 clearfix tc">
+	<div class="head" style="font-size: 32px;line-height: 70px;height:70px;">{if:$status=='success'}
+		<img src="{url:@static/images/right.gif}">邮件发送成功！{else:}<img src="{url:@static/images/error.gif}"> 邮件发送失败！ {/if}</div>
+		{if:$status=='success'}
+	<div class="mt20 tl">
+		<h1>提示：</h1>
+		<p>
+			修改密码的链接已经发送到您的邮箱，请查收并设置新密码！
+		</p>
+	</div>
+	{elseif:$status=='error'}
+		<div class="mt20 tl">
+		<h1>提示：</h1>
+		<p>
+			邮件未能正确送达，请联系网站管理人员！
+		</p>
+	</div>
+	{else:}
+		<div class="mt20 tl">
+		<h1>提示：</h1>
+		<p>
+			你的邮箱地址不正确，系统未能正常送达！
+		</p>
+
+	</div>
+	{/if}
+	<div class="mt20"><a href="{url:/index/index}" class="btn btn-gray">返回首页</a></div>
+	<div><a href="{url:/ucenter/index}" class="btn">用户中心</a></div>
+</div>

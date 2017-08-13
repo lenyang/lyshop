@@ -1,0 +1,95 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a class="icon-delicious" href="{url:/order/doc_returns_list}"> 显示全部 </a>
+    
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+    
+</div>
+<table class="default" >
+    <tr>
+        <th width="30">选择</th>
+        <th style="width:70px">操作</th>
+        <th >订单编号</th>
+        <th width="100">物流公司</th>
+        <th width="120">快递单号</th>
+        <th style="width:80px;">发货人</th>
+        <th style="width:80px;">状态</th>
+        <th width="160">申请日期</th>        
+    </tr>
+    {query:name=doc_returns as dr where=$where id=$obj page=1}
+        <tr><td width="30"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+            <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a href="javascript:view({$item['id']})" class=" icon-eye"> 查看</a></li>
+                {if:$item['status'] <3}
+                <li><a class="icon-drawer-3" href="javascript:;" onclick="edit({$item['id']})"> 审核</a></li>
+                {elseif:$item['status']==3}
+                <li><a class="icon-switch" href="javascript:;" onclick="end_dialog({$item['id']})"> 完成</a></li>
+                {else:}
+                <li><a class="icon-switch" href="javascript:;"> 已结束</a></li>
+                {/if}
+            </ul></div></div> </td>
+            <td >{$item['order_no']}</td>
+            <td width="100">{$item['express']}</td>
+            <td width="120" >{$item['express_no']}</td>
+            <td style="width:80px;">{$item['name']}</td>
+            <td style="width:80px;" id="status_{$item['id']}">{$parse_status[$item['status']]}</td>
+            <td width="160">{$item['create_time']}</td>
+            </tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<div id="status_dialog" style="display: none; position: relative;" class="form2">
+    <h3 id="order_title">备注信息：</h3>
+        <input type="hidden" name="id" id="returns_id" value="">
+        <textarea id="handling_idea" name="handling_idea"></textarea>
+    <div class="tc"><button class="focus_button" onclick="returns_end()">保存</button></div>
+</div>
+<script type="text/javascript">
+    function view(id){
+        art.dialog.open("{url:/order/doc_returns_view/id/}"+id,{id:'view_dialog',title:'查看退货单',resize:false,width:900,height:420});
+    }
+    function edit(id){
+        art.dialog.open("{url:/order/doc_returns_edit/id/}"+id,{id:'edit_dialog',title:'退货',resize:false,width:900,height:420});
+        
+    }
+    function updateInfo(obj){
+        var text = obj['status']==1?'<b class="red">等待回寄货品</b>':'<b class="red">拒绝</b>';
+        $("#status_"+obj['id']).html(text);
+        art.dialog.tips("<p class='success'>处理成功！</p>");
+        tools_reload();
+    }
+   
+$("#condition").on("click",function(){
+  $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/order/doc_returns_list}',method:'get'});},data:{order_no:{name:'订单编号'},'dr.status':{name:'退货状态',values:{0:'申请退货',1:'同意退货',2:'拒绝退货',3:'货品寄回中',4:'退货完成'}}}});
+})
+function end_dialog(id){
+        var title = '完成';
+        $("#returns_id").val(id);
+        $("#handling_idea").val('');
+        art.dialog({id:'status_dialog',title:title,resize:false,padding:'0 5px',content:document.getElementById('status_dialog')});
+    }
+    function returns_end(){
+        var handling_idea= $("#handling_idea").val();
+        var id = $("#returns_id").val();
+        if(handling_idea){
+            $.post('{url:/order/doc_returns_end}',{id:id,handling_idea:handling_idea},function(data){
+                if(data['status']=='success')tools_reload();
+                else{
+                    art.dialog.tips("<p class='fail'>"+data['msg']+"</p>");
+                    art.dialog({id:'status_dialog'}).close();
+                }
+            },'json');
+        }else{
+            art.dialog.tips("<p class='warning'>备注信息不能为空!</p>");
+        }
+        
+    }
+
+</script>

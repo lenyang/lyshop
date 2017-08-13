@@ -1,0 +1,217 @@
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<h1 class="page_title">分类编辑</h1>
+<form action="{url:/goods/goods_category_save}" method="post" callback="check_tab_location" >
+  <div id="obj_form" class="form2 tab">
+    {if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+    <!-- tab 头 start -->
+    <ul class="tab-head">
+      <li>基本信息</li>
+      <li>SEO信息</li>
+    </ul>
+    <!-- tab 头 end -->
+    <!-- tab body start -->
+    <div class="tab-body">
+      <!-- S 基本信息-->
+      <div>
+        <dl class="lineD">
+          <dt>名称：</dt>
+          <dd>
+            <input name="name" type="text" pattern="required" value="{$name}" alt="名称不能为空">
+            <label>分类名称</label>
+          </dd>
+        </dl><dl class="lineD">
+        <dt>别名：</dt>
+        <dd>
+          <input name="alias" type="text" pattern="[a-zA-Z]\w*" value="{$alias}" alt="必需为字母与数字组合，且以字母开头">
+          <label>方便url识别美化</label>
+        </dd>
+      </dl><dl class="lineD">
+      <dt>上级分类：</dt>
+      <dd>
+        <select id="parent_id"  name="parent_id"   pattern="int">
+          <option value="0">==无上级分类==</option>
+          {set:$id=isset($id)?$id:0;}
+          {query:name=goods_category order=path/}
+          {set:$goods_category=Common::treeArray($items)}
+          {list:items=$goods_category}
+          {if:!isset($path) || strpos($item['path'],$path)===false}
+          {set:$num = count(explode(',',$item['path']))-3;}
+          <option value="{$item['id']}">{if:$num>0}├{/if}{echo:str_repeat('──',$num)}{$item['name']}</option>{/if}
+          {/list}
+        </select>
+
+        <label></label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>产品类型：</dt>
+      <dd>
+        <select id="type_id"  name="type_id"   pattern="int">
+          <option value="0">请选择...</option>
+          {set:$id=isset($id)?$id:0;}
+          {query:name=goods_type}
+          <option value="{$item['id']}">{$item['name']}</option>
+          {/query}
+        </select>
+        <label></label>
+      </dd>
+    </dl><dl class="lineD">
+    <dt>排序：</dt>
+    <dd>
+      <input name="sort" type="text" pattern="int" value="{$sort}" style="width:40px;" alt="必需为数字">
+      <label>数字越大越靠前</label>
+    </dd>
+  </dl>
+  <dl class="lineD">
+    <dt>导航展示是否显示：</dt>
+    <dd>
+      <input name="nav_show" id="nav_show1" type="radio" value="1" ><label for="nav_show1">显示</label>
+      <input name="nav_show" id="nav_show0" type="radio" value="0" ><label for="nav_show0">隐藏</label>
+    </dd>
+  </dl>
+  <dl class="lineD">
+    <dt>列表展示是否显示：</dt>
+    <dd>
+      <input name="list_show" id="list_show1" type="radio" value="1" ><label for="list_show1">显示</label>
+      <input name="list_show" id="list_show0" type="radio" value="0" ><label for="list_show0">隐藏</label>
+    </dd>
+  </dl>
+  <dl class="lineD clearfix">
+    <dt>分类图片：</dt>
+    <dd class="min_inputs ">
+      <button class="button  select_button" type="button" >
+        <b class="icon-plus green"></b>
+        添加图片
+      </button> <b class="red">双击图片编辑图片连接</b>
+    </dd>
+  </dl>
+  <dl>
+    <dt></dt>
+    <dd>
+      <ul class="piclist" id="pic_list">
+        {if:isset($imgs) && $imgs =  unserialize($imgs)}
+        {list:items=$imgs}
+        <li {if:$item['img'] == $img} class="current" {/if}>
+          <div class="bord">
+            <input type="hidden" name="imgs[]" value="{$item['img']}">
+            <input type="hidden" name="links[]" value="{$item['link']}">
+            <img src="{url:@$item[img]}" data-src={$item['img']} onclick="selectImg(this)" ondblclick="editImgInfo(this)" width="80" height="80" alt=""></div>
+            <div class="opera">
+              <a class="icon-arrow-left-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-arrow-right-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-link" href="javascript:;" onclick="linkImg(this)"></a>&nbsp;&nbsp;<a class="icon-close" href="javascript:;" onclick="delImg(this)"></a>
+            </div>
+          </li>
+          {/list}
+          {/if}
+        </ul>
+        <input name="img" type="text" style="visibility: hidden;width:0;" value="{$img}" id="img_index" alt="添加商品图片"/>
+        <label></label>
+      </dd>
+    </dl>
+  </div>
+  <!-- E 基本信息-->
+  <!-- S SEO信息-->
+  <div>
+    <dl class="lineD">
+      <dt>页面标题：</dt>
+      <dd>
+        <input name="seo_title" type="text" value="{$seo_title}">
+        <label>页面标题(TITLE)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>页面关键词：</dt>
+      <dd>
+        <input name="seo_keywords" type="text" value="{$seo_keywords}">
+        <label>页面关键词(META_KEYWORDS)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>页面描述：</dt>
+      <dd>
+        <input name="seo_description" type="text" value="{$seo_description}">
+        <label>页面描述(META_DESCRIPTION)</label>
+      </dd>
+    </dl>
+  </div>
+  <!-- E SEO信息-->
+</div>
+<div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+</form>
+</div>
+<script type="text/javascript">
+  var form =  new Form();
+  form.setValue('parent_id','{$parent_id}');
+  form.setValue('type_id','{$type_id}');
+  form.setValue('nav_show','{$nav_show|1}');
+  form.setValue('list_show','{$list_show|1}');
+
+  $(".select_button").on("click",function(){
+    uploadFile();
+    return false;
+  });
+  function uploadFile(){
+    art.dialog.open('{url:/admin/photoshop}',{id:'upimg_dialog',lock:true,opacity:0.1,title:'选择图片',width:613,height:380});
+  }
+  function selectImg(id){
+    var img = $(id).attr('data-src');
+    $("#pic_list li").removeClass("current");
+    $(id).parent().parent().addClass("current");
+    $("#img_index").val(img);
+  }
+//回写选择图片
+function setImg(value){
+  var show_src = "{url:@}"+value;
+  if(value.indexOf("http://")!=-1) show_src = value;
+
+  if($("#pic_list img[src='"+show_src+"']").get(0)){
+    art.dialog.alert("图片已经添加，请不要重复添加！");
+  }else{
+    $("#pic_list").append('<li> <div class="bord"><input type="hidden" name="imgs[]" value="'+value+'" /> <input type="hidden" name="links[]" value="" /> <img src="'+show_src+'" data-src="'+value+'" onclick="selectImg(this)"  ondblclick="editImgInfo(this)" width="80" height="80" alt=""></div> <div class="opera"><a class="icon-arrow-left-2" href="javascript:;" ></a>&nbsp;&nbsp;<a class="icon-arrow-right-2" href="javascript:;"></a>&nbsp;&nbsp;<a class="icon-link" href="javascript:;" onclick="linkImg(this)"></a>&nbsp;&nbsp;<a class="icon-close" href="javascript:;" onclick="delImg(this)"></a> </div> </li>');
+    bindEvent();
+    if($("#pic_list li.current").length <=0 ){
+      $("#pic_list li:eq(0)").addClass("current");
+      $("#img_index").val(value);
+    }
+    FireEvent(document.getElementById('img_index'),'change');
+    art.dialog({id:'upimg_dialog'}).close();
+  }
+
+}
+//删除添加的图片
+function delImg(id){
+  $(id).parent().parent().remove();
+  if($("#pic_list li:eq(0)").length <= 0)$("#img_index").val('');
+}
+function linkImg(id){
+  var src = $(id).parent().parent().find('img').attr('src');
+  art.dialog({id:'linkDialog',title:'图片地址',content:'<div>图片地址：<input type="text" value='+src+' style="width:300px;"/></div>',width:420});
+}
+
+function editImgInfo(id){
+  var link = $(id).parent().parent().find("input[name='links[]']").val();
+  art.dialog.data('currentLink', $(id).parent().parent().find("input[name='links[]']"));
+  art.dialog({id:'linkDialog',title:'连接地址',content:'<div>连接地址：<input type="text" value="'+link+'" style="width:400px;" onchange="setImgLink(this.value)" /></div>',width:520});
+}
+
+function setImgLink(val){
+  var currentLink = art.dialog.data('currentLink');
+  currentLink.val(val);
+}
+//操作左右按钮事件绑定
+function bindEvent(){
+  $(".icon-arrow-right-2").off();
+  $(".icon-arrow-left-2").off();
+  $(".icon-arrow-right-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    current_tr.insertAfter(current_tr.next());
+  });
+  $(".icon-arrow-left-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    if(current_tr.prev().html()!=null)current_tr.insertBefore(current_tr.prev());
+  });
+
+}
+bindEvent();
+</script>

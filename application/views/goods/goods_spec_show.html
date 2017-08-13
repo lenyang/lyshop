@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>图片管理</title>
+	<link rel="stylesheet" href="{url:@static/css/base.css}" />
+	<link rel="stylesheet" href="{url:@static/css/admin.css}" />
+
+	{echo:JS::import('jquery')}
+	{echo:JS::import('form')}
+	{echo:JS::import('dialog?skin=brief');}
+	{echo:JS::import('dialogtools');}
+	<script src="{url:@static/js/common.js}" charset="UTF-8" type="text/javascript"></script>
+</head>
+<body style="background:#fff;">
+	<table class="default" >
+		<colgroup>
+			<col width="20%"></col>
+			<col> </col>
+		</colgroup>
+		<tr style="height:24px;"><th>规格选择</th><th style="border-left:#f1f1f1 1px solid;">规格预览</th></tr>
+		<tr style="height:300px;"><td valign="top">
+			<ul class="spec_names">
+			{query:name=goods_spec items=$spec/}
+			{list:items=$spec}
+				<li><input type="radio" name="spec" value="{$item['id']}"><label>{$item['name']}[{$item['note']}]</label></li>
+			{/list}
+			</ul>
+		</td><td valign="top" style="border-left:#f1f1f1 1px solid;">
+			<div class="spec_values">
+			{list:items=$spec}
+				{set:$values = unserialize($item['value'])}
+				<ul>
+				{list:items=$values item=$ite}
+					{if:$item['type']==2}
+						<li><img src="{url:@$ite[img]}" ></li>
+					{else:}
+						<li>{$ite['name']}</li>
+					{/if}
+				{/list}
+				</ul>
+			{/list}
+			</div>
+		</td></tr>
+	</table>
+	<div style="text-align: center; position: fixed; bottom: 0px; background: #F0F0F0; left: 0; right: 0; border-top: 1px solid #C4C4C4; height: 40px; line-height: 40px; "><button class="button" onclick="saveSpec()">保存</button></div>
+	<script type="text/javascript">
+	function saveSpec (){
+		//alert();
+			var id = $("input:checked").val();
+			var name = $("input:checked+label").text();
+			if(id)parent.addSpec(id,name);
+
+		}
+		$("input[name='spec']").each(function(i){
+			var num = i;
+			$(".spec_values >ul").css({display:'none'});
+			$(this).on("click",function(){
+				$(".spec_values >ul").css({display:'none'});
+				$(".spec_values >ul:eq("+num+")").css({display:''});
+			})
+		})
+	</script>
+</body>
+</html>

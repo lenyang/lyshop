@@ -1,0 +1,92 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content" style="margin-left: 212px;">
+		<div class="box p10">
+			<h1 class="title"><span>我的订单：</span></h1>
+			<div class="mt10">
+				<div class="box list-item order-status">
+					<div class="title"><b>订单号：</b><i class="icon-order-{$order['type']}"></i>{$order['order_no']}<b>下单日期：</b>{$order['create_time']} <b>状态：</b>
+						{echo:$this->order_status($order)}</div>
+					<p>{$order['create_time']}&nbsp;&nbsp;<span class="black">订单创建</span></p>
+                    {if:$order['pay_status']>0}
+					<p>{$order['pay_time']}&nbsp;&nbsp;<span class="black">订单{$order['order_no']} 付款 {$currency_symbol}<b>{$order['order_amount']}</b></span></p>
+                    {/if}
+                    {if:$order['delivery_status']>0}
+					<p>{$order['send_time']}&nbsp;&nbsp;<span class="black">订单<b class="orange">全部商品</b>已发货</span></p>
+                    {/if}
+                    {if:$order['status']==4}
+					<p>{$order['completion_time']}&nbsp;&nbsp;<span class="black">订单完成</span></p>
+                    {/if}
+				</div>
+				<div class="mt10">
+					<table class="simple form">
+						<tr>
+							<th class="tl" style="padding-left: 20px;" colspan=2>收货人信息：</th>
+						</tr>
+						<tr><td class="label">收货人：</td><td>{$order['accept_name']}</td></tr>
+						<tr><td class="label">地&nbsp;&nbsp;&nbsp;&nbsp;址：</td><td>{$order['addr']}</td></tr>
+						<tr><td class="label">电&nbsp;&nbsp;&nbsp;&nbsp;话：</td><td>{$order['phone']}</td></tr>
+						<tr><td class="label">手&nbsp;&nbsp;&nbsp;&nbsp;机：</td><td>{$order['mobile']}</td></tr>
+					</table>
+				</div>
+				<div class="mt10">
+					<table class="simple form">
+						<tr>
+							<th class="tl" style="padding-left: 20px;" colspan=2>支付及配送方式：</th>
+						</tr>
+						<tr><td class="label">支付方式：</td><td>{$order['pay_name']}</td></tr>
+						<tr><td class="label">运&nbsp;&nbsp;&nbsp;&nbsp;费：</td><td>{$order['real_freight']}</td></tr>
+						{if:$order['delivery_status']>0}
+						<tr><td class="label">物流公司：</td><td>{$invoice['ec_name']}</td></tr>
+						<tr><td class="label">快递单号：</td><td>{$invoice['express_no']}&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-mini" href="http://www.kuaidi100.com/chaxun?com={$invoice['ec_code']}&nu={$invoice['express_no']}" target="_blank">查询物流</a></td></tr>
+						{/if}
+					</table>
+				</div>
+				<div class="mt10">
+					<table class="simple form">
+						<tr>
+							<th>商品编号</th><th>商品名称</th> <th>商品价格</th> <th>优惠后价格</th> <th>数量</th> <th>小计</th>
+						</tr>
+						{set:$total=0.00;$subtotal=0.00;}
+						{list:items=$order_goods}
+						{set:$subtotal = ($item['real_price']*$item['goods_nums']);$total+=$subtotal; $subtotal = sprintf ("%01.2f",$subtotal);}
+						<tr><td>{$item['pro_no']}</td> <td>{$item['name']}</td> <td>{$currency_symbol}{$item['goods_price']}</td> <td>{$currency_symbol}{$item['real_price']}</td> <td>{$item['goods_nums']}</td> <td>{$currency_symbol}{$subtotal}</td></tr>
+						{/list}
+					</table>
+				</div>
+				{set:$total = sprintf ("%01.2f",$total);}
+				<div class="mt10 box p10 tr order-total">
+					<div class="pb10">
+						{if:$order['type']==3}
+						<p>套餐总金额：{$currency_symbol}{$order['real_amount']}</p>
+						{else:}
+						<p>商品总金额：{$currency_symbol}{$total}</p>
+						{/if}
+						<p>+ 运费：{$currency_symbol}{$order['real_freight']}</p>
+						{if:$order['taxes']>0}
+						<p>+ 税：{$currency_symbol}{$order['taxes']}</p>
+						{/if}
+						<p>- 优惠：{$currency_symbol}{$order['discount_amount']}</p>
+						{if:$order['adjust_amount']!=0}
+						<p>{if:$order['adjust_amount']>0}+{else:}-{/if} 价格调整：{$currency_symbol}{echo:trim($order['adjust_amount'],'-')}</p>
+						<p>调价原因：{$order['adjust_note']|'无原因'}</p>
+						{/if}
+					</div>
+					<div class="t-line pt10 total">
+						订单支付金额：<b>{$currency_symbol}{$order['order_amount']}</b>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function order_sign(id) {
+		$.post("{url:/ucenter/order_sign}",{id:id},function(data){
+			if(data['status']=='success'){
+				location.reload();
+			}
+		},'json');
+	}
+</script>

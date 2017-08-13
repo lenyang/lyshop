@@ -1,0 +1,126 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('editor');}
+<script>
+    var editor;
+    KindEditor.ready(function(K) {
+      editor = K.create('textarea[name="description"]', {
+        uploadJson : '{url:/admin/upload_image}'
+      });
+    });
+</script>
+
+<h1 class="page_title">编辑订单促销活动</h1>
+<form action="{url:/marketing/prom_order_save}" method="post" >
+{if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+<div id="obj_form" class="form2">
+      <dl class="lineD">
+        <dt><b class="red">*</b> 促销活动名称：</dt>
+        <dd>
+          <input name="name" type="text" pattern="required" value="{$name}" class="big"/>
+          <label> </label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>促销活动类型：</dt>
+        <dd>
+          <select id="prom_type" name="type">
+            <option value="0">满额打折</option>
+            <option value="1">满额优惠金额</option>
+            <option value="2">满额送倍数积分</option>
+            <option value="3">满额送代金券</option>
+            <option value="4">满额免运费</option>
+          </select>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 需满足金额：</dt>
+        <dd>
+          <input name="money" type="text" class="small" pattern="float" value="{$money}" />
+          <label> 订单需要满足的金额！</label>
+        </dd>
+        </dl>
+        <dl class="lineD" id="expression">
+        <dt><b class="red">*</b>折扣：</dt> <dd> <input name="expression" type="text" class="small"  pattern="([1-9]\\d?|100)"  value=""> <label>% 折扣值(1-100 如果打9折，请输入90)</label> </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>开始时间：</dt>
+        <dd>
+          <input name="start_time" type="text" class="Wdate"   pattern="required"  onChange="" value="{$start_time|date('Y-m-d H:i:s',strtotime($start_time))|''}" onfocus="WdatePicker({minDate:'{echo:date('Y-m-d H:i:s')}',dateFmt:'yyyy-MM-dd HH:mm:ss'})">
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>结束时间：</dt>
+        <dd>
+          <input name="end_time" class="Wdate" type="text" pattern="required" onChange="" value="{$end_time|date('Y-m-d H:i:s',strtotime($end_time))|''}"  onfocus="WdatePicker({minDate:'{echo:date('Y-m-d H:i:s')}',dateFmt:'yyyy-MM-dd HH:mm:ss'})">
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>适合用户群：</dt>
+        <dd>
+          <label><input name="group[]" value="0" type="checkbox">默认会员</label>
+          {query:name=grade} <label><input name="group[]" value="{$item['id']}" type="checkbox">{$item["name"]}</label>{/query}
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>活动描述：</dt>
+        <dd>
+          <textarea id="content" pattern="required" name="description" style="width:700px;height:360px;visibility:hidden;">{$description}</textarea>
+          <label></label>
+        </dd>
+        </dl>
+      </div>
+      <!--活动描述 end-->
+      <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+</form>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+$("#prom_type").on("change",function(){
+  var type = parseInt($("#prom_type").val());
+  var expression = '';
+  switch(type){
+    
+    case 0:{
+      expression = '<dt><b class="red">*</b>折扣：</dt> <dd> <input name="expression" type="text" class="small"  pattern="([1-9]\\d?|100)" value=""> <label>% 折扣值(1-100 如果打9折，请输入90)</label> </dd>';
+      break;
+    }
+    case 1:{
+      expression = '<dt><b class="red">*</b>优惠金额：</dt> <dd> <input name="expression" type="text" class="small"  pattern="float" value=""> <label>立减金额（元）</label> </dd>';
+      break;
+    }
+    case 2:{
+      expression = '<dt><b class="red">*</b>倍数：</dt> <dd> <input name="expression" type="text" class="small"  pattern="int" value=""> <label>商品送积分的倍数!</label> </dd>';
+      break;
+    }
+    case 3:{
+      expression = '<dt><b class="red">*</b>代金券：</dt> <dd><select name="expression">{query:name=voucher_template}<option value="{$item["id"]}">{$item["name"]}</option>{/query}</select></dd>';
+      break;
+    }
+    case 4:{
+      expression = '';
+      break;
+    }
+  }
+  $("#expression").html(expression);
+  autoValidate.init();
+});
+function goods_select(){
+  var params = $("input[name='goods_id[]']").serialize()+"&id={$id}";
+  art.dialog.open('{url:/marketing/goods_select}?'+params,{id:'goods_select',title:'选择商品：',width:900,height:500,padding: '10px'});
+}
+
+function goods_del(id){
+  $(id).parent().parent().remove();
+}
+
+
+var form = new Form();
+form.setValue('type', {$type|0});
+FireEvent(document.getElementById('prom_type'),'change');
+form.setValue('expression', '{$expression}');
+form.setValue('group[]', '{$group}');
+</script> 

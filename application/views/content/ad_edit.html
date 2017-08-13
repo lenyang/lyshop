@@ -1,0 +1,225 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<style type="text/css">
+
+    #table_option td{
+        width: 8px;
+        height: 8px;
+        background: #ddd;
+        border:1px #999 solid;
+        cursor: pointer;
+    }
+</style>
+<h1 class="page_title">编辑广告</h1>
+<form action="{url:/content/ad_save}" method="post" >
+{if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+<div id="obj_form" class="form2">
+      <dl class="lineD">
+        <dt><b class="red">*</b> 广告名称：</dt>
+        <dd>
+          <input type="text" name="name" class="big" pattern="required"  value="{$name}" alt="广告名称不能为空！" >
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 广告尺寸：</dt>
+        <dd>
+          宽度：<input name="width" type="text" class="tiny" pattern="\d{1,4}" value="{$width}" /> px
+          <label> </label>
+          &nbsp;&nbsp;&nbsp;&nbsp;高度：<input name="height" type="text" class="tiny"  pattern="\d{1,4}" value="{$height}" /> px
+          <label> </label>
+        </dd>
+        </dl>
+        
+        <dl class="lineD">
+        <dt><b class="red">*</b>开始时间：</dt>
+        <dd>
+          <input name="start_time" type="text" class="Wdate"   pattern="required"  onChange="" value="{$start_time|date('Y-m-d H:i:s',strtotime($start_time))|''}" onfocus="WdatePicker({minDate:'{echo:date('Y-m-d H:i:s')}',dateFmt:'yyyy-MM-dd HH:mm'})">
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>结束时间：</dt>
+        <dd>
+          <input name="end_time" class="Wdate" type="text" pattern="required" onChange="" value="{$end_time|date('Y-m-d H:i:s',strtotime($end_time))|''}"  onfocus="WdatePicker({minDate:'{echo:date('Y-m-d H:i:s')}',dateFmt:'yyyy-MM-dd HH:mm'})">
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 是否开启：</dt>
+        <dd>
+          <label><input type="checkbox" name="is_open" pattern="required"  value="1" > 开启</label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt> 描述：</dt>
+        <dd>
+          <textarea pattern="required" name="description" >{$description}</textarea>
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 广告类型：</dt>
+        <dd><select name="type" id="ad_type">
+          <option value="1">普通广告</option>
+          <option value="2">多图轮播</option>
+          <option value="3">文字</option>
+          <option value="4">悬浮</option>
+          <option value="5">代码</option>
+        </select>
+          <div id="table_option" >
+            {if:isset($type) && ($type==4) && preg_match('/^[Oa]:\d+:/',$content)}
+            {set:$contents = unserialize($content);}
+            {else:}
+            {set:$contents = array(0=>array('position'=>0,'is_close'=>0))}
+            {/if}
+            <span>广告位置:<input id="ad_position" type="hidden" name="position" value="{$contents[0]['position']|0}"></span>
+          <table style="border-collapse:separate;border-spacing:2px;">
+          <tr> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> </tr> </table>
+          <div>是否可关闭：<input type="checkbox" name="is_close" {if:$contents[0]['is_close']==1}checked="checked"{/if} value="1"></div>
+        </div>
+        <span id="btn_add" {if:isset($type) && $type!=2}style="display:none"{/if}><button id="add_items" type="button" class="button"><b class=" icon-plus"></b> 添加</button></span>
+        </dd>
+        </dl>
+        <div id="ad_content" class="mt10">
+          <table class="default" id="table_img">
+            {if:isset($type) && ($type==1||$type==2||$type==4) && preg_match('/^[Oa]:\d+:/',$content)}
+            {set:$contents = unserialize($content)}
+            {list:items=$contents}
+          <tr>
+            <td style="width:60px;">图片地址：</td> <td style="width:240px;"><input pattern="required" class="middle" name="path[]" type="text" value="{$item['path']}" readonly="readonly"><button class="button select_button" value="选择">选择</button></td> <td style="width:60px;">连接地址：</td> <td style="width:190px;"><input name="url[]" pattern="url" empty type="text" value="{$item['url']}" class="middle"></td> <td style="width:40px;">名称：</td> <td style="width:190px;"><input name="title[]" type="text" value="{$item['title']}" class="middle"></td><td style="width:90px;"><a href="javascript:;" class="icon-arrow-up-2"> 升</a><a href="javascript:;" class="icon-arrow-down-2"> 降</a> <a href="javascript:;" class="icon-close" onclick="item_del(this)"> 删</a></td>
+          </tr>
+          {/list}
+          {else:}
+          <tr>
+            <td style="width:60px;">图片地址：</td> <td style="width:240px;"><input pattern="required" name="path[]" type="text" value="{$item['path']}" class="middle" readonly="readonly"><button class="button select_button" value="选择">选择</button></td> <td style="width:60px;">连接地址：</td> <td style="width:190px;"><input name="url[]" type="text" value="{$item['url']}" class="middle" pattern="url" empty></td> <td style="width:40px;">名称：</td> <td style="width:190px;"><input name="title[]" type="text" value="{$item['title']}" class="middle"></td><td style="width:90px;"><a href="javascript:;" class="icon-arrow-up-2"> 升</a><a href="javascript:;" class="icon-arrow-down-2"> 降</a> <a href="javascript:;" class="icon-close" onclick="item_del(this)"> 删</a></td>
+          </tr>
+          {/if}
+        </table>
+        <table id="table_font" class="default">
+          {if:isset($type) && $type==3}
+            {set:$content = unserialize($content);extract($content);}
+          {/if}
+          <tr><td style="width:40px;">文字：</td><td style="width:190px;"><input pattern="required" class="middle" type="text" name="font_title" value="{$title}"></td><td style="width:40px;">连接：</td>
+          <td style="width:190px;"><input type="text" class="middle" name="font_url" value="{$url}"></td>
+          <td style="width:40px;">颜色：</td>
+          <td style="width:190px;"><input type="text" pattern="\#([0-9,A-F]{3}|[0-9,A-F]{6})" class="tiny" name="font_color" value="{$color|'#'}" empty alt="十六进制颜色(如：#019010)"><label> 如：#FF0000</label></td></tr>
+        </table>
+        <table id="table_code">
+          <tr><td style="width:80px;">代码内容：</td><td><textarea style="width:700px;height:240px;" name="content" pattern="required" alt="代码内容不能为空！">{if:isset($type)&& $type==5}{$content}{/if}</textarea></td></tr>
+        </table>
+        </div>
+      </div>
+      <!--活动描述 end-->
+      <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+</form>
+<script type="text/javascript">
+  var form  = new Form();
+  form.setValue('is_open','{$is_open}');
+  form.setValue('type', '{$type}');
+  
+
+  $("#ad_type").on("change",function(){
+    var type = $(this).val();
+    //隐藏所有的扩展表格
+    $("#ad_content table").css("display","none");
+    $("#ad_content table input[type='text']").attr("disabled","disabled");
+    $("#ad_content table textarea").attr("disabled","disabled");
+    if(type==4) $('#table_option').css("display","");
+    else $('#table_option').css("display","none");
+    if(type==2)
+        $("#btn_add").css("display","");
+      else
+        $("#btn_add").css("display","none");
+    if(type==1||type==2||type==4){
+      $("#table_img input").removeAttr("disabled");
+      $("#table_img").css("display","");
+      if(type==2){
+        $("#table_img tr").css("display","");
+      }
+      else{
+          $("#table_img tr").each(function(i){
+            if(i>0)$(this).css("display","none");
+          });
+      }
+    }
+    else if(type==3){
+      $("#table_font input").removeAttr("disabled");
+      $("#table_font").css("display","");
+    }
+    else{
+      $("#table_code textarea").removeAttr("disabled");
+      $("#table_code").css("display","");
+    }
+    
+  });
+  //添加table的一行
+  $("#add_items").on("click",function(){
+    var current_tr = $("#ad_content table tr:eq(0)");
+    var dom = current_tr.clone(true);
+    $("input",dom).val('');
+    dom.insertAfter(current_tr);
+    bindEvent();
+  });
+
+//删除table的一行
+function item_del(id){
+  if($("tr",$(id).parent().parent().parent()).length>=2) $(id).parent().parent().remove();
+  else {
+    art.dialog.alert('至少要对应一组信息！');
+  }
+}
+
+//操作按钮事件绑定
+function bindEvent(){
+  $(".icon-arrow-down-2").off();
+  $(".icon-arrow-up-2").off();
+  $(".icon-remove-2").off();
+  $(".select_button").off();
+  $(".icon-arrow-down-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    current_tr.insertAfter(current_tr.next());
+  });
+    $(".icon-arrow-up-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    if(current_tr.prev().html()!=null)current_tr.insertBefore(current_tr.prev());
+  });
+    $(".icon-remove-2").on("click",function(){
+      if($("input[name='value[]']").length>1)$(this).parent().parent().remove();
+      else alert('必须至少保留一个规格值');
+    });
+    $(".select_button").each(function(i){
+      var num = i;
+      $(this).on("click",function(){
+      uploadFile(num);
+      return false;
+    });
+    });
+}
+
+function uploadFile(num){
+  art.dialog.data('num', num);
+  art.dialog.open('{url:/admin/photoshop?type=4}',{id:'upimg_dialog',title:'选择图片',width:613,height:380});
+}
+function setImg(value){
+  var num = art.dialog.data('num');
+  $("input[name='path[]']:eq("+num+")").val(value);
+  FireEvent($("input[name='path[]']:eq("+num+")")[0],"change");
+  art.dialog({id:'upimg_dialog'}).close();
+}
+
+bindEvent();
+FireEvent(document.getElementById("ad_type"),"change");
+
+  $("#table_option td").each(function(i){
+    var current = i;
+    $(this).on('click',function(){
+      $("#table_option td").css("background","#ddd");
+      $(this).css("background","#000");
+      $("#ad_position").val(current);
+    })
+  });
+  $("#table_option td:eq({$contents[0]['position']})").css("background","#000");
+</script>

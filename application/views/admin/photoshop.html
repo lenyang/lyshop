@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>图片管理</title>
+	<link rel="stylesheet" href="{url:@static/css/base.css}" />
+	<link rel="stylesheet" href="{url:@static/css/admin.css}" />
+
+	{echo:JS::import('jquery')}
+	{echo:JS::import('form')}
+	{echo:JS::import('dialog?skin=brief');}
+	{echo:JS::import('dialogtools');}
+	<script src="{url:@static/js/common.js}" charset="UTF-8" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="{url:@static/vendors/webuploader/webuploader.css}">
+	<script type="text/javascript" src="{url:@static/vendors/webuploader/webuploader.min.js}"></script>
+</head>
+<body style="background:#fff;">
+	<div style="width:100%;" class="tab">
+		<ul class="tab-head"><li>本地图片</li><li>图库图片</li><li>网络图片</li></ul>
+		{set:$type=Req::args('type')==null?0:intval(Req::args('type'));}
+		<div class="tab-body form2">
+			<div>
+				<div class="clearfix">
+			      	<ul id="fileList" class="uploader-list gallery clearfix"></ul>
+			    </div>
+			    </form>
+			    <div id="uploader-demo" class="tc mt10">
+				    <div id="filePicker">选择图片</div>
+				</div>
+			</div>
+			<div>
+				<ul class="gallery clearfix">
+				{query:name=gallery id=$obj page=1 where=type eq $type}
+					<li><img height="100" width="100" src="{url:@$item[img]}" data-src="{$item['img']}"></li>
+				{/query}
+				</ul>
+				<div class="page_nav">
+				{echo:$obj->pageBar()}
+				</div>
+			</div>
+			<div>
+				<form id="form_netimg" callback="setNetImg">
+				<dl class="lineD">
+			      <dt>网络图片：</dt>
+			      <dd>
+			        <input id="netimg" name="netimg" type="text" pattern="http:\/\/(\w+(-\w+)*)(\.(\w+(-\w+)*))+(\/\S*)+\.(jpg|png|bmp|gif)" value="{$name}">
+			        <label>图片地址必须以http开头,以jpg,png,bmp,gif结束</label>
+			      </dd>
+			    </dl>
+			</div>
+		</div>
+
+	</div>
+	<div class="alone_footer tc"><button class="button" onclick="saveImage()">保存</button></div>
+	<script type="text/javascript">
+	function saveImage (){
+		var status = $(".tab > .tab-head > li[class='current']").index();
+		switch(status){
+			case 0:
+				$("#fileList li").each(function(){
+					var imgpath = $(this).attr('data-src');
+					art.dialog.opener.setImg(imgpath);
+				});
+				break;
+			case 1:
+				var img = $(".gallery > .current >img").attr('data-src');
+				if(img)art.dialog.opener.setImg(img);
+				else art.dialog.tips("<p class='fail'>未选择任何图片，无法添加！</p>");
+				break;
+			case 2:
+				$("#form_netimg").submit();
+				break;
+			}
+		}
+		{if:isset($msg)}
+			art.dialog.tips("<p class='{$msg[0]}'>{$msg[1]}</p>");
+		{elseif:Req::args('msg')}
+			{set:$msg = Req::args('msg')}
+			art.dialog.tips("<p class='{$msg[0]}'>{$msg[1]}</p>");
+		{/if}
+		function setNetImg(e){
+			if(e==null)art.dialog.opener.setImg($('#netimg').val());
+			return false;
+		}
+		$(".gallery >li").each(function(){
+			$(this).on("click",function(){
+				$(".gallery >li").removeClass('current');
+				$(this).addClass("current");
+			})
+		})
+　　			{if:Req::args('p')!=null}
+				$(document).ready(function(){
+				　　tabs_select(0,1);
+				});
+			{/if}
+
+ $(function(){
+   /*init webuploader*/
+   var $list=$("#fileList");   //这几个初始化全局的百度文档上没说明，好蛋疼。
+   var thumbnailWidth = 100;   //缩略图高度和宽度 （单位是像素），当宽高度是0~1的时候，是按照百分比计算，具体可以看api文档
+   var thumbnailHeight = 100;
+		var uploader = WebUploader.create({
+		    auto: true,
+		    fileVal:'upfile',
+		    fileNumLimit:10,
+		    swf: '{url:@static/vendors/webuploader/Uploader.swf}',
+		    server: '{url:/admin/photoshop_upload}',
+		    pick: '#filePicker',
+		    accept: {
+		        title: 'Images',
+		        extensions: 'gif,jpg,jpeg,bmp,png',
+		        mimeTypes: 'image/jpg,image/jpeg,image/png'
+		    }
+		});
+
+		// 当有文件添加进来的时候
+	uploader.on( 'fileQueued', function( file ) {
+	    var $li = $('<li id="' + file.id + '" class="file-item thumbnail">' + '<img></li>'),
+	        $img = $li.find('img');
+	    $list.append( $li );
+
+	    uploader.makeThumb( file, function( error, src ) {
+	        if ( error ) {
+	            $img.replaceWith('<span>不能预览</span>');
+	            return;
+	        }
+
+	        $img.attr( 'src', src );
+	    }, thumbnailWidth, thumbnailHeight );
+	});
+
+	uploader.on("uploadAccept", function( file, data){
+	    if (data.error == undefined) {
+	        return true;
+	    }else{
+	    	return false;
+	    }
+	});
+
+	// 文件上传成功，给item添加成功class, 用样式标记上传成功。
+	uploader.on( 'uploadSuccess', function( file , ret ) {
+	    $( '#'+file.id ).addClass('upload-state-done');
+	    $( '#'+file.id ).attr("data-src",ret.img);
+	});
+
+	// 文件上传失败，显示上传出错。
+	uploader.on( 'uploadError', function( file ) {
+	    var $li = $( '#'+file.id ),
+	        $error = $li.find('div.error');
+	    // 避免重复创建
+	    if ( !$error.length ) {
+	        $error = $('<div class="error"></div>').appendTo( $li );
+	    }
+	    $error.text('上传失败');
+	});
+	// 完成上传完了，成功或者失败，先删除进度条。
+	uploader.on( 'uploadComplete', function( file ) {
+	    $( '#'+file.id ).find('.progress').remove();
+	});
+});
+	</script>
+</body>
+</html>

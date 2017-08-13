@@ -1,0 +1,157 @@
+{echo:JS::import('validator');}
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<h1 class="page_title">规格编辑</h1>
+<div id="obj_form" class="form2">
+  <form action="{url:/goods/goods_spec_save}" method="post" >
+    {if:isset($id)}
+    <input type="hidden" name="id" value="{$id}">
+    {/if}
+    <dl class="lineD">
+      <dt>名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" alt="名称不能为空">
+        <label>规格名称(如：颜色)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>类型：</dt>
+      <dd>
+        <input name="type" type="radio" checked="checked" value="1">
+        <label>文字</label>
+        <input name="type" type="radio" value="2">
+        <label>图片</label>
+
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>备注：</dt>
+      <dd>
+        <input name="note" type="text" pattern="required" value="{$note}" alt="不能为空，用于标注">
+        <label>备注（一般说明是关于什么的，如：服装）</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt></dt>
+      <dd>
+        <button class="button" id="addSpecButton" >添加规格值</button>
+      </dd>
+    </dl>
+    <div>
+      <table class="default" id="spec">
+        <tr>
+          <th>规格值名称</th>
+          <th>规格图片</th>
+          <th>操作</th>
+        </tr>
+        {if:isset($id)}
+        {query:name=spec_value where= spec_id eq $id order=sort}
+        <tr>
+          <td>
+            <input type="hidden" name="value_id[]" value="{$item['id']}">
+            <input type="text" name="value[]" value="{$item['name']}" pattern="required" />
+          </td>
+          <td>
+            <input type="text" name="img[]" readonly="readonly" value="{$item['img']}" >
+            <button class="button select_button" value="选择">选择</button>
+          </td>
+          <td class="btn_min">
+            <a href="javascript:;" class="icon-arrow-up-2">上升</a>
+            <a href="javascript:;" class="icon-arrow-down-2">下降</a>
+            <a href="javascript:;" class="icon-remove-2" >删除</a>
+          </td>
+        </tr>
+        {/query}
+        {else:}
+        <tr>
+          <td>
+            <input type="hidden" name="value_id[]" value="0">
+            <input type="text" name="value[]" pattern="required" />
+          </td>
+          <td>
+            <input type="text" name="img[]" readonly="readonly" >
+            <button class="button select_button" value="选择">选择</button>
+          </td>
+          <td class="btn_min">
+            <a href="javascript:;" class="icon-arrow-up-2">上升</a>
+            <a href="javascript:;" class="icon-arrow-down-2">下降</a>
+            <a href="javascript:;" class="icon-remove-2" >删除</a>
+          </td>
+        </tr>
+        {/if}
+      </table>
+    </div>
+    <div style="text-align:center">
+      <input type="submit" value="提交" class="button">
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="reset" value="重置" class="button"></div>
+  </form>
+</div>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type','{$type}');
+
+$("#addSpecButton").on("click",function(){
+  if(2==$("input[name='type']:checked").val()){
+    $("#spec").append('<tr> <td><input type="hidden" name="value_id[]" value="0"><input type="text" name="value[]" pattern="required" /></td> <td><input type="text" name="img[]" readonly="readonly" > <button class="button select_button">选择</button></td> <td class="btn_min"><a href="javascript:;" class="icon-arrow-up-2">上升</a><a href="javascript:;" class="icon-arrow-down-2">下降</a><a href="javascript:;"  class="icon-remove-2">删除</a></td></tr>');
+  }else{
+    $("#spec").append('<tr> <td><input type="hidden" name="value_id[]" value="0"><input type="text" name="value[]" pattern="required" /></td> <td><input type="text" name="img[]" readonly="readonly"  disabled="disabled"> <button class="button select_button" disabled="disabled">选择</button></td> <td class="btn_min"><a href="javascript:;" class="icon-arrow-up-2">上升</a><a href="javascript:;" class="icon-arrow-down-2">下降</a><a href="javascript:;"  class="icon-remove-2">删除</a></td></tr>');
+  }
+  bindEvent();
+  return false;
+})
+
+// 绑定规格类型点击事件
+$("input[name='type']").on("click",changeType);
+//改变规格的类型
+function changeType(){
+  var select_type = $("input[name='type']:checked");
+  if(select_type.val()==1){
+    $("input[name='img[]']").prop("disabled", true);
+    $(".select_button").prop("disabled", true);
+  }
+  else{
+    $("input[name='img[]']").prop("disabled", false);
+    $(".select_button").prop("disabled", false);
+  }
+}
+changeType();
+bindEvent();
+//操作按钮事件绑定
+function bindEvent(){
+  $(".icon-arrow-down-2").off();
+  $(".icon-arrow-up-2").off();
+  $(".icon-remove-2").off();
+  $(".select_button").off();
+  $(".icon-arrow-down-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    current_tr.insertAfter(current_tr.next());
+  });
+    $(".icon-arrow-up-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    if(current_tr.prev().prev().html()!=null)current_tr.insertBefore(current_tr.prev());
+  });
+    $(".icon-remove-2").on("click",function(){
+      if($("input[name='value[]']").length>1)$(this).parent().parent().remove();
+      else alert('必须至少保留一个规格值');
+    });
+    $(".select_button").each(function(i){
+      var num = i;
+      $(this).on("click",function(){
+      uploadFile(num);
+      return false;
+    });
+    });
+}
+function uploadFile(num){
+  art.dialog.data('num', num);
+  art.dialog.open('{url:/admin/photoshop?type=1}',{id:'upimg_dialog',title:'选择图片',width:613,height:380});
+}
+function setImg(value){
+  var num = art.dialog.data('num');
+  $("input[name='img[]']:eq("+num+")").val(value);
+  art.dialog({id:'upimg_dialog'}).close();
+}
+</script>

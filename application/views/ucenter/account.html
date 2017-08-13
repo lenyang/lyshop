@@ -1,0 +1,130 @@
+{echo:JS::import("form")}
+{echo:JS::import('dialog?skin=simple');}
+{echo:JS::import('dialogtools');}
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>账户金额管理：</span></h1>
+			<div class="box p15 mt10 clearfix">账户余额：<b class="red f18">{$currency_symbol}{$customer['balance']|'0.00'}</b> <span class="fr"><a href="javascript:;" id="recharge-btn" class="btn btn-mini">充值</a> <a href="javascript:;" id="withdraw-btn" class="btn btn-mini">提现</a></span></div>
+			<div class="mt10 tab">
+				<ul class="tab-head">
+					<li>交易记录</li>
+					<li>提现申请记录</li>
+				</ul>
+				<div class="tab-body">
+					<div>
+						<table class="simple">
+							<tr>
+								<th width="140">时间</th> <th width="120">存入 / 取出</th><th width="120">余额</th> <th >备注</th> 
+							</tr>
+							{query:name=balance_log where=user_id eq $user[id] order=id desc page=1 id=$obj}
+							<tr {if:$key%2==1}class="even"{/if}>
+								<td>{$item['time']}</td> <td>{$item['amount']}</td><td>{$currency_symbol}{$item['amount_log']}</td><td>{$item['note']}</td>
+							</tr>
+							{/query}
+						</table>
+						<div class="page-nav">{echo:$obj->pagebar()}</div>
+					</div>
+					<div>
+						<table class="simple">
+							<tr>
+								<th width="140">时间</th> <th width="120">提现金额</th><th width="120">名称</th> <th >账号</th> <th style="width:80px">状态</th> 
+							</tr>
+							{query:name=withdraw where=user_id eq $user[id] page=1 id=$withdraw}
+							<tr {if:$item['status']==2}class="noborder"{/if}>
+								<td width="140">{$item['time']}</td> <td width="120">{$currency_symbol}{$item['amount']}</td><td width="120">{$item['type_name']}</td> <td >{$item['account']}</td> <td style="width:80px">{if:$item['status']==0}<span class="red">处理中</span>{elseif:$item['status']==1}<b class="green">提现成功</b>{else:}<span class="gray">失败</span>{/if}</td>
+							</tr>
+							{if:$item['status']==2}
+							<tr>
+								<td colspan="5" style="padding-left:20px;"><p>处理意见：{$item['re_note']} </p></td>
+							</tr>
+							{/if}
+							{/query}
+						</table>
+						<div class="page-nav">{echo:$withdraw->pagebar()}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="recharge-dialog" class="hidden">
+<form action="{url:/payment/dopay}" method="post" target="_blank" callback="close_dialog">
+	<table class="form" style="width:500px;">
+		<tr>
+			<td class="label">充值金额：</td>
+			<td><input type="text" name="recharge"  pattern="float"> <label>最小金额不小于0.01</label></td>
+		</tr>
+		<tr>
+			<td class="label">支付方式：</td>
+			<td><select name="payment_id">
+				{query:name=payment as py fields=py.* join= left join pay_plugin as pp on py.plugin_id eq pp.id where=pp.class_name ne 'balance' order=sort desc}
+				<option value="{$item['id']}">{$item['pay_name']}</option>
+				{/query}
+			</select></td>
+		</tr>
+		<tr>
+			<td colspan="2" class="tc"><input type="submit" class="btn" value="立刻充值"></td>
+		</tr>
+	</table>
+	</form>
+</div>
+<div  id="withdraw-dialog" class="hidden">
+<form id="withdraw_form" action="{url:/ucenter/withdraw}" method="post" target="_blank" callback="submit_withdraw">
+	<table class="form" style="width:600px;">
+		<tr>
+			<td class="label">账户金额：</td>
+			<td> <label class="f18 red">{$currency_symbol}{$customer['balance']}</label></td>
+		</tr>
+		<tr>
+			<td class="label">提现金额：</td>
+			<td><input type="text" id="w_amount" name="amount" class="small"  pattern="float" min="1" max="{$customer['balance']}"> <label>允许提现金额(1 - {$customer['balance']})</label></td>
+		</tr>
+		<tr>
+			<td class="label">账户名/开户名：</td>
+			<td><input type="text" id="w_name" name="name"  pattern="required"> <label></label></td>
+		</tr>
+		<tr>
+			<td class="label">名称/开户行：</td>
+			<td><input type="text" id="w_type_name" name="type_name"  pattern="required"> <label>如（支付宝、中国银行）</label></td>
+		</tr>
+		<tr>
+			<td class="label">账号/卡号：</td>
+			<td><input type="text" id="w_account" name="account"  pattern="required"> <label>如（支付宝账号、银行账号）</label></td>
+		</tr>
+		<tr>
+			<td colspan="2" class="tc"><input type="submit" class="btn" value="申请提现"></td>
+		</tr>
+	</table>
+	</form>
+</div>
+<script type="text/javascript">
+$("#recharge-btn").on("click",function() {
+	art.dialog({id:'recharge-dialog',title:'在线充值',content:document.getElementById('recharge-dialog'),lock:true});
+});
+$("#withdraw-btn").on("click",function() {
+	art.dialog({id:'withdraw-dialog',title:'提现申请',content:document.getElementById('withdraw-dialog'),lock:true});
+});
+function close_dialog(e){
+	if(!e)art.dialog({id:'recharge-dialog'}).close();
+}
+function submit_withdraw(e){
+	if(!e){
+		var name = $("#w_name").val();
+		var type_name = $("#w_type_name").val();
+		var account = $("#w_account").val();
+		var amount = $("#w_amount").val();
+		$.get("{url:/ucenter/withdraw}",{name:name,type_name:type_name,account:account,amount:amount},function(data){
+			if(data['status']=='success'){
+				art.dialog({id:'withdraw-dialog'}).close();
+				window.location.href = "{url:/ucenter/account/rand/}"+Math.random()+"#tab-1";
+			}else{
+				alert(data['msg']);
+			}
+		},'json');
+	}
+	return false;
+}
+</script>

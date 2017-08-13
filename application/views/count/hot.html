@@ -1,0 +1,66 @@
+{echo:JS::import('form')}
+{echo:JS::import('highcharts')}
+{widget:name=count action=cal}
+<div class="tools_bar clearfix">
+    <form action="{url:/count/hot}" method="post">
+<span class="fl">时间：<input name="s_time" type="text" value="{$s_time}" id="datepick" class="middle" readonly="readonly"></span><a href="javascript:tools_submit();" id="condition" class="icon-search" style=""> 查询</a>
+    </form>
+</div>
+<div id="container"></div>
+<script>
+$(function () {
+         $('#container').highcharts({
+            chart:{
+                type:'areaspline'
+            },
+            title: {
+                text: '{$s_time}最热销【三款】统计报表'
+            },
+            xAxis: [{
+                categories: [{$month}],
+                labels: {
+                    rotation: -45,
+                    align: 'right',
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            }],
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '销售额 (元)'
+                }
+            },
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 80,
+                verticalAlign: 'top',
+                y: 35,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{if:$data}{set:$last = count($data);$num=1;}{list:items=$data}{
+                name: '{$parse_goods[$key]}',
+                data: [{$item}],
+                tooltip: {
+                     headerFormat: '{point.key}<br/>',
+                    valueSuffix: ' 元'
+                },dataLabels: {
+                    enabled: true
+                }
+            }{if:$num++<$last},{/if}{/list}
+            {else:}
+                {name:'无产品',data:[{$nodata}]}
+            {/if}
+
+            ]
+        });
+
+    });
+</script>

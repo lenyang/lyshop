@@ -1,0 +1,54 @@
+{if:$order['type']==0}
+{set:$items=array("购物车","确认订单信息","选择支付","订购完成");}
+{widget:name=sub_navs action=crumbs items=$items step=4 current=3}
+{else:}
+{set:$items=array("确认订单信息","选择支付","订购完成");}
+{widget:name=sub_navs action=crumbs items=$items step=3 current=2}
+{/if}
+<div class="box mt20">
+<form action="{url:/payment/dopay}" method="post" target="_blank">
+<input type="hidden" name="order_id" value="{$order['id']}">
+<div class="mt20  clearfix tc">
+	<img src="{url:@static/images/right.gif}"><b class=" f18">订单已成功提交！</b>
+
+</div>
+<div class="mt10" style="padding:10px 100px;">
+    <table class="default mt10 p10">
+        <tr> <td style="width:200px;">订单编号：</td><td><i class="icon-order-{$order['type']}"></i>{$order['order_no']} &nbsp;&nbsp;&nbsp;&nbsp;<a href="{url:/ucenter/order_detail/id/$order[id]}" target="_blank" class="red"> 查看订单>> </a> <a href="javascript:tools_reload()" class="fr btn btn-mini">刷新</a></td> </tr>
+        <tr> <td style="width:200px;">订单金额：</td><td class="red">{$currency_symbol}{$order['order_amount']}</td> </tr>
+        <tr> <td style="width:200px;">支付方式：</td><td id="pay_name" class="bold">{$order['payment']}</td> </tr>
+    </table>
+    <div class="mt10">
+        <a href="javascript:;" id="voucher-btn" style="line-height: 25px;height:25px;"><i class="icon-plus"></i>其它支付方式：</a>
+    </div>
+    <table class="default mt20" id="payment-list" style="display:none;">
+        {query:name=payment order=sort desc}
+        <tr><td width="200px;"><label><input type="radio" name="payment_id" value="{$item['id']}" {if:$item['id']==$order['payment']}checked="checked"{/if} data-name="{$item['pay_name']}"> {$item['pay_name']}</label>
+        </td><td></td></tr>
+        {/query}
+    </table>
+</div>
+<div class="mt10 mb20 clearfix">
+<p class="tc"><input class="btn" type="submit" value="立即支付"></p></div>
+</form>
+</div>
+
+<script type="text/javascript">
+    $("#voucher-btn").on("click",function(){
+    $("#payment-list").toggle();
+    if($("i",this).hasClass("icon-plus")){
+        $("i",this).removeClass("icon-plus");
+        $("i",this).addClass("icon-minus");
+    }
+    else{
+        $("i",this).removeClass("icon-minus");
+        $("i",this).addClass("icon-plus");
+    }
+});
+    $("#payment-list input[type='radio']").each(function(){
+        if(!!$(this).attr("checked")) $("#pay_name").text($(this).attr("data-name"));
+        $(this).on("click",function(){
+            $("#pay_name").text($(this).attr("data-name"));
+        })
+    })
+</script>

@@ -1,0 +1,92 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+  <div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-plus" href="{url:/marketing/voucher_template_edit}" title="添加"> 添加</a><a href="javascript:;" class="icon-loop-2"
+    onclick="tools_reload()"> 刷新</a></div>
+    <table class="default" >
+      <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th >名称</th>
+        <th style="width:100px">面额</th>
+        <th style="width:100px">所需积分</th>
+        <th style="width:100px">需满金额</th>
+        
+      </tr>
+        {query:name=voucher_template id=$obj page=1}
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+          <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+           <li><a class=" icon-credit" href="javascript:;" onclick="create_vouther_dialog({$item['id']},'{$item['name']}','{$item['value']}')"> 创建代金券</a></li>
+           <li><a class="icon-pencil" href="{url:/marketing/voucher_template_edit/id/$item[id]}"> 编辑</a></li>
+           <li><a class="icon-close" href="javascript:;" onclick="confirm_action('{url:/marketing/voucher_template_del/id/$item[id]}')"> 删除</a></li>
+         </ul></div></div> </td>
+         <td >{$item['name']}</td><td style="width:100px;">{$item['value']}</td><td style="width:100px">{$item['point']|'-'}</td><td style="width:100px">{$item['money']|'-'}</td></tr>
+         {/query}
+       </table>
+   </form>
+   <div class="page_nav">
+    {echo:$obj->pageBar()}
+  </div>
+
+  <div id="card_box" style="display: none;width:450px;padding: 5px;" class="box">
+    <h2 class="page_title tc" style="border:none">生成代金券</h2>
+    <div class="form2">
+      <form  id="export_form" action="{url:/marketing/create_vouther}" method="post" callback="create_voucher">
+        <input type="hidden" id="template_id" name="id" value="">
+        <dl class="lineD">
+          <dt>名称：</dt>
+          <dd id="voucher_name">0</dd>
+        </dl>
+        <dl class="lineD">
+          <dt>面值：</dt>
+          <dd id="voucher_value">0</dd>
+        </dl>
+        
+        <dl class="lineD">
+          <dt><b class="red">*</b>开始时间：</dt>
+          <dd>
+            <input name="start_time" type="text" class="Wdate small" id="d4321" pattern="required"  onFocus="WdatePicker({maxDate:'#F{ $dp.$D(\'d4322\',{d:0});}',minDate:'%y-%M-{%d}'})" value="{echo:date('Y-m-d')}">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt><b class="red">*</b>结束时间：</dt>
+          <dd>
+            <input name="end_time" class="Wdate small" type="text" id="d4322" pattern="required"  onFocus="WdatePicker({minDate:'#F{ $dp.$D(\'d4321\',{d:0});}'})">
+            <label></label>
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt>张数：</dt>
+          <dd><input id="voucher_num" name="num" pattern="int" class="tiny" alt="必需为有效的整数"><label></label></dd>
+        </dl>
+        <div class="tc mt10"><button class="button">生成</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    function create_vouther_dialog(id,name,value){
+      $("#voucher_name").text(name);
+      $("#voucher_value").text(value);
+      $("#template_id").val(id);
+      art.dialog({id:'create_vouther_dialog',lock:true,opacity:0.1,title:'创建代金券',width:500,height:200,padding:"15px",content:document.getElementById("card_box")});
+    }
+    function create_voucher(e){
+      if(e == null){
+        var fields = $("#export_form").serializeArray();
+        $.post("{url:/marketing/voucher_create}",fields,function(data){
+          if(data['status']=='success'){
+            art.dialog({id:'create_vouther_dialog'}).close();
+            //art.dialog.tips(data['msg']);
+          }
+            art.dialog.tips('<p class="'+data['status']+'">'+data['msg']+'</p>');
+        },'json');
+      }
+      return false;
+    }
+  </script>

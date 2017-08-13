@@ -1,0 +1,188 @@
+{echo:JS::import('validator');}
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{set:$id = Req::args('id')}
+<h1 class="page_title">类型编辑</h1>
+<form action="{url:/goods/goods_type_save}" method="post" callback="check_invalid">
+ {if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+<div id="obj_form" class="form2 tab">
+  <ul class="tab-head"><li>基本信息</li><li class="current">规格</li><li class="current">品牌</li></ul>
+    <div class="tab-body">
+    <!--属性 start-->
+      <div>
+        <dl class="lineD">
+          <dt>名称：</dt>
+          <dd><input name="name" type="text" pattern="required" value="{$name}" alt="名称不能为空"><label>类型名称</label></dd>
+        </dl>
+        <dl class="lineD">
+          <dt></dt><dd><button class="button" id="addAttrButton" >扩展属性</button></dd>
+        </dl>
+        <div>
+        <table class="default" id="attr">
+
+          <tr><th>属性名称</th>
+          <th style="width:120px;">显示方式</th>
+          <th style="width:260px;">选择项可选值</th>
+          <th style="width:160px;">操作</th></tr>
+          {if:isset($id)}
+
+          {query:name=goods_attr where= type_id  eq $id order=sort}
+          <tr> <td>
+          <input type="hidden" name="attr_id[]" value="{$item['id']}" />
+          <input type="text" name="attr_name[]" value="{$item['name']}" pattern="required" /></td> <td>
+          <select class="middle attr_type" name="attr_type[]">
+                    <option value="1" {if:$item['show_type']==1}selected="selected"{/if}>下拉可筛选</option>
+                    <option value="2" {if:$item['show_type']==2}selected="selected"{/if}>下拉不可筛选</option>
+                    <option value="3" {if:$item['show_type']==3}selected="selected"{/if}>输入不可搜索</option>
+                  </select>
+          </td><td>
+          {set:$attr_value_str='';$value_str=''; $attr_id = $item['id']}
+          {query:name=attr_value where= attr_id eq $attr_id items=$attr   id=$attr_value order= sort}
+          {set:$attr_value_str .= $item['id'].":=:".$item['name'].",";$value_str .= $item['name'].",";}
+          {/query}
+          {set:$attr_value_str = rtrim($attr_value_str,',');$value_str = rtrim($value_str,',');}
+          <input type="hidden" name="attr_value[]" value="{$attr_value_str}" pattern="required" /> <a href="javascript:;" class="edit_button button">编辑</a> <span class="list_value">{$value_str}</span></td> <td class="btn_min"><a href="javascript:;" class="icon-arrow-up-2">上升</a><a href="javascript:;" class="icon-arrow-down-2">下降</a><a href="javascript:;" class="icon-remove-2" >删除</a></td>
+          </tr>
+          {/query}
+          {/if}
+        </table>
+        </div>
+        
+     
+      </div>
+      <!--属性 end-->
+      <!--规格 start-->
+        <div>
+          <dl class="lineD">
+            <dt></dt><dd><button class="button" id="addSpecButton" >添加规格</button></dd>
+          </dl>
+          <div>
+            <table class="default" id="spec">
+            <colgroup>
+              <col/>
+              <col width="260">
+              <col width="200">
+            </colgroup>
+              <tr><th>规格</th><th>显示方式</th><th>操作</th></tr>
+              {if:isset($spec)}
+              {set:$specs = unserialize($spec)}
+              {list:items=$specs}
+              <tr> <td>{$item['name']}<input type="hidden" id="spec_id_{$item['id']}" name="spec[id][]" value="{$item['id']}"/></td> <td><select class="middle" name="spec[show_type][]">
+              <option value="1" {if:$item['show_type']==1} selected="selected" {/if}>平铺显示</option>
+              <option value="2" {if:$item['show_type']==2} selected="selected" {/if}>下拉显示</option>
+              </select></td><td class="btn_min"><a href="javascript:;" class="icon-arrow-up-2">上升</a><a href="javascript:;" class="icon-arrow-down-2">下降</a><a href="javascript:;"  class="icon-remove-2">删除</a></td></tr>
+              {/list}
+              {/if}
+            </table>
+          </div>
+        </div>
+      <!--规格 end-->
+      <!--S 品牌-->
+        <div>
+          <ul class="clearfix brand-list">
+            {set:$brand = isset($brand)?$brand:''; $brand_str = ','.$brand.',';}
+            {query:name=brand}
+            {set:$bid = ','.$item['id'].',';}
+            <li><input type="checkbox" {if:strpos($brand_str,$bid)!==false}checked="checked"{/if} name="brand[]" value="{$item['id']}"><label>{$item['name']}</label></li>
+            {/query}
+          </ul>
+        </div>
+      <!--E 品牌-->
+    </div>
+</div>
+<div style="text-align:center">
+    <input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button">
+    </div>
+</form>
+
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type','{$type}');
+
+$("#addAttrButton").on("click",function(){
+    $("#attr").append('<tr> <td><input type="hidden" name="attr_id[]" value="0" /><input type="text" name="attr_name[]" pattern="required" /></td> <td><select class="middle attr_type"  name="attr_type[]"> <option value="1" selected="">下拉可筛选</option> <option value="2">下拉不可筛选</option> <option value="3">输入不可搜索</option> </select></td><td><input type="hidden" name="attr_value[]" pattern="required" /> <a href="javascript:;" class="edit_button button">编辑</a> <span class="list_value"></span> </td><td class="btn_min"><a href="javascript:;" class="icon-arrow-up-2">上升</a><a href="javascript:;" class="icon-arrow-down-2">下降</a><a href="javascript:;"  class="icon-remove-2">删除</a></td></tr>');
+  bindEvent();
+  return false;
+})
+
+//绑定规格事件
+$("#addSpecButton").on("click",function(){
+  art.dialog.open('{url:/goods/goods_spec_show}',{id:'spec_dialog',title:'规格选择',width:600,height:360});
+  return false;
+})
+
+function addSpec(id,name){
+  if($("#spec_id_"+id).get(0)){
+    art.dialog.tips('<p class="warning">此规格已经添加！</p>');
+  }else{
+    $("#spec").append('<tr> <td>'+name+'<input type="hidden" id="spec_id_'+id+'" name="spec[id][]" value="'+id+'"/></td> <td><select class="middle"  name="spec[show_type][]"><option value="1">平铺显示</option><option value="2">下拉显示</option></select></td><td class="btn_min"><a href="javascript:;" class="icon-arrow-up-2">上升</a><a href="javascript:;" class="icon-arrow-down-2">下降</a><a href="javascript:;"  class="icon-remove-2">删除</a></td></tr>');
+      bindEvent();
+      art.dialog({id:'spec_dialog'}).close();
+  }
+}
+
+//改变规格的类型
+
+bindEvent();
+//操作按钮事件绑定
+function bindEvent(){
+  $(".icon-arrow-down-2").off();
+  $(".icon-arrow-up-2").off();
+  $(".icon-remove-2").off();
+  $(".edit_button").off();
+  $(".attr_type").off();
+  $(".icon-arrow-down-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    current_tr.insertAfter(current_tr.next());
+  });
+    $(".icon-arrow-up-2").on("click",function(){
+    var current_tr = $(this).parent().parent();
+    if(current_tr.prev().prev().html()!=null)current_tr.insertBefore(current_tr.prev());
+  });
+    $(".icon-remove-2").on("click",function(){
+      $(this).parent().parent().remove();
+      //else art.dialog.tips('必须至少保留一个规格值');
+    });
+    $(".attr_type").on("click",function(){
+      if($(this).val()>2)$(this).parent().next().find(".edit_button").css({display:'none'});
+      else $(this).parent().next().find(".edit_button").css({display:''});
+    });
+    $(".edit_button").each(function(i){
+      var num = i;
+      $(this).on("click",function(){
+      addAttrValue(num);
+      return false;
+    });
+    });
+}
+
+function check_invalid(e){
+  var index = $('.tab-body > *').has(e).index();
+  if(index!=-1){
+    tabs_select(0,index);
+    return false;
+  }
+  else return true;
+}
+
+function addAttrValue(num){
+  art.dialog.data('attr_num',num);
+  var current_value = $("input[name='attr_value[]']").eq(num).val();
+  art.dialog.data('current_value',current_value);
+  art.dialog.open("{url:/goods/attr_values}",{id:'attr_dialog',resize:false,width:700,height:400});
+}
+function updAttrValue(values){
+  var num = art.dialog.data('attr_num');
+  $("input[name='attr_value[]']").eq(num).val(values.join(','));
+  var values_str = "";
+  for(i in values){
+    var id_name = values[i].split(":=:");
+    values_str += id_name[1]+",";
+  }
+  if(values_str.length>0)values_str = values_str.slice(0,-1);
+  $("span.list_value").eq(num).text(values_str);
+  art.dialog({id:'attr_dialog'}).close();
+}
+</script>

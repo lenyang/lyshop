@@ -1,0 +1,32 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a href='{url:/admin/manager_edit}' class="icon-plus" > 添加</a>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th style="width:100px">用户名</th>
+        <th style="width:100px">角色</th>
+        <th >登录IP</th>
+        <th >登录时间</th>
+        <th style="width:60px">状态</th>
+        
+    </tr>
+    {query:name=manager as ma fields=ma.*,ro.name as rname join = left join roles as ro on ma.roles eq ro.id id=$obj page=1 desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                    <li><a class="icon-pencil" href="{url:/admin/manager_edit/id/$item[id]}"> 编辑</a></li>
+                    <li><a class="icon-close" href="javascript:confirm_action('{url:/admin/manager_del/id/$item[id]}')"> 删除</a></li>
+                </ul></div></div> </td>
+        <td style="width:100px">{$item['name']}</td><td style="width:100px">{if:$item['roles']=='administrator'}超级管理员{else:}{$item['rname']}{/if}</td><td >{$item['last_ip']}</td><td  >{$item['last_login']}</td><td style="width:60px">{echo:$item['is_lock']==0?"正常":"锁定";}</td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>

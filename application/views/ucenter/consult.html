@@ -1,0 +1,77 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>商品咨询：</span></h1>
+			<div class="mt10 tab">
+				<ul class="tab-head">
+					<li>已经答复咨询</li>
+					<li>未答复咨询</li>
+				</ul>
+				<div class="tab-body"  style="padding: 20px 10px;">
+					<div id="consult-y">
+						<div class="page-nav"></div>
+						<table class="mt10 simple">
+						<tr><th width="100">商品信息</th><th width="200"></th> <th >咨询</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td><p class="p5"><a href="{url:/index/product/id/}{gid}" target="_blank"><img src="{url:@}{img}" width="100" height="100"></a></p></td>
+								<td>
+									<p class="p10"><a href="{url:/index/product/id/}{gid}" target="_blank">{name}</a></p>
+									<p class="p10">价格：<b class="red">{$currency_symbol}{sell_price}</b></p>
+								</td>
+								<td>
+									<div class="p5">
+									<p class="p10">{question}</p>
+									<div class="box">
+										<h2><span>官方客服</span> <span class="fr">{reply_time|今天}</span></h2>
+										<div class="p10">{content}</div>				
+									</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+					<div id="consult-n">
+						<div class="page-nav"></div>
+						<table class="mt10 simple">
+						<tr><th width="100">商品信息</th><th width="200"></th> <th >咨询</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td><p class="p5"><a href="{url:/index/product/id/}{gid}" target="_blank"><img src="{url:@}{img}" width="100" height="100"></a></p></td>
+								<td>
+									<p class="p10"><a href="{url:/index/product/id/}{gid}" target="_blank">{name}</a></p>
+									<p class="p10">价格：<b class="red">{$currency_symbol}{sell_price}</b></p>
+								</td>
+								<td>
+									<div class="p5">
+										<div class="box">
+											<h2>咨询时间：{ask_time|今天}</h2>
+											<div class="p10">{question}</div>				
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$("#consult-n").Paging({
+                url:'{url:/ucenter/get_consult}',
+                params:{status:'n'}
+    });
+    $("#consult-y").Paging({
+                url:'{url:/ucenter/get_consult}',
+                params:{status:'y'}
+    });
+</script>

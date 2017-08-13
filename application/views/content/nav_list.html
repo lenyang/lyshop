@@ -1,0 +1,33 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('validator');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/content/nav_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a href='{url:/content/nav_edit}' class="icon-plus" > 添加</a>
+</div>
+<table class="default">
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th>名称</th>
+        <th style="width:80px">类型</th>
+        <th style="width:80px">打开方式</th>
+        <th style="width:80px">排序</th>
+        <th style="width:160px">是否开启</th>
+        
+    </tr>
+    {query:name=nav page=1 id=$obj order=type desc,`sort` desc}
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                    <li><a class="icon-pencil" href="{url:/content/nav_edit/id/$item[id]}"> 编辑</a></li>
+                    <li><a class="icon-remove-2" href="javascript:confirm_action('{url:/content/nav_del/id/$item[id]}')"> 删除</a></li>
+                </ul></div></div> </td>
+        <td>{$item['name']}</td><td><span>{if:$item['type']=='main'}主导航{else:}底部导航{/if}</span></td><td><span>{if:$item['open_type']==1}新窗口{else:}本窗口{/if}</span></td><td>{$item['sort']}</td><td>{if:$item['enable']==1}<b class="green">开启</b>{else:}<span>关闭</span>{/if}</td></tr>
+    {/query}
+</table>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+</form>

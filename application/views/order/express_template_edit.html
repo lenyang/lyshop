@@ -1,0 +1,328 @@
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<script type="text/javascript" src="{url:@static/js/jquery.event.drag.js}"></script>
+<style type="text/css">
+
+#container ,.container {
+  width: {$width|840}px;
+  height: {$height|480}px;
+  text-align: left;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d2d2d2;
+  background: url({url:@}{$background}) 0px 0px no-repeat;
+}
+
+.container .item {
+  line-height: 20px;
+  float: left;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  color: #666666;
+  overflow: hidden;
+  word-wrap: break-word;
+  filter: alpha(opacity = 80);
+  -moz-opacity: 0.8;
+  opacity: 0.8;
+  border: 1px dotted #999999;
+  background: #ffffff;
+  padding-left:4px;
+  color: #000;
+}
+
+.container .selected {
+  filter: alpha(opacity = 100);
+  -moz-opacity: 1;
+  opacity: 1;
+  border: 1px solid #ff6600;
+}
+
+.container pre {
+  height: 100%;
+  float: left;
+  cursor: move;
+}
+
+.container textarea {
+  padding-left: 0px;
+  margin: 0px;
+  font-size: 12px;
+  resize: none;
+  outline: none;
+  overflow: hidden;
+  border: none;
+}
+
+.container .resize {
+  height: 6px;
+  width: 6px;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  overflow: hidden;
+  cursor: nw-resize;
+  background-color: #aaaaaa;
+}
+</style>
+<script type="text/javascript">
+$().ready(function() {
+
+  var $inputForm = $("#inputForm");
+  var $addTag = $("#addTag");
+  var $tagOption = $("#tagOption a");
+  var $deleteTag = $("#deleteTag");
+  var $container = $("#container");
+  var $browserButton = $("#browserButton");
+  var $background = $("#background_input");
+  var $width = $("#width");
+  var $height = $("#height");
+  var zIndex = 1;
+
+
+  bind($container.find("div.item"));
+
+
+
+  // 标签选项
+  $tagOption.click(function() {
+    var value = $(this).attr("val");
+    if (value != "") {
+      bind($('<div class="item"><pre>' + value + '<\/pre><div class="resize"><\/div><\/div>').appendTo($container));
+    }
+    return false;
+  });
+
+  // 绑定
+  function bind($item) {
+    $item.drag("start", function(ev, dd) {
+      var $this = $(this);
+      dd.width = $this.width();
+      dd.height = $this.height();
+      dd.limit = {
+        right: $container.innerWidth() - $this.outerWidth(),
+        bottom: $container.innerHeight() - $this.outerHeight()
+      };
+      dd.isResize = $(ev.target).hasClass("resize");
+    }).drag(function(ev, dd) {
+      var $this = $(this);
+      if (dd.isResize) {
+        $this.css({
+          width: Math.max(20, Math.min(dd.width + dd.deltaX, $container.innerWidth() - $this.position().left) - 2),
+          height: Math.max(20, Math.min(dd.height + dd.deltaY, $container.innerHeight() - $this.position().top) - 2)
+        }).find("textarea").blur();
+      } else {
+        $this.css({
+          top: Math.min(dd.limit.bottom, Math.max(0, dd.offsetY)),
+          left: Math.min(dd.limit.right, Math.max(0, dd.offsetX))
+        });
+      }
+    }, {relative: true}).mousedown(function() {
+      $(this).css("z-index", zIndex++);
+    }).click(function() {
+      var $this = $(this);
+      $container.find("div.item").not($this).removeClass("selected");
+      $this.toggleClass("selected");
+    }).dblclick(function() {
+      var $this = $(this);
+      if ($this.find("textarea").size() == 0) {
+        var $pre = $this.find("pre");
+        var value = $pre.hide().text($pre.html()).html();
+        $('<textarea>' + value + '<\/textarea>').replaceAll($pre).width($this.innerWidth() - 6).height($this.innerHeight() - 6).blur(function() {
+          var $this = $(this);
+          $this.replaceWith('<pre>' + $this.val() + '<\/pre>');
+        }).focus();
+      }
+    });
+  }
+
+  // 删除标签
+  $deleteTag.click(function() {
+    $container.find("div.selected").remove();
+    return false;
+  });
+
+  // 单据背景图
+  // $browserButton.browser({
+  //   callback: function(url) {
+  //     $container.css({
+  //       background: "url(" + url + ") 0px 0px no-repeat"
+  //     });
+  //   }
+  // });
+
+  $background.bind("input propertychange change", function() {
+    $container.css({
+      background: "url({url:@}" + $background.val() + ") 0px 0px no-repeat"
+    });
+  });
+
+  // 宽度
+  $width.bind("input propertychange change", function() {
+    $container.width($width.val());
+  });
+
+  // 高度
+  $height.bind("input propertychange change", function() {
+    $container.height($height.val());
+  });
+
+
+});
+
+function checkForm(e){
+  if(e==null){
+
+    if ($.trim($("#container").html()) == "") {
+      alert('模板内容不能为空！')
+          return false;
+    }
+    $("#content_map").val($("#container").html());
+  }
+
+}
+</script>
+
+<h1 class="page_title">快递单模板编辑 【 <a href="{url:$nav_link}" class="icon-arrow-left-2 "> 返回</a> 】</h1>
+   <form id="inputForm"  method="post" action="{url:/order/express_template_save}" callback="checkForm">
+    {if:isset($id)}
+    <input type="hidden" name="id" value="{$id}" />
+    {/if}
+    <input type="hidden" id="content_map" name="content" value=""/>
+    <div class="lineD">名称：<input type="text" class="small"  name="name" pattern="required"  value="{$name}" /> <label></label> 宽度：<input type="text" class="tiny"  id="width" name="width" value="{$width|840}" /> 高度：<input type="text" class="tiny"  id="height" name="height"  value="{$height|480}" /> 偏移量 X：<input type="text" class="tiny" name="offset_x"  value="{$offset_x|0}" /> 偏移量 Y：<input type="text" class="tiny" name="offset_y"  value="{$offset_y|0}" /> 是否默认：<input type="checkbox" name="is_default" checked="checked" value="1" />默认
+     <input  id="background_input" name="background" type="hidden"  value="{$background}" />
+            <input type="button" id="background_img" class="button" value="背景图片" />
+          </div>
+          <div style="padding-left: 415px; margin-bottom: 20px;" class="lineD">
+        <div class="operat hidden btn_min">
+          <a  class="icon-cog action" href="javascript:;"> 添加标签</a> &nbsp;&nbsp;<a href="javascript:;" id="deleteTag" class="button">删除标签</a> &nbsp;&nbsp;
+          <button href="javascript:;" id="deleteTag" class="button">保存模板</button>
+          <div class="menu_select" style="width:160px">
+            <ul id="tagOption">
+                <li>
+                  <a href="javascript:;" val="发货点-名称">发货点 - 名称</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-联系人">发货点 - 联系人</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-地区1级">发货点 - 地区1级</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-地区2级">发货点 - 地区2级</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-地区3级">发货点 - 地区3级</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-地址">发货点 - 地址</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-电话">发货点 - 电话</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="发货点-手机">发货点 - 手机</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-姓名">收货人 - 姓名</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-地区1级">收货人 - 地区1级</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-地区2级">收货人 - 地区2级</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-地区3级">收货人 - 地区3级</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-地址">收货人 - 地址</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-电话">收货人 - 电话</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="收货人-手机">收货人 - 手机</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-订单编号">订单 - 订单编号</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-配送费用">订单 - 配送费用</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-手续费">订单 - 手续费</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-总商品重量">订单 - 总商品重量</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-总商品数量">订单 - 总商品数量</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-订单总额">订单 - 订单总额</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="订单-附言">订单 - 附言</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="网站-名称">网站 - 名称</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="网站-网址">网站 - 网址</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="网站-联系地址">网站 - 联系地址</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="网站-电话">网站 - 电话</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="网站-邮箱">网站 - 邮箱</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="时间-年">时间 - 当前年</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="时间-月">时间 - 当前月</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="时间-日">时间 - 当前日</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="时间-当前日期">时间 - 当前日期</a>
+                </li>
+                <li>
+                  <a href="javascript:;" val="√">选中 - √</a>
+                </li>
+              </ul>
+          </div>
+        </div>
+          </div>
+
+        <div id="container" class="container">
+          {$content}
+        </div>
+
+    </form>
+    <script type="text/javascript">
+    var form =  new Form();
+form.setValue('is_default','{$is_default}');
+
+$("#background_img").on("click",function(){
+      uploadFile();
+      return false;
+    });
+function uploadFile(){
+  art.dialog.open('{url:/admin/photoshop/type/3}',{id:'upimg_dialog',lock:true,opacity:0.1,title:'选择图片',width:613,height:380});
+}
+function setImg(value){
+  $("#background_input").val(value);
+  $("#container").css({
+       background: "url({url:@}" + value + ") 0px 0px no-repeat"
+      });
+  art.dialog({id:'upimg_dialog'}).close();
+}
+</script>

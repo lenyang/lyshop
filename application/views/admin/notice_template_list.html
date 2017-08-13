@@ -1,0 +1,31 @@
+{set:$parse = array('weixin'=>'微信','email'=>'邮件','sms'=>'短信')}
+<h1 class="page_title"><b>系统提醒:</b></h1>
+<table class="default mt10" >
+    <tr>
+        <th >提醒类型</th>
+        <th >发送方式</th>
+    </tr>
+    {list:items=$notices}
+        {if:$item[0]['obje']==0}
+        <tr><td >{$item[0]['title']}</td><td class="btn_min">
+        {list:items=$item item=$obj}
+        <a class="icon-pencil {if:$obj['status']==1}green{else:}red{/if}" href="{url:/admin/notice_template_edit/id/$obj[id]}"> {$parse[$obj['style']]}</a>{/list}</td></tr>
+        {/if}
+    {/list}
+</table>
+
+
+<h1 class="page_title mt10"><b>用户提醒:</b></h1>
+<table class="default mt10" >
+    <tr>
+        <th >提醒类型</th>
+        <th >发送方式</th>
+    </tr>
+    {list:items=$notices}
+        {if:$item[0]['obje']==1}
+        <tr><td >{$item[0]['title']}</td><td class="btn_min">
+        {list:items=$item item=$obj}
+        <a class="icon-pencil {if:$obj['status']==1}green{else:}red{/if}" href="{url:/admin/notice_template_edit/id/$obj[id]}"> {$parse[$obj['style']]}</a>{/list}</td></tr>
+        {/if}
+    {/list}
+</table>

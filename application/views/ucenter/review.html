@@ -1,0 +1,50 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>商品评价：</span></h1>
+			<div class="mt10 tab">
+				<ul class="tab-head">
+					<li>待评价商品</li>
+					<li>已评价商品</li>
+				</ul>
+				<div class="tab-body"  style="padding: 20px 10px;">
+					<div id="review-n">
+						<table class="simple">
+						<tr><th width="160">订单编号</th> <th >商品名称</th> <th width="140">购买时间</th> <th width="80">评价</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td>{order_no}</td> <td><a href="{url:/index/product/id/}{gid}" target="_blank">{name}</a></td> <td>{buy_time}</td> <td><a class="btn btn-mini" href="{url:/index/review/id/}{id}" target="_blank">评价</a></td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+					<div id="review-y">
+						<table class="simple">
+						<tr><th width="160">订单编号</th> <th>商品名称</th> <th width="100">评价时间</th> <th width="80">我的评分</th></tr>
+						<tbody class="page-content">
+							<tr class="{odd-even}">
+								<td>{order_no}</td> <td><a href="{url:/index/product/id/}{gid}" target="_blank">{name}</a></td> <td>{comment_time}</td> <td><span class="score "><i style="width:{point}%"></i></span></td>
+							</tr>
+						</tbody>
+						</table>
+						<div class="page-nav"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$("#review-n").Paging({
+                url:'{url:/ucenter/get_review}',
+                params:{status:'n'}
+    });
+    $("#review-y").Paging({
+                url:'{url:/ucenter/get_review}',
+                params:{status:'y'}
+    });
+</script>

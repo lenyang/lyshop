@@ -1,0 +1,318 @@
+{echo:JS::import("form")}
+{echo:JS::import('dialog?skin=simple');}
+{echo:JS::import('dialogtools');}
+<link type="text/css" rel="stylesheet" href="{url:@static/css/simple.css}" />
+{set:$items=array("确认订单信息","选择支付","订购完成");}
+{widget:name=sub_navs action=crumbs items=$items step=3 current=1}
+<div class="order-info">
+<form action="{url:/simple/order_act}" method="post">
+<input type="hidden" name="type" value="{$order_type}">
+<input type="hidden" name="id" value="{$id}">
+<div class="clearfix mt15 address">
+<h2>选择收货地址：<a class="fr" href="{url:/ucenter/address}" target="_blank">管理地址</a></h2>
+    <ul class="address-list clearfix">
+    {set:$address_default=0;}
+    {list:items=$address}
+        <li>
+            <i class="locate"></i>
+            <span class="tip">寄送到</span>
+            <a href="javascript:;" data-value="{$item['id']}" class="modify"> 修改地址 </a>
+            <div class="address-info">
+            <input type="radio" name="address_id" value="{$item['id']}" {if:$item['is_default']==1}
+            {set:$address_default=$item['id']}
+            checked="checked"{/if}><label>{$parse_area[$item['province']]} {$parse_area[$item['city']]} {$parse_area[$item['county']]} {$item['addr']} （{$item['accept_name']} 收）{$item['mobile']}</label>
+            </div>
+        </li>
+    {/list}
+    </ul>
+    <div style="padding-left: 100px;"><a id="address_other" class="btn btn-mini" href="javascript:;">使用新地址</a></div>
+</div>
+<h2 class="f14 mt20">支付方式：</h2>
+<div>
+    <ul class="payment-list">
+    {query:name=payment where=status eq 0 order=sort}
+        <li ><input type="radio" name="payment_id" {if:$key==0}checked="checked"{/if} value="{$item['id']}"><label><b>{$item['pay_name']}</b> {$item['pay_desc']}</label></li>
+    {/query}
+    </ul>
+</div>
+<h2 class="f14 mt20">商品清单：</h2>
+<div class="mt15  clearfix">
+    {if:$order_type!='bundbuy'}
+	<table width="100%" class="simple">
+		<tr>
+			<th style="width:60px;">商品</th>
+			<th>名称</th>
+			<th style="width:200px;">规格</th>
+			<th style="width:100px;">活动单价</th>
+			<th style="width:120px;">数量</th>
+			<th style="width:100px;">小计</th>
+		</tr>
+		{set:$total=0.00;$weight=0;$point=0;}
+		{list:items=$product}
+		{set:$total+=$item['amount'];$weight += ($item['weight']*$item['num']);$point += ($item['point']*$item['num']);}
+
+		<tr id="{$item['id']}"><td><a href="{url:/index/product/id/$item[goods_id]}" target="_blank"><img  src="{url:@}{echo:Common::thumb($item['img'],100,100)}" width="50" height="50"></a></td><td><a href="{url:/index/product/id/$item[goods_id]}" target="_blank">{$item['name']} <input name="product_id[]" type="hidden" value="{$item['id']}"></a></td> <td>{list:items=$item['spec'] item=$spec}
+								<p title="{$spec['name']}:{$spec['value'][2]}">{$spec['name']}：{$spec['value'][2]}</p>
+							{/list}</td> <td class="tr">{$item['price']}</td> <td class="tc"><div  class="buy-num-bar buy-num clearfix"><a class="btn-dec" href="javascript:;">-</a><input  name="buy_num[]" value="{$item['num']}"  maxlength=5><a class="btn-add" href="javascript:;">+</a></div></td> <td class="amount red tr">{$item['amount']}</td> 
+        </tr>
+		{/list}
+	</table>
+    {else:}
+        <table width="100%" class="simple">
+            <tr>
+                <th style="width:60px;">商品</th>
+                <th>名称</th>
+                <th style="width:200px;">规格</th>
+                <th style="width:100px;">单价</th>
+            </tr>
+            {set:$total=0.00;$weight=0;$point=0;}
+            {list:items=$product}
+            {set:$total+=$item['amount'];$weight += ($item['weight']*$item['num']);$point += ($item['point']*$item['num']);}
+                <tr id="{$item['id']}"><td><a href="{url:/index/product/id/$item[goods_id]}" target="_blank"><img src="{url:@$item[img]}" width="50" height="50"></a></td><td><a href="{url:/index/product/id/$item[goods_id]}" target="_blank">{$item['name']}</a><input name="product_id[]" type="hidden" value="{$item['id']}"></td> <td>{list:items=$item['spec'] item=$spec}
+                                    <p title="{$spec['name']}:{$spec['value'][2]}">{$spec['name']}：{$spec['value'][2]}</p>
+                                {/list}</td> <td class="tr">{$item['price']}</td> 
+                </tr>
+                
+            {/list}
+            <tr id="{$pid}"><td></td><td><a href="{url:/index/bundbuy/id/$bund[id]}" target="_blank">{$bund['title']}</a></td> <td class="tl"><div  class="buy-num-bar buy-num clearfix"><a class="btn-dec" href="javascript:;">-</a><input  name="buy_num[]" value="{$item['num']}"  maxlength=5><a class="btn-add" href="javascript:;">+</a><span class="p10"> 套</span></div></td> <td class="amount red tr">{$bund['price']}</td> 
+                </tr>
+        </table>
+        {set:$total=$bund['price']}
+    {/if}
+    {set:$prom = new Prom($total);$proms = $prom->meetProms();}
+    {set:$fare = new Fare($weight);}
+    <table class="mt10 simple noborder form">
+        <tr><td> <p>订单备注信息：<input type="text" name="user_remark" style="width:346px;"></p> </td> <td width="260" class="tr">购物车商品合计：</td> <td width="140"><div class="mb10 mt10" style=" background: #f0f0f0;"><span class="fr"><span style=""><span class="currency-symbol f18">{$currency_symbol}</span><b class="cart-total red f18" id="total-amount" total="{$total}">{echo:sprintf("%01.2f",$total)} </b></span></span></div>
+    </td></tr>
+        {if:$is_invoice}
+        <tr >
+            <td>
+               <p style="height:32px;line-height:32px;">索要发票({$tax}%)：<input type="checkbox" name="is_invoice" id="is_invoice" value="1" data-value="{$tax}">&nbsp;&nbsp;<span id="invoice" {if:isset($order_status['is_invoice']) && $order_status['is_invoice']==1} {else:}style="display:none;"{/if}>发票抬头：<select name="invoice_type"><option value="0">个人</option><option value="1">公司</option></select>&nbsp;&nbsp;<input type="text" name="invoice_title" ></span></p>
+            </td>
+            <td class="tr">税：</td>
+            <td>
+                <p class="fr">+ <b id="taxes" data-value="{$tax}">0</b></p>
+            </td>
+        </tr>
+        {/if}
+        <tr>
+            <td >
+            </td>
+            <td class="tr">运费：</td>
+            <td>
+                <p class="fr">+ <b id="fare" data-weight="{$weight}">{echo:$fare->calculate(16);}</b></p>
+            </td>
+        </tr>
+        <tr>
+            <td >
+            </td>
+            <td class="tr orange">送积分：</td>
+            <td>
+                <p class="fr orange"><b id="point" data-point="{$point}">{$point}</b></p>
+            </td>
+        </tr>
+        <tr><td>
+            <a href="javascript:;" id="voucher-btn" style="line-height: 25px;height:25px;"><i class="icon-plus"></i>使用代金券抵消部分总额：</a>
+        </td><td class="tr">代金券：</td>
+        <td class="tr">- <b id="voucher">0.00</b></td></tr>
+    </table>
+    </div>
+    <div class="box p15 mt5" id="voucher-n" style="display: none">
+                <p class="clearfix">提示：一个订单最多能使用一张代金券（<b class="red">注：代金券仅能抵扣商品金额,多出商品的部分忽略不计</b>）。<a id="voucher-cancel" class="fr btn btn-mini ">取消优惠卷</a></p>
+            <table class="voucher-list mt10" >
+                <tr style="background: #fff5cc;color: #000;height:20px;"><td>名称</td>
+                <td>编号</td>
+                <td>面值</td>
+                <td>需满足金额</td>
+                <td>有效期</td></tr>
+                <tbody class="page-content">
+                    <tr>
+                        <td><input name="voucher" type="radio" value="{id}" data-value="{value}"> <label>{name}</label></td>
+                        <td>{account}</td>
+                        <td>{value}</td>
+                        <td>{money}</td>
+                        <td>{end_time}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="page-nav">ww</div>
+        </div>
+<div class="mb10 mt10 clearfix" style="padding:10px; background: #f0f0f0;height:20px;">
+    <span class="fr f14">应付总额：<span style="font-size: 24px;font-family: tahoma"><span class="currency-symbol">{$currency_symbol}</span><b class="cart-total red" id="real-total">{echo:sprintf("%01.2f",$total)}</b></span></span>
+</div>
+<div class="mt20 clearfix">
+    <p class="fr"><input type="submit" class="btn fr" value="提交订单"></p>
+</div>
+</form>
+</div>
+<script type="text/javascript">
+var form = new Form();
+form.setValue('address_id',"{$address_id|$address_default}");
+form.setValue('payment_id',"{$payment_id}");
+form.setValue('user_remark',"{$user_remark}");
+form.setValue('prom_id',"{$prom_id}");
+form.setValue('invoice_type',"{$invoice_type}");
+form.setValue('invoice_title',"{$invoice_title}");
+
+$("#address_other").on("click",function(){
+    art.dialog.open('{url:/simple/address_other}',{width:960,height:440,lock:true});
+})
+$(".address-list .modify").each(function(){
+
+    $(this).on("click",function(){
+        var parameter = $("form").serialize();
+        var id = $(this).attr("data-value");
+        art.dialog.open('{url:/simple/address_other/id/}'+id+"?"+parameter,{width:960,height:440,lock:true});
+    });
+});
+$("#voucher-n").Paging({
+                url:'{url:/simple/get_voucher}',
+                params:{amount:{$total}},
+                callback:function(){
+
+                    calculate();
+                    $("#voucher-n input[name='voucher']").each(function(){
+                        $(this).on("click",function(){
+                            calculate();
+                        });
+                    });
+                }
+    });
+$("#voucher-cancel").on("click",function(){
+    if($("#voucher-n input[name='voucher']:checked").size()>0){
+        $("#voucher-n input[name='voucher']:checked").attr("checked",false);
+        calculate();
+    }
+})
+$("#voucher-btn").on("click",function(){
+    $("#voucher-n").toggle();
+    if($("i",this).hasClass("icon-plus")){
+        $("i",this).removeClass("icon-plus");
+        $("i",this).addClass("icon-minus");
+    }
+    else{
+        $("i",this).removeClass("icon-minus");
+        $("i",this).addClass("icon-plus");
+    }
+})
+
+    $(".address-list li").each(function(){
+        $(this).has("input[name='address_id']:checked").addClass("selected");
+        $(this).on("click",function(){
+            $(".address-list li").removeClass("selected");
+            $("input[name='address_id']").removeAttr("checked");
+            $("input[name='address_id']",this).attr("checked","checked");
+            $(this).addClass("selected");
+            $("a.default").hide();
+            $("a.default",this).show();
+            var id = $("input[name='address_id']",this).val();
+            var weight = $("#fare").attr("data-weight");
+            $.post("{url:/ajax/calculate_fare}",{weight:weight,id:id},function(data){
+                if(data['status']=='success'){
+                    $("#fare").text(data['fee']);
+                    calculate();
+                }
+            },'json');
+        });
+    });
+    FireEvent($(".address-list  input[name='address_id']:checked").get(0),"click");
+
+    $(".payment-list li").each(function(){
+        $(this).has("input[name='payment_id']:checked").addClass("selected");
+        $(this).on("click",function(){
+            $(".payment-list li").removeClass("selected");
+            $("input[name='payment_id']").removeAttr("checked");
+            $("input[name='payment_id']",this).attr("checked","checked");
+            $(this).addClass("selected");
+        });
+    });
+
+    $("#is_invoice").on("click",function(){
+        if(!!$(this).attr("checked")){
+            $("#invoice").show();
+        }
+        else $("#invoice").hide();
+        calculate();
+    })
+
+    //计算实付金额
+    function calculate(){
+        var total = parseFloat($("#total-amount").attr("total"));
+        var voucher = 0;
+        var fare = parseFloat($("#fare").text());
+        if($("#voucher-n input[name='voucher']:checked").size()>0){
+            voucher = parseFloat($("#voucher-n input[name='voucher']:checked").attr('data-value'));
+            if(voucher==undefined) voucher =0;
+        }
+        total -= voucher;
+        $("#voucher").text(voucher.toFixed(2));
+        if(total<=0) total = 0;
+        
+        if($("#is_invoice").size()>0){
+            if(!!$("#is_invoice").attr("checked")){
+                var tax_fee = (total*{$tax}/100);
+                total += tax_fee;
+                $("#taxes").text(tax_fee.toFixed(2));
+            }
+            else{
+                $("#taxes").text("0.00");
+            }
+        }
+            
+        total += fare;
+        var data_point =parseInt($("#point").attr("data-point"));
+            data_point = data_point * $("input[name='buy_num[]']").val();
+            $("#point").text(data_point);
+        
+        $("#real-total").text(total.toFixed(2));
+    }
+    calculate();
+
+    //数量调整
+    $(".btn-dec").on("click",function(){
+        var parent = $(this).parent().parent();
+        var id = parent.parent().attr("id");
+        var num = parent.find("input").val();
+        if(num>1) num--;
+        else num=1;
+        if($("#"+id).find("input").val()!=num) changeInfo(id,num);
+        parent.find("input").val(num);
+    });
+    $(".btn-add").on("click",function(){
+        var parent = $(this).parent().parent();
+        var id = parent.parent().attr("id");
+        var num = parent.find("input").val();
+        num++;
+        if($("#"+id).find("input").val()!=num) changeInfo(id,num);
+        parent.find("input").val(num);
+    });
+
+    $(".buy-num-bar input").on("change",function(){
+        var num = parseInt($(this).val());
+        var parent = $(this).parent().parent();
+        var id = parent.parent().attr("id");
+        changeInfo(id,num);
+    })
+
+    function changeInfo(id,num){
+        var order_type = "{$order_type}_num";
+        if(num<=0)num = 1;
+        $.post("{url:/simple/}"+order_type,{id:{$id},num:num,pid:id},function(data){
+            var total = 0.00;
+            for(var i in data) total += parseFloat(data[i]['amount']);
+            $("#"+id).find(".amount").text(data[id]['amount']);
+            $("#"+id).find(".prom").text(data[id]['prom']);
+            if(parseInt($("#"+id+" .buy-num-bar").find("input").val())>data[id]['store_nums']){
+                $("#"+id+" .buy-num-bar").find("input").val(data[id]['store_nums']);
+                var parent = $("#"+id+" .buy-num-bar").find("input").parent().parent();
+                if(parent.find(".msg-simple-error").size()==0)parent.append("<div class='msg-simple-error'>限购数量："+data[id]['store_nums']+"</div>");
+            }else{
+                $("#"+id+" .buy-num-bar").find("input").val(data[id]['num']);
+                $("#"+id+" .buy-num-bar").find("input").parent().parent().find(".msg-simple-error").remove();
+            }
+            $("#total-amount").text(total.toFixed(2));
+            $("#total-amount").attr("total",total.toFixed(2));
+            calculate();
+        },"json");
+    }
+</script>

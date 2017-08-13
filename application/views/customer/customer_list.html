@@ -1,0 +1,99 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/customer/customer_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a href='{url:/customer/customer_edit}' class="icon-plus" > 添加</a>
+    <a class="icon-delicious" href="{url:/customer/customer_list}"> 全部用户</a>
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th style="width:100px">用户名</th>
+        <th style="width:100px">真实姓名</th>
+        <th style="width:60px">积分</th>
+        <th style="width:100px">联系电话</th>
+        <th>邮箱地址</th>
+        <th style="width:130px">注册时间</th>
+        <th style="width:60px">状态</th>
+        <th style="width:80px">会员等级</th>
+        <th style="width:80px">账户余额</th>
+
+    </tr>
+    {query:name=grade /}
+    {set:$grade_name=array();}
+    {list:}
+        {set:$grade_name[$item['id']]=$item['name']}
+    {/list}
+    {query:name=customer as c,user as u where=c.user_id eq u.id and $where id=$obj page=1 desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a class="icon-coin" href="javascript:balance_op({$item['user_id']},2);"> 充值</a></li>
+                <li><a class="icon-credit" href="javascript:balance_op({$item['user_id']},4);"> 退款</a></li>
+                <li><a class="icon-pencil" href="{url:/customer/customer_edit/id/$item[id]}"> 编辑</a></li>
+                <li><a class="icon-remove-2" href="javascript:confirm_action('{url:/customer/customer_del/id/$item[id]}')"> 删除</a></li>
+            </ul></div></div> </td>
+        <td style="width:100px">{$item['name']}</td><td style="width:100px">{$item['real_name']}</td><td style="width:60px">{$item['point']}</td><td style="width:130px">{$item['mobile']}</td><td >{$item['email']}</td><td style="width:100px">{$item['reg_time']}</td><td style="width:60px">{echo:$item['status']==0?"未激活":($item['status']==1?"正常":"锁定");}</td><td style="width:80px">{$grade_name[$item['group_id']]|'默认会员'}</td>
+        <td style="width:80px">{$item['balance']}</td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+
+
+<div id="balance_box" style="display: none;width:420px;padding: 5px;" class="box">
+    <h2 class="page_title tc" style="border:none" id="balance-title">充值</h2>
+    <div class="form2">
+        <form  id="export_form" action="{url:/customer/balance_act}" method="post" callback="create_voucher">
+          <input type="hidden" id="user_id" name="user_id" value="">
+          <input type="hidden" id="type" name="type" value="">
+          <dl class="lineD">
+          <dt>金额：</dt>
+          <dd><input id="amount" pattern="float" min="0.01"   name="amount" value=""> <label>最少金额为0.01</label></dd>
+          </dl>
+        <div class="tc mt10"><button class="button" id="balance-btn">充值</button></div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function balance_op(user_id,type){
+        $("#user_id").val(user_id);
+        $("#type").val(type);
+        var title = "充值";
+        if(type==4) title = "退款";
+        $("#balance-title").text(title);
+        $("#balance-btn").text(title);
+        $("#amount").val('');
+        art.dialog({id:'balance_op',lock:true,opacity:0.1,title:title,width:400,height:200,padding:"15px",content:document.getElementById("balance_box")});
+    }
+    function create_voucher(e){
+      if(e == null){
+        var fields = $("#export_form").serializeArray();
+        $.get("{url:/customer/balance_op}",fields,function(data){
+          if(data['status']=='success'){
+            art.dialog({id:'balance_op'}).close();
+            art.dialog.tips("<p class='"+data['status']+"'>"+data['msg']+"</p>",2);
+            setTimeout("tools_reload()",2000);
+          }else{
+            art.dialog.tips("<p class='"+data['status']+"'>"+data['msg']+"</p>");
+          }
+        },'json');
+      }
+      return false;
+    }
+</script>
+
+<script type="text/javascript">
+    var form =  new Form();
+    $("#condition").on("click",function(){
+    $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/customer/customer_list}',method:'get'});},data:{'name':{name:'用户名'},real_name:{name:'真实姓名'},email:{name:'邮箱'},mobile:{name:'手机号码'},reg_time:{name:'注册时间'}
+    }});
+    });
+</script>

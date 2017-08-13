@@ -1,0 +1,125 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<script>
+    var editor;
+    KindEditor.ready(function(K) {
+      editor = K.create('textarea[name="description"]', {
+        uploadJson : '{url:/admin/upload_image}'
+      });
+    });
+</script>
+
+<h1 class="page_title">编辑捆绑促销活动</h1>
+<form action="{url:/marketing/bundling_save}" method="post" callback="check_invalid" >
+{if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+<div id="obj_form" class="form2 tab">
+    <!-- tab 头 start -->
+    <ul class="tab-head">
+      <li>基本信息</li>
+      <li class="current">活动描述</li>
+    </ul>
+    <!-- tab 头 end -->
+    <!-- tab body start -->
+    <div class="tab-body">
+      <!-- 基本信息 start -->
+      <div>
+      <dl class="lineD">
+        <dt><b class="red">*</b> 促销活动名称：</dt>
+        <dd>
+          <input name="title" type="text" pattern="required" value="{$title}" class="big" />
+          <label> </label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>捆绑销售价：</dt> <dd> <input name="price" type="text" class="small"  pattern="float" value="{$price}"> <label>捆绑销售产品价格！</label> </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>商品原价格：</dt>
+        <dd id="total_price">0.00</dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>是否上架：</dt>
+        <dd><input name="status" value="1" type="radio" checked="checked"><label>上架</label><input value="0" name="status" type="radio" {if:isset($status) && $status==0} checked="checked"{/if}><label>下架</label></dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>选择商品：</dt>
+        <dd><a class="button" href="javascript:;" onclick="goods_select()">选择商品 ...</a><label class="red">&nbsp;&nbsp;注：捆绑促销商品数量不应底于2件！</label></dd>
+        </dl>
+        
+        <div class="mt10">
+            <table class="default" id="goods_list" >
+            <tr><th style="width:0">选择</th><th>商品名称</th><th style="width:100px;">价格</th><th style="width:100px;">库存</th><th style="width:40px;">操作</th></tr>
+            {if:isset($id)}
+              {set:$total_price=0;}
+              {query:name=goods where=id in ($goods_id)}
+              {set:$total_price+=$item['sell_price'];}
+              <tr><td><input type="checkbox" name="goods_id[]" value="{$item['id']}" checked="checked"></td><td>{$item['name']}</td><td>{$item['sell_price']}</td><td>{$item['store_nums']}</td><td><a href="javascript:;" class="icon-close" onclick="goods_del(this)"></a></td></tr>
+              {/query}
+              <script type="text/javascript">
+                $("#total_price").text("{$total_price}");
+              </script>
+            {/if}
+          </table>
+         </div>
+      </div>
+      <!--基本信息 end -->
+      <!--活动描述 start-->
+      <div>
+        <dl class="lineD">
+        <dt><b class="red">*</b>活动描述：</dt>
+        <dd>
+          <textarea id="content" pattern="required" name="description" style="width:700px;height:360px;visibility:hidden;">{$description}</textarea>
+          <label></label>
+        </dd>
+        </dl>
+      </div>
+      <!--活动描述 end-->
+    </div>
+      <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+      
+  </div>
+</form>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+
+function goods_select(){
+  var url = '{url:/marketing/bundling_goods_select}';
+  var params = $("input[name='goods_id[]']").serialize()+"&id={$id}";
+  if(url.indexOf('?')==-1) url = url+'?'+params;
+  else url = url+'&'+params;
+
+  art.dialog.open(url,{id:'goods_select',title:'选择商品：',width:900,height:500,padding: '10px',lock:true,opacity:0.1});
+}
+
+function goods_del(id){
+  if($("#goods_list tr").length>3) $(id).parent().parent().remove();
+  else art.dialog.alert("商品数量不能少于2件!");
+  count_price();
+}
+
+//表单验证回调处理tab定位
+function check_invalid(e){
+  var index = $('.tab-body > *').has(e).index();
+  if(index!=-1){
+    tabs_select(0,index);
+    return false;
+  }
+  else return true;
+}
+function count_price(){
+  var total_price = 0;
+  $("#goods_list tr").each(function(i){
+    
+    if(i>0) total_price += parseFloat($(this).find("td:eq(2)").text());
+  });
+  $("#total_price").text(total_price);
+}
+var form = new Form();
+form.setValue('expression', '{$expression}');
+form.setValue('group[]', '{$group}');
+</script> 

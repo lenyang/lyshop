@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="Generator" content="TinyShop" />
+	<meta charset="UTF-8">
+	<title>{$seo_title|'WorldUhot商城'}-{$site_title}</title>
+	<meta name="description" content="{$seo_description}">
+	<meta name="Keywords" content="{$seo_keywords}">
+	<meta http-equiv=”X-UA-Compatible” content=”IE=EmulateIE7″ >
+	<link type="text/css" rel="stylesheet" href="{url:@static/css/common.css}" />
+	<!--[if IE 6]>
+		<script src="{url:@static/js/DD_belatedPNG-min.js}"></script>
+		<script>DD_belatedPNG.fix('.ie6png');</script>
+	<![endif]-->
+	<script type="text/javascript">
+		var server_url = '{url:@}__con__/__act__';
+		var Tiny = {user:{name:'{$user['name']|''}',id:'{$user['id']|0}',online:{$user['id']|'true'|'false'}}};
+	</script>
+	{echo:JS::import('jquery');}
+	<script type='text/javascript' src="{url:@static/js/common.js}"></script>
+	<!--S 一个页面只引入一次即可-->
+	<link rel="stylesheet" type="text/css" href="{url:@static/js/jslider.css}" />
+	<script type='text/javascript' src="{url:@static/js/jslider.js}"></script>
+	<!--E 只引入一次-->
+
+</head>
+<body>
+	<script type="text/javascript">if(screen.width < 1200) { document.getElementsByTagName('body')[0].className = 'screen_960'; }</script>
+
+	<!--S 头部 -->
+	<div id="header" class="clearfix">
+		<div class="header-bar">
+			<div class="wrap nav">
+				<ul class=" fr">
+					{if:$user}
+					<li>你好<b>{$user['name']}</b> [<a href="{url:/simple/logout}">安全退出</a>]，欢迎来到WorldUHot商城！</li>
+					<li><a href="{url:/ucenter/order}">我的订单</a></li>
+					{else:}
+					<li><a href="{url:/simple/login}"><b>登录</b></a></li>
+					<li><a href="{url:/simple/reg}">注册</a></li>
+					{/if}
+					<li><a href="#">帮助中心</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="header-main">
+			<div class="wrap">
+				<div class="logo "><a href="{url:/index/index}"><img class="ie6png" src="{url:@$site_logo}" style="max-height:74px;"></a></div>
+				<div class="header-search fl">
+					<form id="search-form" action="{url:/}" method="get">
+						<input type="hidden" name="con" value="index">
+						<input type="hidden" name="act" value="search">
+						{token:key=me}
+						<input id="search-keyword" class="txt-keyword" name="keyword" value="{$keyword}" type="text"><button class="btn-search fl"><b>搜 索</b></button>
+					</form>
+					<p id="tags-list"><b>热门标签：</b>{query:name=tags order=is_hot desc,sort desc,num desc limit=6}<a href="#">{$item['name']}</a>{/query}</p>
+				</div>
+				<div class="header-cart fr">
+					<dl class="fr">
+					<dt ><i class="icon-member ie6png"></i><a href="{url:/ucenter}">我的商城</a><s class="b-triangle"></s></dt>
+					<dd class="cart-list">
+						{set:$sidebar_nav = array('我的订单'=>'order', '我的关注'=>'attention', '商品咨询'=>'consult', '商品评价'=>'review', '我的消息'=>'message', '收货地址'=>'address', '我的优惠券'=>'voucher', '账户金额'=>'account');}
+		            <ul>
+				    	{list:items=$sidebar_nav }
+				    		<li><a href="{url:/ucenter/$item}">{$key}</a></li>
+				    	{/list}
+				    </ul>
+					</dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+		<div class="header-nav" id="float">
+			<div class="wrap">
+				<ul class="nav">
+					<li class="current"><a href="{url:/index/index}">首页</a></li>
+					<li><a href="{url:/index/group}">团购</a></li>
+					<li><a href="{url:/index/flash}">限时抢购</a></li>
+					
+				</ul>
+				<div class="category">
+					<h3><a href="#"><i class="icon-list ie6png"></i>全部商品分类<s class="b-triangle"></s></a></h3>
+					<div style="height: 410px;" class="group">
+						{list:items=$category item=$categ}
+						<dl>
+							<dt>
+								<h4><a href="{url:/index/category/cid/$categ[id]}">{$categ['title']}</a></h4>
+							</dt>
+							<dd>
+								<ul class="sub">
+									{list:items=$categ['child'] item=$child}
+									<li>
+										<h5><a href="{url:/index/category/cid/$child[id]}">{$child['title']}</a></h5>
+										<p>
+											{if:isset($child['child'])}
+											{list:items=$child['child'] item=$grandson}
+											<a href="{url:/index/category/cid/$grandson[id]}">{$grandson['title']}</a>
+											{/list}
+											{/if}
+										</p>
+									</li>
+									{/list}
+								</ul>
+							</dd>
+						</dl>
+						{/list}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--E 头部 -->
+	<!--S content-->
+	<div id="content">
+		<div class="wrap">
+			{__viewcontents}
+		</div>
+	</div>
+	<!--E content-->
+	<!--S 底部 -->
+	<div id="footer" class="mt20  ">
+		<div class="wrap">
+			<div class="footer-main clearfix">
+			{query:name=help_category order=sort desc limit=5}
+				<dl >
+					<dt class="clearfix"><span class="icon-{$item['alias']} fl"></span><a href="javascript:;">{$item['name']}</a></dt>
+					{query:name=help where= category_id eq $item[id] item=$help}
+					<dd><a href="{url:/index/help/id/$help[id]}">{$help['title']}</a></dd>
+					{/query}
+				</dl>
+			{/query}
+			</div>
+			<div class="footer-links">
+				<p><a><b>友情连接：</b></a><a href="">大象软件</a><a href="">开源中国</a></p>
+			</div>
+			<div class="copyright">
+				<div><a href="">联系我们</a> <a href="">公司简介</a> <a href=""></a> <a href="">法律条款</a></div>
+				<!--S 非授权用户不要删除版权信息，您的支持是我们的成长动力。-->
+				<div>Copyright © 2017 Crazy、ly 保留所有权利 。湘ICP备0000001号 </div>
+				<span class="fl">Powered by <a href="#"><b style="color: #7c0000">UHotWorld</b><b style="color: #666">Shop</b></a></span>
+				<!--S 非授权用户不要删除版权信息，您的支持是我们的成长动力。-->
+			</div>
+		</div>
+
+	</div>
+	<!--S 购物车 -->
+	<div id="shopping-cart" >
+
+		<div id="card-wrap" class="ie6png">
+			<div class="clearfix" style="height: 32px;padding-top:5px;"><a href="{url:/simple/cart}" class="fr btn btn-gray" style="padding: 2px 6px;font-size: 12px;" target="_blank">查看购物车</a></div>
+			<div id="card-list">
+				{set:$total=0.00;}
+				{list:items=$cart}
+					{set:$total += $item['amount'];}
+					<div class="card-item" id="{$item['id']}">
+						<div class="pic">
+						<a class="card-pic" href="{url:/index/product/id/$item[goods_id]}" target="_blank" title="{$item['name']}"><img src="{url:@$item[img]}" width="50" height="50"></a></div>
+						<div class="spec">
+							{list:items=$item['spec'] item=$spec}
+								<p title="{$spec['name']}:{$spec['value'][2]}">{$spec['value'][2]}</p>
+							{/list}
+						</div>
+						<div class="num">{$item['num']}</div>
+						<div class="price" title="{$item['amount']}">{$item['amount']}</div>
+						<a class="icon-close ie6png" productid="{$item['id']}"></a>
+					</div>
+				{/list}
+			</div>
+		</div>
+		<div id="shopping-bar-box" >
+		<div id="shopping-bar">
+			<span class="fl"><i class="icon-cart ie6png" style="margin-left:10px;"></i> <span>购物车</span>(<span class="cart-product-num">{echo:count($cart)}</span>)</span> 
+			<span class="fr tr">
+				<span style="padding-right:12px;"><span class="currency-symbol">{$currency_symbol}</span><b class="cart-total">{echo: sprintf("%01.2f",$total)}</b></span>
+			</span>
+		</div>
+		<a id="settlement" href="{url:/simple/order}">结算</a>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$("#shopping-cart").on("mouseenter",function(){
+			if($("#card-wrap").position().top>-15)$("#card-wrap").animate({top:"-15px"},100);
+		});
+		$("#shopping-cart").on("mouseleave",function(){
+			if($("#card-wrap").position().top==-15)$("#card-wrap").animate({top:"-5px"},"fast");
+		});
+		$(document).on("click",function(e){
+			$("#card-wrap").animate({top:"-5px"},"fast");
+		})
+		$("#shopping-cart").on("click",function(e){
+			if (e.stopPropagation) {e.stopPropagation();}     
+			e.cancelBubble = true;
+		});
+		$("#shopping-bar").on("click",function(e){
+			//for(i in e)alert(i+'==='+e[i]);
+			var currentNode = e.currentTarget;
+			//alert(currentNode.id);
+			//if (e.stopPropagation) {e.stopPropagation();}     
+			//e.cancelBubble = true;
+			if($("#card-wrap").outerHeight()>360)$("#card-wrap").css("height","360px");
+			if($("#card-wrap").position().top>=-15)$("#card-wrap").animate({top:1-$("#card-wrap").outerHeight()},"fast");
+			else{
+				$("#card-wrap").animate({top:"-5px"},100);
+			}
+			return false;
+		});
+
+		function updateCart(data){
+        var card_items = '';
+        for(var i in data){
+            var spec = data[i]['spec'];
+            var spec_str = '';
+            for(var k in spec){
+                spec_str +="<p>"+spec[k]['value'][2]+"</p>";
+            }
+            card_items += '<div class="card-item" id="'+i+'"><div class="pic"><img src="{url:@}'+data[i]['img']+'" width="50" height="50"></div><div class="spec">'+spec_str+'</div><div class="num">'+data[i]['num']+'</div><div class="price">'+(data[i]['amount'])+'</div><a class="icon-close" productid="'+data[i]['id']+'"></a></div>';
+        }
+        $("#card-list").empty().append(card_items);
+        changeCartInfo();
+        bindDelEvent();
+    }
+        bindDelEvent();
+        function bindDelEvent(){
+        	$("#shopping-cart .icon-close").on("click",function(){
+	        	var btn_close = $(this);
+	            $.post("{url:/index/cart_del}",{id:btn_close.attr("productid")},function(){
+	                btn_close.parent().remove();
+	                changeCartInfo();
+	                $("#card-wrap").css({top:1-$("#card-wrap").outerHeight()},"fast");
+	            },"json");
+	        });
+        }
+
+        function changeCartInfo(){
+        	$(".cart-product-num").text($(".card-item").size());
+        	var total = 0.00;
+        	$(".card-item .price").each(function(){
+        		total += parseFloat($(this).text());
+        	});
+        	$(".cart-total").text(total.toFixed(2));
+        }
+        $("#tags-list a").each(function(){
+        	$(this).on("click",function(){
+        		$("#search-keyword").val($(this).text());
+        		$("#search-form").submit();
+        	})
+        })
+	</script>
+	<!--E 购物车 -->
+	<!--E 底部 -->
+</body>
+</html>

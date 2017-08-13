@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta name="author" content="TinyShop"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+    <style type="text/css">
+        body{
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    {if:!isset($userInfo)}
+    <p>Please Wait...</p>
+    <form id="paysubmit" name="paysubmit" action="{echo:$paymentPlugin->submitUrl()}" method="{$paymentPlugin->method}">
+        {list:items = $sendData}
+        <input type='hidden' name='{$key}' value='{$item}' />
+        {/list}
+    </form>
+    <script type='text/javascript'>
+    document.forms['paysubmit'].submit();
+    </script>
+    {else:}
+    <style type="text/css">
+    .payform{
+        margin:3rem auto;
+        margin-top:2rem;
+        width: auto;
+        line-height: 2rem;
+        border: #ddd 1px solid;
+        padding:2rem 3rem;
+        background-color: #FAFAFA;
+    }
+    .payform div{
+        height: 2.4rem;
+        line-height: 2.4rem;
+        margin-top: 1rem;
+    }
+    .payform input{
+        height: 2rem;
+        line-height: 2rem;
+    }
+    .payform .tc{
+        text-align: center;
+    }
+    button{
+        display: inline-block;
+        margin-bottom: 0;
+        font-weight: normal;
+        text-align: center;
+        vertical-align: middle;
+        touch-action: manipulation;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        padding: 0.5rem 2rem;
+        font-size: 1.2rem;
+        line-height: 1.5rem;
+        border-radius: 0;
+        color: #fff;
+        background-color: #31b0d5;
+        border-color: #2596b8;
+    }
+    .error{
+        color:red;
+    }
+    @media only screen and (min-width: 720px) {
+        .payform{
+            margin:160px auto;
+            width: 480px;
+        }
+    }
+    </style>
+    <div class="payform">
+    <form id="paysubmit" name="paysubmit" action="{echo:$paymentPlugin->submitUrl()}" method="{$paymentPlugin->method}">
+        {list:items = $sendData}
+        <input type='hidden' name='{$key}' value='{$item}' />
+        {/list}
+        <input type="hidden" name="order_id" value="{$order_id}">
+        <input type="hidden" name="payment_id" value="{$payment_id}">
+        <h1 class="tc">账户余额支付</h1>
+
+        <div>账户余款：{$userInfo['balance']}</div>
+        <div>支付密码：<input type="password" name="pay_password"> <label class="error">{$msg}</label></div>
+        <div class="tc"><button>确认支付</button></div>
+    </form>
+    </div>
+    {/if}
+</body>
+</html>

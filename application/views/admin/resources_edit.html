@@ -1,0 +1,93 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{set:$controllers = array('Admin','Goods','Content','Distribution','Count','Customer','Marketing','Order');}
+<h1 class="page_title">权限资源编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/admin/resources_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 权限资源名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" alt="权限资源名不能为空" />
+        <label> </label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>所属分组：</dt>
+      <dd>
+        <select name="group">
+          {list:items = $mainMenu}
+          <option value="{$key}">{$item['name']}</option>
+          {/list}
+        </select>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>添加权限码：</dt>
+      <dd>
+        <select id="controller">
+          <option value="0">选择控制器</option>
+          {list:items=$controllers }
+          <option value="{$item}">{$item}</option>
+          {/list}
+        </select>@<select id="action">
+        </select> <a href="javascript:;" class="button" id="add_right"><b class="icon-plus green"></b> 添加</a>
+      </dd>
+      </dl>
+      <table class="default" id="rights">
+            <colgroup>
+              <col/>
+              <col width="160">
+            </colgroup>
+              <tr><th>权限码</th><th>操作</th></tr>
+              {if:isset($right)}
+              {set:$rights=explode(',',$right)}
+              {list:items=$rights}
+              <tr> <td><input type="text" name="right[]" class="big" value="{$item}" readonly="readonly"/></td><td class="btn_min"><a href="javascript:;"  class="icon-close"></a></td></tr>
+              {/list}
+              {/if}
+            </table>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('group','{$group}');
+//动态获取动作列表
+$("#controller").on("change",function(){
+  $('#action').html('');
+  var controller = $("#controller").val();
+    $.post('{url:/admin/list_action}',{controller_name:controller},function(actions){
+      for(i in actions)
+      {
+        var option_str = '<option value="'+actions[i]+'">'+actions[i]+'</option>';
+        $('#action').append(option_str);
+      }
+    },"json");
+})
+$("#add_right").on("click",function(){
+  var controller = $("#controller").val();
+  var action = $("#action").val();
+  if(controller && action){
+    if($("input[value='"+controller+'@'+action+"'").length>0) art.dialog.alert("此权限码已经添加！");
+    else $("#rights").append('<tr> <td><input type="text" name="right[]" class="big" value="'+controller+'@'+action+'" pattern="required" /></td><td class="btn_min"><a href="javascript:;"  class="icon-close"></a></td></tr>');
+  }
+  else $("#rights").append('<tr> <td><input type="text" name="right[]" class="big" value="" pattern="required" /></td><td class="btn_min"><a href="javascript:;"  class="icon-close"></a></td></tr>');
+  bindEvent();
+})
+bindEvent();
+//操作按钮事件绑定
+function bindEvent(){
+  $(".icon-close").off();
+
+    $(".icon-close").on("click",function(){
+      if($("input[name='right[]']").length>1)$(this).parent().parent().remove();
+      else alert('必须至少保留一个规格值');
+    });
+}
+$("#add_right").on("change",function(){
+
+})
+</script> 

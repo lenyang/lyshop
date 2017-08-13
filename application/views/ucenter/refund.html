@@ -1,0 +1,74 @@
+{echo:JS::import('form')}
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>申请退款：</span></h1>
+			{if:isset($msg)}
+			<div class="message_{$msg[0]} ie6png">{$msg[1]}</div>
+			{elseif:isset($validator)}
+			<div class="message_warning ie6png">{$validator['msg']}</div>
+			{/if}
+			<div >
+				<form class="box" action="{url:/ucenter/refund_act}" method="post">
+					<h2>直接退款申请:</h2>
+				 <table class="form">
+				 	<tr><td class="label">订单编号：</td><td><input name="order_no" pattern="required" type="text"></td></tr>
+				 	<tr><td class="label">退款方式：</td>
+				 	<td id="refund_type">
+		                <label class="attr"><input class="radio" type="radio" name="refund_type" value="0"   checked="checked">退款至账户余额（<span class="red">推荐</span>，不会收取手续费，今后可随时将账户余额退至银行卡）</label><br>
+		                <label class="attr"><input class="radio" type="radio" name="refund_type" value="1"  >退款至银行卡（跨行退款需支付银行手续费）</label><br>
+		                <label class="attr"><input class="radio" type="radio" name="refund_type" value="2" >其它方式:（如支付宝、财付通等等）</label>
+				 	</td></tr>
+				 	<tr class="refund_radio refund_0 hidden"><td class="label">开户行/支付方式：</td><td><input name="account_bank" type="text" pattern="required" alt="不能为空！"></td></tr>
+				 	<tr class="refund_radio refund_1 hidden"><td class="label">开户名：</td><td><input name="account_name" type="text" pattern="required" alt="开户名不能为空！"></td></tr>
+				 	<tr class="refund_radio refund_2 hidden"><td class="label" >账号：</td><td><input name="refund_account" type="text" pattern="required" alt="账号不能为空！"></td></tr>
+				 	<tr><td class="label">申请退款原因：</td><td><textarea name="content" minlen=5 pattern="required" ></textarea><label>内容至少包含5字!</label></td></tr>
+				 	<tr><td class="label"> </td><td><input type="submit" class="btn" value="申请退款"></td></tr>
+				 </table>
+				 {token:}
+				</form>
+			</div>
+			<div id="voucher-n" class="mt10">
+				<table class="simple">
+				<tr><th >订单编号</th> <th width="120">退款方式</th> <th width="140">申请时间</th> <th width="140">处理状态</th> <th width="100">操作</th></tr>
+				<tbody class="page-content">
+					{query:name=doc_refund where= user_id eq $user[id] id=$refund page=1}
+					<tr class="{odd-even}">
+						<td><a href="{url:/ucenter/order_detail/id/$item[order_id]}">{$item['order_no']}</a></td> <td>{if:$item['refund_type']==0}至账户余额{elseif:$item['refund_type']==1}至银行卡{else:}其它方式{/if}</td> <td>{$item['create_time']}</td> <td>{if:$item['pay_status']==0}等待处理{elseif:$item['pay_status']==1}不予退款{else:}退款成功{/if}</td> <td>{if:$item['pay_status']==0}<a class="btn btn-gray btn-mini" href="{url:/ucenter/refund_del/order_no/$item[order_no]}">取消</a>{/if} <a class="btn btn-mini"  href="{url:/ucenter/refund_detail/id/$item[id]}">详情</a></td>
+					</tr>
+					{/query}
+				</tbody>
+				</table>
+				<div class="page-nav">{echo:$refund->pageBar()}</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+    $("input[name='refund_type']").on("click",function(){
+    	var val = $(this).val();
+    	switch(val){
+    		case '0':
+    			$(".refund_0").addClass("hidden");
+    			$(".refund_1").addClass("hidden");
+    			$(".refund_2").addClass("hidden");
+    			break;
+    		case '2':
+    			$(".refund_0").removeClass("hidden");
+    			$(".refund_1").addClass("hidden");
+    			$(".refund_2").removeClass("hidden");
+    			break;
+    		case '1':
+    			$(".refund_0").removeClass("hidden");
+    			$(".refund_1").removeClass("hidden");
+    			$(".refund_2").removeClass("hidden");
+    			break;
+    	}
+    	$(".refund_radio input").css('display','');
+    	$(".hidden input").css('display','none');
+    })
+    $(".hidden input").css('display','none');
+</script>

@@ -1,0 +1,60 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<div style="padding:10px;margin-bottom: 40px;">
+<form action="" method="post" >
+<div class="tools_bar clearfix" >
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('goods_id[]',this)" title="全选" data="true"> 全选 </a>
+    <span class="fr"><input type="text"  value="{$s_content}" name="s_content" /><a href='javascript:;' onclick="tools_submit({action:'{url:/marketing/goods_select}'})" class="fr icon-search" style="" ></a></span>
+    <span class="fr"><select name="s_type"><option value="0">全部</option><option value="1">商品编号</option><option value="2">商品名</option></select></span>
+</div>
+<table class="default" >
+  <colgroup>
+    <col width="60"/>
+    <col />
+    <col width="100"/>
+    <col width="100"/>
+  </colgroup>
+    <tr>
+        <th>选择</th>
+        <th>商品名称</th>
+        <th>零售价</th>
+        <th>库存</th>
+    </tr>
+    </table>
+<div style="overflow: auto; height: 300px;">
+<table class="default" style="border-top: 0">
+  <colgroup>
+    <col width="60"/>
+    <col />
+    <col width="100"/>
+    <col width="100"/>
+  </colgroup>
+    {query:name=goods id=$obj where=(prom_id eq 0 or prom_id eq $id) $where page=1 order=id desc }
+        <tr><td><input type="checkbox" name="goods_id[]" value="{$item['id']}"></td><td>{$item['name']}</td><td>{$item['sell_price']}</td><td>{$item['store_nums']}</td></tr>
+    {/query}
+</table>
+</div>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+</div>
+<div class="alone_footer tc"><button class="button" onclick="add_goods()">添加</button></div>
+<script type="text/javascript">
+    function add_goods(){
+        if($("tr").has("td input:checked").size()>0){
+            $("tr").has("td input:checked").each(function(){
+                $("input:checked",$(this)).attr("checked","checked");
+                $("#goods_list", window.parent.document).append("<tr>"+$(this).html()+'<td><a href="javascript:;" class="icon-close" onclick="goods_del(this)"></a></td></tr>');
+            });
+            art.dialog.close();
+        }else{
+            art.dialog.tips("<p class='warning'>选择商品后再添加！</p>");
+        }
+
+    }
+    var form =  new Form();
+    form.setValue('s_type','{$s_type}');
+    form.setValue('s_content','{$s_content}');
+</script>

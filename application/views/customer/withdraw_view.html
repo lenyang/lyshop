@@ -1,0 +1,29 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<div id="card_box" style="width:600px;">
+    <h2 class="page_title tc" style="border:none">提现申请</h2>
+    <div class="form2">
+        <form  id="export_form" action="{url:/customer/withdraw_act}" method="post" callback="create_voucher">
+        <input type="hidden" name="id" value="{$withdraw['id']}">
+        <table class="default mt10" style="border-left:0;border-right:0;">
+            <tr>
+                <th style="width:100px">用户名：</th> <td>{$withdraw['uname']}</td> <th style="width:100px">账户余额：</th> <td class="red"><span class="currency-symbol">{$currency_symbol}</span>{$withdraw['balance']}</td>
+            </tr>
+            <tr>
+                <th>提现金额：</th> <td>{$withdraw['amount']}</td> <th>账户名：</th> <td>{$withdraw['name']}</td>
+            </tr>
+            <tr>
+                <th>名称：</th> <td>{$withdraw['type_name']}</td> <th>账号：</th> <td>{$withdraw['account']}</td>
+            </tr>
+            <tr>
+                <th>处理结果：</th> <td colspan="3"><input type="radio" checked="checked" name="status" value="1" ><label>同意</label> <input type="radio" name="status" value="2" ><label>拒绝</label> <label  class="red">(注:同意后【确保已经退款】，账户余额自动扣除。)</label></td>
+            </tr>
+            <tr>
+                <th>处理意见：</th> <td colspan="3"><textarea name="re_note"></textarea></td>
+            </tr>
+        </table>
+        <div class="tc mt10"><button class="button">处理</button></div>
+        </form>
+    </div>
+</div>

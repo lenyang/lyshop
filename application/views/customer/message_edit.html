@@ -1,0 +1,40 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{if:!isset($msg) || $msg[0]=='warning'}
+<h1 class="page_title">信息发送 【 <a href="{url:$nav_link}" class="icon-arrow-left-2 "> 返回</a> 】</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/customer/message_send}" method="post" >
+    <dl class="lineD">
+      <dt><b class="red">*</b>标题：</dt>
+      <dd>
+        <input type="text" name="title" pattern="\S{2,}" value="{$title}" alt="标题至少两个字符!">
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>发送对象：</dt>
+      <dd>
+        <input type="hidden"  id="condition_input" name="condition" value="{$condition}"><label><b>默认发送给所有用户</b></label> <label><a href="javascript:;" onclick="" class="button" id="condition"> 高级筛选</a></label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>内容：</dt>
+      <dd>
+        <textarea name="content" pattern="\S{5,}" alt="内容不能少于5个字符！">{$content}</textarea>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+{else:}
+<h1>【 <a href="{url:$nav_link}" > 返回</a> 】</h1>
+{/if}
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+$("#condition").on("click",function(){
+  $("body").Condition({input:"#condition_input",data:{user_id:{name:'用户编号'},real_name:{name:'真实姓名'},mobile:{name:'电话'},sex:{name:'性别',values:{0:"女",1:'男'}},group_id:{name:'会员组',values:{{$grade}}}}});
+})
+    
+</script>

@@ -1,0 +1,60 @@
+{echo:JS::import('form');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<h1 class="page_title">开放登录</h1>
+<form action="{url:/admin/oauth_save}" method="post" callback="check_invalid" >
+  {if:isset($id)}
+  <input type="hidden" name="id" value="{$id}">
+  {/if}
+  <div class="form2">
+    <dl class="lineD">
+      <dt><b class="red"></b>第三方名称：</dt>
+      <dd>
+        {$name}
+      </dd>
+    </dl>
+        <dl class="lineD">
+          <dt><b class="red">*</b>App Key：</dt>
+          <dd>
+            <input class="normal" name="app_key" pattern="required" type="text" value="{$app_key}" alt="第三方申请的App Key" />
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt><b class="red">*</b>App Secret：</dt>
+          <dd>
+            <input class="normal" name="app_secret"  pattern="required" type="text" value="{$app_secret}" alt="第三方申请的App Secret"/>
+          </dd>
+        </dl>
+        
+        <dl class="lineD">
+          <dt><b class="red">*</b>排序：</dt>
+          <dd>
+            <input class="small" name="sort" type="text" value="{$sort|0}" pattern="int" alt="排序不能为空！" />
+          </dd>
+        </dl>
+        <dl class="lineD">
+          <dt><b class="red">*</b>是否开启：</dt>
+          <dd>
+            <label class='attr'><input name="status" type="radio" value="1" checked="checked" />开启</label>
+            <label class='attr'><input name="status" type="radio" value="0" />关闭</label>
+            <label></label>
+          </dd>
+        </dl>
+        
+
+        <div style="text-align:center;margin-top:20px;">
+  <input type="submit" class="focus_button" value="提交">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="reset" value="重置" class="button"></div>
+  </div>
+</form>
+
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+    var form = new Form();
+    form.setValue("status","{$status}");
+    form.setValue("fee_type","{$fee_type|1}");
+});
+</script>

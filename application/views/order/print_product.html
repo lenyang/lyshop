@@ -1,0 +1,55 @@
+<style media="print" type="text/css">
+.noprint{display:none}
+body{font-size: 8pt;}
+</style>
+<link rel="stylesheet" type="text/css" media="screen,print" href="{url:@static/css/print.css}" />
+<div class="panel">
+	{query:name=order as od fields=od.*,cu.phone as uphone,us.name as uname join=left join customer as cu on od.user_id eq cu.user_id left join user as us on od.user_id eq us.id where= od.id eq $id/}
+	{set:$order = $items[0];}
+	<table style="border-top:none;">
+		<tr>
+			<td ><img src="{url:@static/images/logo.png}"  /></td>
+			<td valign="bottom" align="rgiht" width="240"><p>客户：{$order['uname']} &nbsp;&nbsp;<span class="ml_20">电话：{$order['uphone']}</span></p></td>
+		</tr>
+		</table>
+		<table >
+		<tr><td><b>订单号：{$order['order_no']}</b></td><td align="right" width="240px"><b>订购日期：{$order['create_time']}</b></td></tr>
+	</table>
+	<table style="border:none;">
+			<tr><th width="40">序号</th><th width="100">商品货号</th><th width="200">商品名称</th><th width="200">规格</th><th  width="80">单价</th><th  width="60">数量</th><th width="80">小计</th></tr>
+				{query:name=order_goods as od fields=go.name,pr.pro_no,pr.spec,od.goods_price,od.goods_nums join= left join products as pr on od.product_id eq pr.id  left join goods as go on od.goods_id eq go.id where=order_id eq $id}
+				{set:$spec = unserialize($item['spec']);}
+				<tr><td>{echo:($key+1)}</td><td>{$item['pro_no']}</td><td>{$item['name']}</td><td>
+					{if:is_array($spec)}
+					{list:items=$spec item=$ite }
+						{$ite['name']}:{$ite['value'][2]}
+					{/list}
+					{/if}
+				</td><td>{$item['goods_price']}</td><td>{$item['goods_nums']}</td><td class="golden">{echo:sprintf("%.2f",($item['goods_price']*$item['goods_nums']))}</td></tr>
+				{/query}
+	</table>
+	<table >
+		<tr>
+			<td>订单附言：{$order['user_remark']}</td>
+			<td width="300">
+			<ul>
+			<li><span class="caption">商品价格：</span>{$currency_symbol}{$order['payable_amount']} {$currency_unit}</li>
+			<li><span class="caption">配送费用：</span>{$order['real_freight']} {$currency_unit}</li>
+			<li><span class="caption">支付手续费：</span>{$order['handling_fee']} {$currency_unit}</li>
+			<li><span class="caption">订单优惠：</span>-{$order['discount_amount']} {$currency_unit} </li>
+			{if:$order['voucher_id']}
+			{set:$voucher= unserialize($order['voucher']);}
+			<li><span class="caption">代金券：</span>-{$voucher['value']} {$currency_unit} </li>
+			{/if}
+			<li><b><span class="caption">应付总金额：</span>{$currency_symbol}{$order['order_amount']} {$currency_unit}</b></li>
+			</ul></td>
+		</tr>
+	</table>
+	<table>
+		<tr>
+			<td align="left"><img src="{url:/ajax/test?code=$order[order_no]}"/></td>
+			<td align="right">Powered By tinyrise.com</td>
+		</tr>
+	</table>
+		<div><input class="button noprint" type="submit" onclick="window.print();" value="打印" /></div>
+</div>

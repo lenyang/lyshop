@@ -1,0 +1,31 @@
+<div style="padding:10px;">
+<form action="" method="post" >
+<table class="default" >
+  <colgroup>
+    <col />
+    <col width="100"/>
+    <col width="100"/>
+  </colgroup>
+    <tr>
+        <th>商品名称</th>
+        <th>零售价</th>
+        <th>库存</th>
+    </tr>
+    </table>
+<div style="overflow: auto; height: 260px;">
+<table class="default" style="border-top: 0">
+  <colgroup>
+    <col />
+    <col width="100"/>
+    <col width="100"/>
+  </colgroup>
+    {query:name=goods id=$obj where= prom_id eq $id page=1 order=id desc }
+        <tr><td>{$item['name']}</td><td>{$item['sell_price']}</td><td>{$item['store_nums']}</td></tr>
+    {/query}
+</table>
+</div>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+</div>

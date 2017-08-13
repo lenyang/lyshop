@@ -1,0 +1,19 @@
+{echo:JS::import('highcharts')}
+{echo:JS::import('form');}
+<script type="text/javascript" src="{url:@static/js/raphael-min.js}"></script>
+<script type="text/javascript" src="{url:@static/js/chinaMap.js}"></script>
+{widget:name=count action=cal}
+<style type="text/css">
+    #chinaMap {margin-left:50px;  width:700px; max-width:700px; background-color:#FFF; }
+    </style>
+<div class="tools_bar">
+    <form action="{url:/count/area_buy}" method="post">
+<span class="fl">日期：<input name="s_time" type="text" value="{$s_time}" id="datepick" class="middle" readonly="readonly"></span><a href="javascript:tools_submit();" id="condition" class="icon-search" style=""> 查询</a>
+    </form>
+</div>
+<div class="tc" style="font-size: 24px;margin:10px 0;">订单地区分布图({$s_time})</div>
+<div id="chinaMap"></div>
+<script type="text/javascript">
+
+    $("#chinaMap").Map({width:700,height:600,opacity:true,datas:{{$mapdata}},'tipContent':'{area}\n订单数：{value}'});
+</script>

@@ -1,0 +1,41 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;"  onclick="tools_submit({action:'{url:/customer/review_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a class="icon-delicious" href="{url:/customer/review_list}"> 全部评价</a>
+
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th style="width:200px">商品名称</th>
+        <th >评价</th>
+        <th style="width:70px">咨询人</th>
+        <th style="width:70px">状态</th>
+        <th style="width:100px">评分</th>
+
+    </tr>
+    {query:name=review as a fields= a.*,u.name as name,g.name as gname,g.id as gid,a.id as aid join= left join user as u on a.user_id eq u.id left join goods as g on a.goods_id eq g.id id=$obj where= $where page=1 desc order=a.id desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['aid']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a class="icon-remove-2" href="javascript:confirm_action('{url:/customer/review_del/id/$item[aid]}')"> 删除</a></li>
+            </ul></div></div> </td>
+        <td  style="width:200px"><a href="{url:/index/product/id/$item[gid]}#tab-1" target="_blank">{echo:TString::msubstr($item['gname'],0,15)}</a></td><td >{$item['content']}</td><td style="width:70px">{$item['name']}</td><td style="width:70px">{if:$item['status']==1}<b class="green">已评价</b>{else:}<span class="red">未评价</span>{/if}</td><td style="width:100px;" class="red">{echo:str_repeat('★',$item['point'])}</td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<script type="text/javascript">
+    $("#condition").on("click",function(){
+    $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/customer/review_list}',method:'get'});},data:{'u.name':{name:'评价者'},'a.content':{name:'评价内容'},'a.status':{name:'是否评价',values:{0:'未评价',1:'已评价'}},'a.point':{name:'评分',values:{1:'★',2:'★★',3:'★★★',4:'★★★★',5:'★★★★★'}}
+    }});
+    });
+</script>

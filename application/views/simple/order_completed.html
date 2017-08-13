@@ -1,0 +1,23 @@
+{if:$order['type']==0}
+{set:$items=array("购物车","确认订单信息","选择支付","订购完成");}
+{widget:name=sub_navs action=crumbs items=$items step=4 current=4}
+{else:}
+{set:$items=array("确认订单信息","选择支付","订购完成");}
+{widget:name=sub_navs action=crumbs items=$items step=3 current=3}
+{/if}
+<div class="box mt20">
+<input type="hidden" name="order_id" value="{$order['id']}">
+<div class="mt20  clearfix tc">
+	<img src="{url:@static/images/right.gif}"><b class=" f18">支付成功，订购已完成！</b>
+
+</div>
+<div class="mt10" style="padding:10px 100px;">
+    <table class="default mt10 p10">
+        <tr> <td style="width:200px;">订单编号：</td><td><i class="icon-order-{$order['type']}"></i>{$order['order_no']} &nbsp;&nbsp;&nbsp;&nbsp;<a href="{url:/ucenter/order_detail/id/$order[id]}" target="_blank"> 查看订单</a></td> </tr>
+        <tr> <td style="width:200px;">订单金额：</td><td class="red">{$currency_symbol}{$order['order_amount']}</td> </tr>
+        <tr> <td style="width:200px;">支付方式：</td><td id="pay_name">{$order['payname']}</td> </tr>
+    </table>
+</div>
+<div class="mt10 mb20 clearfix">
+<p class="tc"><a class="btn"  href="{url:/index/index}">继续购物</a>&nbsp;&nbsp;<a class="btn btn-gray"  href="{url:/ucenter/index}">用户中心</a></p></div>
+</div>

@@ -1,0 +1,31 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="mt10 clearfix " style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>我的订单：</span></h1>
+			<div class="mt10">
+			<table class="simple">
+				<tr>
+					<th >订单编号</th> <th width="100">收货人</th> <th width="100">订单金额</th> <th width="140">下单时间</th> <th width="130">订单状态</th>
+				</tr>
+				{query:name=order where=user_id eq $user[id] order=id desc page=1 id=$obj}
+				<tr {if:$key%2==1}class="even"{/if}>
+					<td><a href="{url:/ucenter/order_detail/id/$item[id]}"><i class="icon-order-{$item['type']}"></i>{$item['order_no']}</a></td> <td>{$item['accept_name']}</td> <td>{$currency_symbol}{$item['order_amount']}</td> <td>{$item['create_time']}</td> <td>{echo:$this->order_status($item)}</td>
+				</tr>
+				{/query}
+			</table>
+			<div class="page-nav">{echo:$obj->pagebar()}</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function order_sign(id) {
+		$.post("{url:/ucenter/order_sign}",{id:id},function(data){
+			if(data['status']=='success'){
+				location.reload();
+			}
+		},'json');
+	}
+</script>

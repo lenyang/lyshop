@@ -1,0 +1,49 @@
+{echo:JS::import('form');}
+<h1 class="page_title">分类编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/content/help_category_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt>名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}">
+        <label>分类名称</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>别名：</dt>
+      <dd>
+        <input name="alias" type="text" pattern="required" value="{$alias}">
+        <label>方便url识别美化</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>上一级分类：</dt>
+      <dd>
+        <select id="parent_id"  name="parent_id"   pattern="int">
+        <option value="0">==无上级分类==</option>
+        {set:$id=isset($id)?$id:0;}
+        {query:name=help_category order=path /}
+        {set:$help_category = Common::treeArray($items);}
+        {list:items=$help_category}
+        {if:!isset($path) || strpos($item['path'],$path)===false}
+        {set:$num = count(explode(',',$item['path']))-3;}
+        <option value="{$item['id']}">{if:$num>0}├{/if}{echo:str_repeat('──',$num)}{$item['name']}</option>{/if}
+        {/list}
+        </select>
+
+        <label></label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+        <dt>排序：</dt>
+        <dd>
+          <input name="sort" type="text" pattern="int" value="{$sort}" style="width:40px;">
+          <label>数字越大越靠前</label>
+        </dd>
+        </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+</script>

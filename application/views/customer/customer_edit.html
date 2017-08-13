@@ -1,0 +1,168 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<h1 class="page_title">会员编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/customer/customer_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 用户名：</dt>
+      <dd>
+        {if:isset($id) && isset($name) }
+        <label>{$name}</label>
+        {else:}
+        <input name="name" type="text" pattern="required" value="{$name}" alt="用户名称（必填）" />
+        <label></label>
+        {/if}
+      </dd>
+      </dl>
+      {if: isset($id) && isset($password)}
+      <dl class="lineD">
+      <dt>密码：</dt>
+      <dd>
+        <label><a href="javascript:;" onclick="password_dialog()">修改密码</a></label>
+      </dd>
+      </dl>
+      {else:}
+      <dl class="lineD">
+      <dt><b class="red">*</b>密码：</dt>
+      <dd>
+        <input name="password" type="password"  bind="repassword" pattern="\w{6,}" value="" alt="密码必需大于6位">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>确认密码：</dt>
+      <dd>
+        <input name="repassword" type="password" bind="password" pattern="\w{6,}" value="" alt="密码必需大于6位">
+        <label></label>
+      </dd>
+      </dl>
+      {/if}
+      <dl class="lineD">
+      <dt><b class="red">*</b>EMail：</dt>
+      <dd>
+        {if: isset($id) &&  isset($email)}
+        <label>{$email}</label>
+        {else:}
+        <input name="email" type="text"  pattern="email" value="{$email}" alt="邮箱地址(例如:tiny@tiny.com)">
+        <label></label>
+        {/if}
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>时间：</dt>
+      <dd>
+        <label><b>最后一次登录：</b>{$login_time}</label>&nbsp;&nbsp;&nbsp;&nbsp;<label><b>注册：</b>{$reg_time}</label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>真实姓名：</dt>
+      <dd>
+        <input name="real_name" type="text"  pattern="required" value="{$real_name}" alt="真实姓名不能为空">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>性别：</dt>
+      <dd>
+        <input name="sex" type="radio" value="0" checked="checked"> <label> 女</label>&nbsp;&nbsp;<input name="sex" type="radio" {if:isset($sex) && $sex==1}checked="checked"{/if} value="1"> <label> 男</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>出生日期：</dt>
+      <dd>
+        <input name="birthday" type="text" onfocus="WdatePicker()" class="Wdate"  value="{$birthday}" >
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>地区：</dt>
+      <dd >
+        <div id="area">
+        <select id="province"  name="province" ><option value="0">==省份/直辖市==</option></select>
+        <select id="city" name="city"><option value="0">==市==</option></select>
+        <select id="county" name="county"><option value="0">==县/区==</option></select><input pattern="^\d+,\d+,\d+$" id="test" type="text" style="visibility:hidden;width:0;" value="{$province},{$city},{$county}" alt="请选择完整地区信息！"><label></label></div>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>详细地址：</dt>
+      <dd>
+        <input name="addr" type="text" empty  pattern="required" value="{$addr}">
+        <label></label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>固话：</dt>
+      <dd>
+        <input name="phone" type="text" empty pattern="phone" value="{$phone}">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>手机：</dt>
+      <dd>
+        <input name="mobile" type="text" empty pattern="mobi" value="{$mobile}">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>积分：</dt>
+      <dd>
+        <input name="point" type="text"  class="small"  pattern="int" value="{$point|0}">
+        <label></label>
+      </dd>
+      </dl>
+
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<div id="password_info" style="display: none;width:520px;">
+  <form class="form2" callback="changePassword">
+  <dl class="lineD">
+      <dt><b class="red">*</b>密码：</dt>
+      <dd>
+        <input name="password" type="password"  id="password" bind="repassword" pattern="\w{6,}">
+        <label>密码必需大于6位</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>确认密码：</dt>
+      <dd>
+        <input name="repassword" type="password" id="repassword" bind="password" pattern="\w{6,}" >
+        <label>密码必需大于6位</label>
+      </dd>
+      </dl>
+      <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+      </form>
+</div>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+
+
+  $("#area").Linkage({ url:"{url:/ajax/area_data}",selected:[{$province|0},{$city|0},{$county|0}],callback:function(data){
+    var text = new Array();
+    var value = new Array();
+    for(i in data[0]){
+      if(data[0][i]!=0){
+        text.push(data[1][i]);
+        value.push(data[0][i]);
+      }
+    }
+    $("#test").val(value.join(','));
+    FireEvent(document.getElementById("test"),"change");
+    }});
+function password_dialog(){
+  art.dialog({id:'password_dialog',title:'密码设定:',content:document.getElementById('password_info')});
+}
+function changePassword(e){
+  var password = $("#password").val();
+  var repassword = $("#repassword").val();
+  var id = $("#objId").val();
+  if(!e){
+    $.post("{url:/customer/customer_password}",{id:id,password:password,repassword:repassword},function(data){
+        if(data['status']=="success")
+          art.dialog.tips("<p class='success'>密码修改成功！</p>");
+        else art.dialog.tips("<p class='fail'>密码修改失败！</p>");
+          art.dialog({id:"password_dialog"}).close();
+    },"json");
+  }
+  return false;
+}
+</script>

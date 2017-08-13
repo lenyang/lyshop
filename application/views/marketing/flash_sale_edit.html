@@ -1,0 +1,83 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<script>
+    var editor;
+    KindEditor.ready(function(K) {
+      editor = K.create('textarea[name="description"]', {
+        uploadJson : '{url:/admin/upload_image}'
+      });
+    });
+</script>
+
+<h1 class="page_title">编辑抢购</h1>
+<form action="{url:/marketing/flash_sale_save}" method="post" >
+{if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+<div id="obj_form" class="form2">
+      <dl class="lineD">
+        <dt><b class="red">*</b> 抢购活动名称：</dt>
+        <dd>
+          <input name="title" type="text" class="big" pattern="required" value="{$title}" />
+          <label> 抢购活动名称必填！</label>
+        </dd>
+        </dl>
+      <dl class="lineD">
+        <dt><b class="red">*</b> 限时抢购商品：</dt>
+        <dd>
+          <input type="hidden" name="goods_id" id="goods_id" value="{$goods_id}">
+          <input type="text"  id="goods_name" onclick="goods_select()" pattern="required" readonly="readonly" value="{if:isset($goods_id)}{query:name=goods where=id eq $goods_id}{$item['name']}{/query}{/if}" alt="必需选择商品才能添加！" > <a href="javascript:;" onclick="goods_select()" class="button">选择商品 ...</a>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 参加抢购数量：</dt>
+        <dd>
+          <input name="max_num" type="text" class="small" pattern="int" value="{$max_num}" />
+          <label> 此抢购活动最多允许抢购的商品数量！</label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 限购数量：</dt>
+        <dd>
+          <input name="quota_num" type="text" class="small" pattern="int" value="{$quota_num|1}" />
+          <label> 限时抢购每个人能购买的数量！</label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b> 限时抢购价格：</dt>
+        <dd>
+          <input name="price" type="text" class="small" pattern="float" value="{$price}" />
+          <label> 团购价格只能是有效的数值（如：12，20.5）</label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>开始时间：</dt>
+        <dd>
+          <input name="start_time" type="text" class="Wdate"   pattern="required"  onChange="" value="{$start_time|date('Y-m-d H:i:s',strtotime($start_time))|''}" onfocus="WdatePicker({minDate:'{echo:date('Y-m-d H:i:s')}',dateFmt:'yyyy-MM-dd HH:mm'})">
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>结束时间：</dt>
+        <dd>
+          <input name="end_time" class="Wdate" type="text" pattern="required" onChange="" value="{$end_time|date('Y-m-d H:i:s',strtotime($end_time))|''}"  onfocus="WdatePicker({minDate:'{echo:date('Y-m-d H:i:s')}',dateFmt:'yyyy-MM-dd HH:mm'})">
+          <label></label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt><b class="red">*</b>活动描述：</dt>
+        <dd>
+          <textarea id="content" pattern="required" name="description" style="width:700px;height:360px;visibility:hidden;">{$description}</textarea>
+          <label></label>
+        </dd>
+        </dl>
+      </div>
+      <!--活动描述 end-->
+      <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+</form>
+<script type="text/javascript">
+function goods_select(){
+  art.dialog.open('{url:/marketing/radio_goods_select}',{id:'goods_select',title:'选择商品：',width:900,height:500,padding: '10px'});
+}
+</script>

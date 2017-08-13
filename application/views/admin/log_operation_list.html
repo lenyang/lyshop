@@ -1,0 +1,20 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/admin/log_operation_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+</div>
+<div style="overflow: auto; height: 480px;">
+<table class="default" >
+    {query:name=log_operation as lo fields=lo.*,ma.name as mname join = left join manager as ma on lo.manager_id eq ma.id id=$obj page=1 pagesize=5  order= id desc }
+        <tr class="gray"><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td><td style="width:140px">管理员：{$item['mname']}</td><td style="width:140px">动作：{$item['action']}</td><td style="width:auto;">时间：{$item['time']}</td><td style="width:160px">IP地址：{$item['ip']}</td></tr>
+        <tr><td colspan="4">访问页面地址：{$item['url']}<br/>日志的详细描述：<b class="golden">{$item['content']}</b></td><td style="width:120px" class="btn_min"> <a class="icon-close" href="{url:/admin/log_operation_del/id/$item[id]}"> 删除</a></td></tr>
+    {/query}
+</table>
+</div>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>

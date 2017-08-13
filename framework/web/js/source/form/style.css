@@ -1,0 +1,6 @@
+@charset "utf-8";
+/* form validate */
+input.invalid-text{border:1px #DD0000 solid !important;}
+input.valid-text{border:1px #06AC87 solid !important;}
+span.invalid-msg,label.invalid-msg{color:#DD0000; padding: 2px 0px 3px 25px !important; background-image: url(images/error_msg_icon.gif); background-repeat: no-repeat; background-position: 5px;}
+span.valid-msg,label.valid-msg{color:#06AC87;padding: 2px 0px 3px 25px !important; background-image: url(images/success_msg_icon.gif); background-repeat: no-repeat; background-position: 5px; }

@@ -1,0 +1,121 @@
+<style type="text/css">
+
+span.areas {
+margin-right: 3px;
+padding: 4px 0 1px 4px;
+display: inline-block;
+}
+
+.operat{display: inline-block;width: 100px;float: left;}
+.menu_select{width: 360px;}
+.num{color: red}
+.default th{font-weight:bold;}
+.default a{color: #000;}
+</style>
+
+<div style="padding:10px;">
+<table class="default">
+{list:items=$zoning item=$zon}
+<tr>
+  <th style="width:80px">{$zon['name']}</th>
+  <td>
+{list:items=$zon['zoning']}
+<div class="operat hidden">
+<a href="javascript:;" class="action"><label><input id="{$item['id']}" class="province" type="checkbox" title="{$item['name']}">{$item['name']}<b id="num_{$item['id']}" class="num"></b></label></a>
+<div class="menu_select " id="citys_{$item['id']}">
+  {query:name=area items=$subarea where=parent_id eq $item[id] item=$sub}
+    <span class="areas"><label><input type="checkbox" value="{$sub['id']}" parentId="{$item['id']}" class="city_{$item['id']} city" {if:stripos($selected_city,','.$sub['id'].',')!==false}disabled="disabled"{/if} {if:stripos($current_city,','.$sub['id'].',')!==false}checked="checked"{/if}title="{$sub['name']}">{$sub['name']}</label></span>
+    {/query}
+</div></div>
+
+{/list}
+</td>
+</tr>
+{/list}
+</table>
+</div>
+<div class="alone_footer tc"><input type="submit" class="button" onclick="setCity()" value="添加"></div>
+<script type="text/javascript">
+  $(".icon-table").each(function(i){
+    $(this).click(function(){
+      $(".citys").css("display","none");
+      $(".citys:eq("+i+")").css("display","block");
+    });
+  });
+
+  $(".icon-close").each(function(i){
+    $(this).on("click",function(){
+      $(this).parent().parent().css("display","none");
+    });
+  });
+
+  //为省份的checkbox设置与市级的控制
+  $(".province").each(function(){
+    var id = $(this).attr('id');
+    $(this).on("click",function(){
+      var province_status = !!$(this).attr("checked");
+      $(".city_"+id+"[disabled!='disabled']").attr("checked",province_status);
+      if(province_status){
+        var num = $("#citys_"+id+" input[disabled!='disabled']").size();
+        $("#num_"+id).text("("+num+")");
+      }else{
+        $("#num_"+id).text('');
+      }
+    })
+  })
+  $(".city").each(function(){
+    var parent_id = $(this).attr("parentId");
+    $(this).on("click",function(){
+      var province_status = true;
+      var num = 0;
+      $("#citys_"+parent_id+" input").each(function(){
+        if(!!$(this).attr("checked")==false) province_status = false;
+        else num++;
+      });
+      if(num>0)$("#num_"+parent_id).text("("+num+")");
+      else $("#num_"+parent_id).text('');
+      $("#"+parent_id).attr("checked",province_status);
+    });
+  })
+
+  function setCity(){
+    var city = '';
+    var city_name = '';
+    var parent_id = '';
+    var province_name = '';
+    $(".province:checked").each(function(){
+      parent_id = $(this).attr("id");
+      if($(".city_"+parent_id+":checked").size()==$(".city_"+parent_id+"").size()) province_name += $(this).attr("title")+',';
+    })
+    $(".city:checked").each(function(){
+      parent_id = $(this).attr("parentId");
+      city += $(this).val()+',';
+      if(!!$("#"+parent_id).attr("checked")==false || $(".city_"+parent_id+":checked").size()!=$(".city_"+parent_id+"").size()) city_name += $(this).attr("title")+',';
+    });
+
+    parent.setCity(city,province_name+city_name);
+  }
+
+  function initCity(){
+    var id = '';
+    var num = 0;
+    var selected_num = 0;
+    var disabled_num = 0;
+    $("input.province").each(function(){
+      id = $(this).attr("id");
+      num = $("input[parentId='"+id+"']").size();
+      selected_num = $("input[parentId='"+id+"']:checked").size();
+      disabled_num = $("input[parentId='"+id+"']:disabled").size();
+      $("input[parentId='"+id+"']:disabled").parent().css("color","#999");
+      if(selected_num == num){
+        $(this).attr("checked","checked");
+      }
+      if(disabled_num == num){
+          $(this).attr("disabled","disabled");
+          $(this).parent().parent().css("color","#999");
+      }
+      if(selected_num>0)$("#num_"+id).text("("+selected_num+")");
+    })
+  }
+  initCity();
+</script>

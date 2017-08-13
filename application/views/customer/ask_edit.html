@@ -1,0 +1,41 @@
+{echo:JS::import('form');}
+{if:!isset($msg)}
+<h1 class="page_title">回复商品咨询 【 <a href="{url:$nav_link}" class="icon-arrow-left-2 "> 返回</a> 】</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/customer/ask_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b>咨询商品：</b></dt>
+      <dd>
+        <label>{$goods_name}</label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b>咨询内容：</b></dt>
+      <dd>
+        <label>{$question}</label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b>咨询人：</b></dt>
+      <dd>
+        <label>{$user_name}</label> <label style="margin-left: 30px;">[ {$ask_time} ]</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>回复内容：</dt>
+      <dd>
+        <textarea name="content" pattern="required" minlen="5" alt="内容不能少于5个字符！">{$content}</textarea>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+{else:}
+<h1>【 <a href="{url:$nav_link}" > 返回</a> 】</h1>
+{/if}
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+
+</script>

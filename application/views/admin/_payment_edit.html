@@ -1,0 +1,127 @@
+{echo:JS::import('form');}
+{echo:JS::import('editor');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+		<script>
+			var description , note;
+			var items = [
+						'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+						'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+						'insertunorderedlist', '|', 'link'];
+			KindEditor.ready(function(K) {
+				note = K.create('textarea[name="note"]', {
+					resizeType : 1,
+					allowPreviewEmoticons : false,
+					allowImageUpload : false,
+					items : items
+				});
+			});
+			KindEditor.ready(function(K) {
+				description = K.create('textarea[name="description"]', {
+					resizeType : 1,
+					allowPreviewEmoticons : false,
+					allowImageUpload : false,
+					items : items
+				});
+			});
+		</script>
+<h1 class="page_title">商品编辑</h1>
+<form action="{url:/admin/payment_save}" method="post" callback="check_invalid" >
+  {if:isset($id)}
+  <input type="hidden" name="id" value="{$id}">
+  {/if}
+  <input type="hidden" name="plugin_id" value="{$plugin_id|$pay_plugin['id']}">
+  <div class="form2">
+  	<dl class="lineD">
+      <dt><b class="red">*</b>支付方式名称：</dt>
+      <dd>
+        <input class="normal" name="pay_name" type="text" value="{$pay_name|$pay_plugin['name']}" pattern="required" alt="支付方式名称不能为空！" /><label> 用来显示的支付名称！</label>
+      </dd>
+    </dl>
+      	<dl class="lineD">
+	      <dt><b class="red">*</b>支付商户ID：</dt>
+	      <dd>
+	        <input class="normal" name="partner_id" pattern="required" type="text" value="{$partner_id}" />
+	      </dd>
+	    </dl>
+	    <dl class="lineD">
+	      <dt><b class="red">*</b>支付商户Key(密钥)：</dt>
+	      <dd>
+	        <input class="normal" name="partner_key"  pattern="required" type="text" value="{$partner_key}" />
+	      </dd>
+	    </dl>
+	    
+	     <dl class="lineD">
+	      <dt><b class="red">*</b>手续费设置：</dt>
+	      <dd>
+				<label><input type="radio"  checked="checked" value="1" name="fee_type">百分比</label>
+				<label><input type="radio"  value="2" name="fee_type">固定额度</label>
+				<p id="pay_fee">
+						费率：<input type="text" alt="费率不能为空！" pattern="required" value="{$pay_fee|0.00}" name="pay_fee" class="tiny"> % &nbsp;&nbsp; 说明：顾客将支付订单总金额乘以此费率作为手续费；
+				</p>
+				<p id="pay_fee_fix" style="display:none;">
+					金额：<input class="tiny" name="pay_fee_fix" value="{$pay_fee|0.00}" pattern="required" alt="金额不能为空！" type="text"> 元 &nbsp;&nbsp; 说明：顾客每笔订单需要支付的手续费；
+				</p>
+	      </dd>
+	    </dl>
+		<dl class="lineD">
+	      <dt><b class="red">*</b>排序：</dt>
+	      <dd>
+	      	<input class="small" name="sort" type="text" value="{$sort}" pattern="int" alt="排序不能为空！" />
+	      </dd>
+	    </dl>
+	    <dl class="lineD">
+	      <dt><b class="red">*</b>是否开启：</dt>
+	      <dd>
+	      	<label class='attr'><input name="status" type="radio" value="0" checked="checked" />开启</label>
+			<label class='attr'><input name="status" type="radio" value="1" />关闭</label>
+			<label></label>
+	      </dd>
+	    </dl>
+	    <dl class="lineD">
+	      <dt><b class="red">*</b>简述：</dt>
+	      <dd>
+	        <textarea class="normal" name="description"  style="width:400px;" >{$description|$pay_plugin['description']}</textarea>
+	      </dd>
+	    </dl>
+	    <dl class="lineD">
+	      <dt><b class="red"></b>支付说明：</dt>
+	      <dd>
+	      	<textarea id="note" name="note" style="width:700px;height:180px;visibility:hidden;">{$note}</textarea>
+						<label>此信息会展示在用户的支付页面</label>
+	      </dd>
+	    </dl>
+
+	    <div style="text-align:center;margin-top:20px;">
+  <input type="submit" class="focus_button" value="提交">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="reset" value="重置" class="button"></div>
+  </div>
+</form>
+
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+	var form = new Form();
+	form.setValue("status","{$status}");
+	form.setValue("fee_type","{$fee_type|1}");
+	changeFee({$fee_type|1});
+	//展示支付费用
+	$('input[name="fee_type"]').each(function(){
+		$(this).on("click",function(){
+			var value = $(this).val();
+			changeFee(value);
+		})
+	});
+	//
+	function changeFee(value){
+		if(value==1){
+			$("#pay_fee").show();
+			$("#pay_fee_fix").hide();
+		}else{
+			$("#pay_fee").hide();
+			$("#pay_fee_fix").show();
+		}
+	}
+});
+</script>

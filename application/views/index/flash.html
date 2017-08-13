@@ -1,0 +1,27 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<!--S 产品展示-->
+<link type="text/css" rel="stylesheet" href="{url:@static/css/product.css}" />
+<script type='text/javascript' src="{url:@static/js/jquery.enlarge.js}"></script>
+<script type="text/javascript"> //{ document.getElementsByTagName('body')[0].className = 'screen_960'; }</script>
+<div class="mt10 nav-header"><span class="title">限时▪抢购</span><span class="caption">特卖▪专场</span></div>
+<dl class=" product_show clearfix" style="margin-left:-12px;">
+    <dd class="row4">
+        <ul>
+        {query:name=flash_sale as gb fields=*,gb.id as id join=left join goods as go on gb.goods_id eq go.id order=is_end,goods_num desc limit=12 page=1 id=$flashbuy}
+            <li class="mt10">
+                <dl class="product">
+                    <dt class="img tc"><a href="{url:/index/flashbuy/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],367,367)}" width=280></a></dt>
+                    <dd><a href="{url:/index/product/id/$item[id]}">{$item['name']}</a></dd>
+                    <dd><span class="price">抢购价：<b class="red">{$currency_symbol}{$item['price']}</b></span><span class="market_price fr">{$item['goods_num']}人已购买</span></dd>
+                    <dd class="tr"><a href="{url:/index/flashbuy/id/$item[id]}" class="btn btn-mini">抢购</a></dd>
+                </dl>
+            </li>
+            {/list} 
+        </ul>
+    <dd>
+    
+</dl>
+<div class=" mt10 page-nav">{echo:$flashbuy->pageBar();}</div>
+<!--E 产品展示-->

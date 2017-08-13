@@ -1,0 +1,46 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+{echo:JS::import('form');}
+{echo:JS::import('dialog?skin=tinysimple');}
+{echo:JS::import('dialogtools');}
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+
+		<div class="box p10">
+			<h1 class="title"><span>收货地址：</span></h1>
+
+			{if:isset($msg)}
+			<div class="message_{$msg[0]} ie6png">{$msg[1]}</div>
+			{elseif:isset($validator)}
+			<div class="message_warning ie6png">{$validator['msg']}</div>
+			{/if}
+			<div class="mt20 tr"><a id="address_other" class="btn btn-mini" href="javascript:;">添加新地址</a></div>
+			<div class="mt10">
+			<table class="simple address-list">
+				<tr>
+					<th>收货人</th> <th>所在地区</th> <th>街道地址</th> <th>邮编</th> <th>电话/手机</th><th></th> <th>操作</th>
+				</tr>
+				{list:items=$address}
+				<tr {if:$key%2==1}class="odd"{/if}>
+					<td>{$item['accept_name']}</td> <td>{$parse_area[$item['province']]},{$parse_area[$item['city']]},{$parse_area[$item['county']]}</td> <td>{$item['addr']}</td> <td>{$item['zip']}</td> <td>{$item['mobile']}/{$item['phone']} </td><td>{if:$item['is_default']==1}<b>默认地址</b>{/if}</td> <td><a  href="javascript:;" data-value="{$item['id']}" class="modify">修改</a> | <a href="javascript:confirm_action('{url:/ucenter/address_del/id/$item[id]}')">删除</a></td>
+				</tr>
+				{/list}
+			</table>
+			<div class="mt10">最多可保存20个有效地址！</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+$("#address_other").on("click",function(){
+    art.dialog.open('{url:/simple/address_other}',{width:960,height:440,lock:true});
+})
+
+  $(".address-list .modify").each(function(){
+    $(this).on("click",function(){
+        var id = $(this).attr("data-value");
+        art.dialog.open('{url:/simple/address_other/id/}'+id,{width:960,height:440,lock:true});
+    });
+});
+</script>

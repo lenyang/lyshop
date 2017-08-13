@@ -1,0 +1,19 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<table class="default">
+    <tr>
+        <th>部门</th>
+        <th>编号</th>
+        <th>部门经理</th>
+        <th>创建人</th>
+        <th>操作<button href='' class='button'>添加</button></th>
+    </tr>
+    {query:name=department page=1 id=$dep}
+        <tr><td>{$item['name']}</td><td></td><td></td><td></td><td></td></tr>
+    {/query}
+</table>
+<div class="page_nav">
+{echo:$dep->pageBar()}
+</div>
+<script type="text/javascript">
+</script>

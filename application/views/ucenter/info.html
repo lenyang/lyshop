@@ -1,0 +1,117 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('dialog?skin=simple');}
+<script type="text/javascript" charset="UTF-8" src="{url:@static/js/jquery.iframe-post-form.js}"></script>
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content clearfix uc-content">
+		<div class="box p10">
+			<h1 class="title"><span>基本资料：</span></h1>
+			{if:isset($msg)}
+			<div class="message_{$msg[0]} ie6png">{$msg[1]}</div>
+			{elseif:isset($validator)}
+			<div class="message_warning ie6png">{$validator['msg']}</div>
+			{/if}
+			<div class="mt10" style="position:relative;">
+				<div style="position: absolute;top:10px;right: 10px;">
+					{if:$user['head_pic']==''}
+						<img id="head-pic" src="{url:@static/images/no-img.png}" width="120" height="120">
+					{else:}
+						<img id="head-pic" src="{url:@$user[head_pic]}" width="120" height="120">
+					{/if}
+					<p style="padding: 10px 30px;"><a href="javascript:;" id="upload-link">修改头像</a></p>
+				</div>
+				<form id="info-form" class="simple" action="{url:/ucenter/info_save}" method="post">
+				<table class="form">
+					<tr><td class="label">会员帐号：</td><td>{$email}</td></tr>
+					<tr><td class="label">会员级别：</td><td>{$gname|'默认分组'}</td></tr>
+					<tr>
+			        	<td class="label">昵称：</td><td><input type="text" pattern="required" name="name" maxlen="20" value="{$name}"> <label>长度不得超过20个字</label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">真实姓名：</td><td><input type="text" pattern="required" name="real_name" maxlen="20" value="{$real_name}"> <label>长度不得超过20个字</label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">性别：</td><td><input name="sex" type="radio" value="0" checked="checked"> <label> 女</label>&nbsp;&nbsp;<input name="sex" type="radio" {if:isset($sex) && $sex==1}checked="checked"{/if} value="1"> <label> 男</label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">生日：</td><td><input name="birthday" type="text" onfocus="WdatePicker()" class="Wdate"  value="{$birthday}" ><label></label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">手机号码：</td><td><input type="text" pattern="mobi" name="mobile" value="{$mobile}"><label></label></td>
+			        </tr>
+			        <tr>
+			        	<td class="label">电话号码：</td><td><input type="text" name="phone" pattern="phone" value="{$phone}"><label></label></td>
+			        </tr>
+					<tr><td class="label">所在地区：</td><td id="area"><select id="province"  name="province" >
+			        <option value="0">==省份/直辖市==</option>
+			        </select>
+			        <select id="city" name="city"><option value="0">==市==</option></select>
+			        <select id="county" name="county"><option value="0">==县/区==</option></select><input pattern="^\d+,\d+,\d+$" id="test" type="text" style="visibility:hidden;width:0;" value="{$province},{$city},{$county}" alt="请选择完整地区信息！"><label></label></td></tr>
+			        <tr>
+			        	<td class="label">街道地址：</td><td><textarea name="addr" pattern="required" minlen="5" maxlen="120">{$addr}</textarea> <label>不需要重复填写省市区，必须大于5个字符，小于120个字符</label></td>
+			        </tr>
+			        <tr>
+			        	<td colspan="2" class="tc"><input type="submit" class="btn"></td>
+			        </tr>
+				</table>
+			</form>
+			</div>
+
+		</div>
+	</div>
+</div>
+<div id="head-dialog" style="display: none">
+	<div class="box" style="width:400px;">
+		<h2>上传头像：</h2>
+		<div class="content mt20 p10">
+			<form enctype="multipart/form-data" action="{url:/ucenter/upload_head}" method="post"  id="uploadForm">
+				<p><input type="file" name="imgFile"></p>
+				<p class="mt20 tc"><button class="btn" id="upload-btn">上传</button></p>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$("#upload-link").on("click",function (){
+		art.dialog({id:'head-dialog',content:document.getElementById('head-dialog')});
+	});
+	
+	$("#uploadForm").iframePostForm({
+	    iframeID: 'iframe-post-form',
+	    json:true,
+	    post: function(){
+	        $("#upload-btn").text("上传中...")
+	    },
+	    complete: function(data){
+	        if(data['error']==1){
+	        	alert(data['message']);
+	        }else{
+	        	var root_url = "{url:@}"
+	        	$("#head-pic").attr("src",root_url+data['url']);
+	        	art.dialog({id:'head-dialog'}).close();
+	        }
+	         $("#upload-btn").text("上传");
+	    }
+
+	});
+
+var form =  new Form('info-form');
+form.setValue('is_default','{$is_default}');
+  $("#areas").Linkage({ url:"{url:/ajax/area_data}",selected:[{$province|0},{$city|0},{$county|0}],callback:function(data){
+    var text = new Array();
+    var value = new Array();
+    for(i in data[0]){
+      if(data[0][i]!=0){
+        text.push(data[1][i]);
+        value.push(data[0][i]);
+      }
+    }
+    $("#test").val(value.join(','));
+    FireEvent(document.getElementById("test"),"change");
+    }});
+    {if:isset($invalid)}
+  	autoValidate.showMsg({id:$("input[name='{$invalid['name']}']").get(0),error:true,msg:'{$invalid['msg']}'});
+  {/if}
+</script> 

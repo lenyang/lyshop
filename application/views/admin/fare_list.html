@@ -1,0 +1,27 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a  class="icon-plus" href="{url:/admin/fare_edit}" title="添加"> 添加</a><a href="javascript:;" class="icon-loop-2"
+onclick="tools_reload()"> 刷新</a>
+</div>
+</form>
+{query:name=fare page=1 id=$obj pagesize=3 order= is_default desc}
+<div class="btn_min" style="text-align: right;padding:5px 10px; margin-top:10px; margin-bottom:0; border:#dbdbdb 1px solid;border-bottom:0;background:#f7f7f7;"><span class="fl "><b class="foreColor">{$item['name']}</b></span> &nbsp;&nbsp;&nbsp;&nbsp;<a class="icon-pencil" href="{url:/admin/fare_edit/id/$item[id]}"> 编辑</a><a class="icon-close" href="javascript:;" onclick="confirm_action('{url:/admin/fare_del/id/$item[id]}')"> 删除</a></div>
+<table class="default {if:$item['is_default']==1}is-used{/if}" >
+    <tr><th>运送到</th> <th style="width:100px;">首重(g)</th> <th style="width:100px;">运费(元)</th> <th style="width:100px;">续重(g)</th> <th style="width:100px;">运费(元)</th></tr>
+    <tr><td>全国</td> <td>{$item['first_weight']}</td> <td>{$item['first_price']}</td> <td>{$item['second_weight']}</td> <td>{$item['second_price']}</td></tr>
+    {set:$zoning = unserialize($item['zoning'])}
+    {list:items=$zoning item=$area}
+    <tr><td>{$area['names']}</td> <td>{$area['f_weight']}</td> <td>{$area['f_price']}</td> <td>{$area['s_weight']}</td> <td>{$area['s_price']}</td></tr>
+    {/list}
+    {if:$item['is_default']!=1}
+    <tr> <td colspan="5"><a href="{url:/admin/fare_use/id/$item[id]}" class="button focus_button fr">使用此模板</a></td> </tr>
+    {/if}
+</table>
+{/query}
+<div class="page_nav">
+{echo:$obj->pageBar();}
+</div>

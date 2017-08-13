@@ -1,0 +1,63 @@
+{echo:JS::import("form")}
+<div style="overflow: auto;width:900px;height: 415px;">
+	<h3 class="lineD">商品信息：</h3>
+	<table class="default" id="attr_values">
+		<tr><td width="40"></td><td width="120">货号</td><td>商品名</td><td>规格</td><td width="60">价格</td><td width="40">数量</td><td width="60">商品促销</td><td width="60">小计</td></tr>
+		{query:name=order_goods as od fields=go.img,go.name,pr.pro_no,od.spec,od.goods_price,od.goods_nums,od.prom_goods join= left join products as pr on od.product_id eq pr.id  left join goods as go on od.goods_id eq go.id where=order_id eq $id}
+		{set:$spec = unserialize($item['spec']);}
+		<tr><td><img src="{echo:Common::thumb($item['img'],100,100);}" width="40"></td><td>{$item['pro_no']}</td><td>{$item['name']}</td><td>
+			{if:is_array($spec)}
+			{list:items=$spec item=$ite }
+				{$ite['name']}:{$ite['value'][2]}
+			{/list}
+			{/if}
+		</td><td>{$item['goods_price']}</td><td>{$item['goods_nums']}</td><td>{set:$prom=unserialize($item['prom_goods']);}{$prom['prom']['name']}</td><td class="golden">{echo:sprintf("%.2f",($item['goods_price']*$item['goods_nums']))}</td></tr>
+		{/query}
+	</table>
+
+
+		{query:name=order as od fields=od.*,ex.name as exname,py.pay_name as payname join=left join express as ex on od.express eq ex.express_company_id left join payment as py on od.payment eq py.id where=od.id eq $id}
+		<form class="form2" action="{url:/order/doc_invoice_save}" method="post" >
+		<h3 class="lineD mt10">发货信息</h3>
+		<table class="default">
+		<tr><th width="100">订单编号：</th><td>{$item['order_no']}<input type="hidden" name="order_no" value="{$item['order_no']}"><input type="hidden" name="order_id" value="{$item['id']}"><input type="hidden" name="delivery_status" value="{$item['delivery_status']}"></td><th width="100">下单时间：</th><td>{$item['create_time']}</td></tr>
+		<tr><th>支付方式：</th><td>{$item['payname']}</td><th>配送费用：</th><td class="golden">{$item['payable_freight']}</td></tr>
+		<tr><th><b class="red">*</b>物流公司：</th><td class="golden"><select name="express_company_id">{query:name=express_company  items=$itms item=$itm}<option value="{$itm['id']}">{$itm['name']}</option>{/query}</select></td><th><b class="red">*</b>物流单号：</th><td><input pattern="required" type="text" name="express_no"/></td></tr>
+		<tr><th width="100"><b class="red">*</b>收货人姓名：</th><td><input pattern="required" type="text" name="accept_name" value="{$item['accept_name']}"/></td><th width="100"><b class="red">*</b>联系手机：</th><td><input pattern="mobi" type="text" name="mobile" value="{$item['mobile']}"/></td></tr>
+		<tr><th>联系电话：</th><td><input type="text" name="phone" value="{$item['phone']}"/></td><th>邮编：</th><td><input type="text" name="zip" value="{$item['zip']}" /></td></tr>
+		<tr><th><b class="red">*</b>收货地区：</th><td colspan=3><select id="province"  name="province" >
+        <option value="0">==省份/直辖市==</option>
+        </select>
+        <select id="city" name="city"><option value="0">==市==</option></select>
+        <select id="county" name="county"><option value="0">==县/区==</option></select><input pattern="^\d+,\d+,\d+$" id="area" type="text" style="visibility:hidden;width:0;" value="{$item['province']},{$item['city']},{$item['county']}" alt="请选择完整地区信息！"><label></label></td></tr>
+		<tr><th><b class="red">*</b>收货地址：</th><td colspan=3><input pattern="required" type="text" name="addr" value="{$item['addr']}"></td></tr>
+        <tr><th>用户备注：</th><td colspan=3>{$item['user_remark']}</td></tr>
+		<tr><th>发货单备注：</th><td colspan=3><textarea name="remark"></textarea></td></tr>
+		</table>
+		<div class="alone_footer tc"><button class="focus_button" onclick="">发 货</button></div>
+		</form>
+		{/query}
+
+</div>
+
+<script type="text/javascript">
+ $("#areas").Linkage({ url:"{url:/ajax/area_data}",selected:[{$item['province']},{$item['city']},{$item['county']}],callback:function(data){
+    var text = new Array();
+    var value = new Array();
+    for(i in data[0]){
+      if(data[0][i]!=0){
+        text.push(data[1][i]);
+        value.push(data[0][i]);
+      }
+    }
+    $("#area").val(value.join(','));
+    FireEvent(document.getElementById("area"),"change");
+    }});
+ function count_amount(){
+ 	var adjust = $("#adjust").val();
+ 	var oldVlaue = parseFloat({$amount});
+ 	var order_amount = parseFloat(oldVlaue)+parseFloat(adjust);
+ 	if(order_amount<0)order_amount = 0.00;
+ 	$("#order_amount").text(order_amount);
+ }
+</script>

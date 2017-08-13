@@ -1,0 +1,71 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a class="icon-delicious" href="{url:/order/doc_refund_list}"> 显示全部 </a>
+    
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+    
+</div>
+<table class="default" >
+    <tr>
+        <th width="30">选择</th>
+        <th style="width:70px">操作</th>
+        <th >订单编号</th>
+        <th width="100">退款类型</th>
+        <th width="80">退款状态</th>
+        <th width="160">申请日期</th>        
+    </tr>
+    {query:name=doc_refund as dr where=$where id=$obj order=id desc page=1}
+        <tr><td width="30"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+            <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a href="javascript:view({$item['id']})" class=" icon-eye"> 查看</a></li>
+                {if:$item['pay_status'] == 0}
+                <li><a class="icon-credit" href="javascript:;" onclick="edit({$item['id']})"> 退款</a></li>
+                {elseif:$item['pay_status'] == 1}
+                <li><a class="icon-credit" href="javascript:;" onclick="edit({$item['id']})"> 重新退款</a></li>
+                {/if}
+            </ul></div></div> </td>
+            <td >{$item['order_no']}</td>
+            <td width="100">{echo:$item['refund_type']!=0?($item['refund_type']==1?'银行卡':'其它方式'):'账户余额'}</td>
+            <td width="80" id="pay_status_{$item['id']}">{echo:$item['pay_status']!=0?($item['pay_status']==1?'<b class="red">不予退款</b>':'退款成功'):'<b class="golden">申请退款</b>'}</td>
+            <td width="160">{$item['create_time']}</td>
+            </tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<div id="status_dialog" style="display: none; position: relative;" class="form2">
+    <h3 id="order_title">备注信息：</h3>
+        <input type="hidden" name="id" id="order_id" value="">
+        <input type="hidden" name="status" id="order_status" value="">
+        <input type="hidden" name="op" id="order_op" value="">
+        <textarea id="order_remark" name="remark"></textarea>
+    <div class="tc"><button class="focus_button" onclick="submit_status()">保存</button></div>
+</div>
+<script type="text/javascript">
+    function view(id){
+        art.dialog.open("{url:/order/doc_refund_view/id/}"+id,{id:'view_dialog',title:'查看退款单',resize:false,width:900,height:420});
+    }
+    function edit(id){
+        art.dialog.open("{url:/order/doc_refund_edit/id/}"+id,{id:'edit_dialog',title:'退款',resize:false,width:900,height:450});
+        
+    }
+    function updateInfo(obj){
+        var text = obj['pay_status']==1?'<b class="red">不予退款</b>':'退款成功';
+        $("#pay_status_"+obj['id']).html(text);
+        art.dialog.tips("<p class='success'>处理成功！</p>");
+        art.dialog({id:'edit_dialog'}).close();
+    }
+   
+$("#condition").on("click",function(){
+  $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/order/doc_refund_list}',method:'get'});},data:{order_no:{name:'订单编号'},'dr.pay_status':{name:'退款状态',values:{0:'申请退款',1:'不予退款',2:'退款成功'}},'refund_type':{name:'退款方式',values:{0:'至账户余额',1:'至银行卡',2:'其它方式'}}
+}});
+})
+
+
+</script>

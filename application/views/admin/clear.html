@@ -1,0 +1,25 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<div class="box">
+	<h1>系统缓存清理提示：</h1>
+	<div class="box-body">
+		<ul>
+			<li>1、数据库结构发生变化时，主要针对二次开发人员<b class="red">（仅需清理数据缓存）</b>。</li>
+			<li>2、二次开发更换Controller里的layout。<b class="red">（仅需清理模板缓存，其它视图文件的修改不需要清理，系统会自动更新）</b></li>
+			<li>3、开发调试过程中，自己修改了一些系统文件，又不清晰是否是自己修改的问题，可以尝试清理。（建议全部清理）</li>
+			<li>4、正式运营环境，建议不要清理缓存。<b class="red">（注：清理模板缓存后，由于会重新编译模板文件，每一次执行会稍慢一些。）</b></li>
+		</ul>
+	</div>
+</div>
+<div class="tc mt20">
+	<a  class="btn btn-blue" href="javascript:;" onclick="clear_catch('data')">数据缓存清理</a>
+	<a  class="btn btn-orange" href="javascript:;" onclick="clear_catch('theme')">模板缓存清理</a>
+	<a  class="btn btn-gray" href="javascript:;" onclick="clear_catch('all')">全部清理缓存</a>
+</div>
+<script>
+function clear_catch(type){
+		$.post("{url:/admin/clear_act/type/}"+type,function(data){
+			art.dialog.tips("<p class='"+data['status']+"'>"+data['msg']+"</p>");
+		},'json');
+	}
+</script>

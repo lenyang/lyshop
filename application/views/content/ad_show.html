@@ -1,0 +1,46 @@
+<link rel="stylesheet" type="text/css" href="{url:@static/js/jslider.css}" />
+
+{set:$width = $width>300?$width:300;}
+<div  style="text-align: center;padding: 5px;width:{$width|'100'}px;">
+  <div style="width:{$width|'100'}px;height:{$height|'100'}px;padding-bottom:5px; overflow:hidden" class="lineD">
+    {if:$type==1||$type==2||$type==4}
+    {if:$type!=2}
+    {list:items=$content}
+    {if:$item['url']}
+    <a href="{$item['url']}"><img src="{url:@$item[path]}" alt="{$item['title']}"></a>
+    {else:}
+    <img src="{url:@$item[path]}" alt="{$item['title']}">
+    {/if}
+    {/list}
+    {else:}
+    <div id="slider-{$number}" class="slider" style="margin-top:10px; height: {$height}px;width: {$width}px;">
+      <div>
+        {list:items=$content}
+        <a href="{$item['url']}" style="width: {$width}px;" target="_blank"><img src="{url:@$item[path]}"></a>
+        {/list}
+      </div>
+    </div>
+    {/if}
+    {else:}
+    {if:$type==3}
+    <a href="{$content['url']}" style="color:{$content['color']}">{$content['title']}</a>
+    {else:}
+    {$content}
+    {/if}
+    {/if}
+  </div>
+  <div class="mt5 clearfix">
+    <textarea style="width:{echo:($width-5)}px;height: 100px;">{if:$type==2}
+<!--S 一个页面只引入一次即可-->
+<link rel="stylesheet" type="text/css" href="{echo:'{'}url:#js/jslider.css}" />
+<script type='text/javascript' src="{echo:'{'}url:#js/jslider.js}"></script>
+<!--E 只引入一次-->{/if}
+<script type='text/javascript' src="{echo:'{'}url:/index/js/id/{$number}}"></script>
+</textarea>
+</div>
+</div>
+
+<script type='text/javascript' src='{url:@static/js/jslider.js}'></script>
+<script>
+$('#slider-{$number}').Slider();
+</script>

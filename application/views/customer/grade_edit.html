@@ -1,0 +1,28 @@
+{echo:JS::import('form');}
+<h1 class="page_title">会员等级编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/customer/grade_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 等级名：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" />
+        <label> 会员等级名称（如：VIP，金牌 等等）</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>消费金额：</dt>
+      <dd>
+        <input name="money" type="text" class="small" pattern="int" value="{$money}" alt="必需为整数数字">
+        <label>需满足的消费金额(必需为整数)</label>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+
+</script> 

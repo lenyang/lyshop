@@ -1,0 +1,23 @@
+<div id="export_dialog"  style="display:none;width:560px;">
+    <form id="export_form">
+    <input  type="hidden" name="condition" value="{$condition}">
+	<div>下载的数据将以你筛选的条件为准</div>
+    <div>选择你要下载的字段：不选将下载全部字段</div>
+	{list:items=$fields}
+    <input type="checkbox" name="fields[]" value="{$key}" {if:trim($item)!=$item}checked="checked"{/if}><label>{$item}</label>
+	{/list}
+    <div class="tc mt10"><input type="submit" id="export_cvs_button" class="btn btn-blue" style="height:auto;" value="导出CVS"></div>
+    </form>
+</div>
+<script type="text/javascript">
+$("#export_cvs_button").on('click',function(){
+	var url = "{url:$url}";
+	var len = $("#export_dialog input[type='checkbox'][checked]").size();
+	if(len>0){
+		tools_submit({form:'#export_form',action:url,method:'get'});
+		art.dialog({id:'export_dialog'}).close();
+	}else{
+		alert('必需选择要下载的字段');
+	}
+});
+</script>

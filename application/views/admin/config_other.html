@@ -1,0 +1,97 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('validator');}
+<h2 class="page_title">{$node_index['name']}</h2>
+<div class="form2">
+	<form name="config_form" method="post" action="{url:/admin/config/group/other}">
+    <dl class="lineD">
+      <dt>用户注册方式：</dt>
+      <dd>
+        <input name="other_reg_way[]" type="checkbox"  value="0"/><label>邮箱注册</label>
+        <input name="other_reg_way[]" type="checkbox"   value="1"/><label>手机注册</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>注册邮箱验证：</dt>
+      <dd>
+        <input name="other_verification_eamil" type="checkbox"   value="1"/><label>开启</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>货币符号：</dt>
+      <dd>
+        <input name="other_currency_symbol" type="text" class="small" value=""><label>(例如：人民币“{$currency_symbol}”)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>货币单位：</dt>
+      <dd>
+        <input name="other_currency_unit" type="text" class="small"  value="">
+        <label>(例如：人民币“元”)</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>发票功能：</dt>
+      <dd>
+        <input name="other_is_invoice" type="checkbox"   value="1"/><label>开启</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>税率：</dt>
+      <dd>
+        <input name="other_tax" type="text"  style="width:40px;"  class="tiny" value=""/>%
+        <span>  </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>消费时长：</dt>
+      <dd>
+        <input name="other_grade_days" type="text" class="small" pattern="int" value="365">
+        <label>（天）默认365天，会员升级，消费金额需要统计的最近时长。</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>抢购订单作废时长：</dt>
+      <dd>
+        <input name="other_order_delay_flash" type="text" class="small" pattern="int" value="120">
+        <label>（分钟）默认120分钟，自下单之时起，用户在多长时间内没有支付，订单将自动作废。</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>团购订单作废时长：</dt>
+      <dd>
+        <input name="other_order_delay_group" type="text" class="small" pattern="int" value="120">
+        <label>（分钟）默认120分钟，自下单之时起，用户在多长时间内没有支付，订单将自动作废。</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>捆绑订单作废时长：</dt>
+      <dd>
+        <input name="other_order_delay_bund" type="text" class="small" pattern="int" value="0">
+        <label>（分钟）默认不限制（0表示不限制），自下单之时起，用户在多长时间内没有支付，订单将自动作废。</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b>默认订单作废时长：</dt>
+      <dd>
+        <input name="other_order_delay" type="text" class="small" pattern="int" value="0">
+        <label>（分钟）默认不限制（0表示不限制），自下单之时起，用户在多长时间内没有支付，订单将自动作废。</label>
+      </dd>
+    </dl>
+    <div class="center">
+      <input type="submit" name="submit" class="button action fn" value="确 定">
+    </div>
+  </form>
+</div>
+
+<script>
+	{if:isset($message)}
+	art.dialog.tips('<p class="success">{$message}</p>');
+	{/if}
+	var form = new Form('config_form');
+	{set:$config = Config::getInstance();}
+	var data = {echo:JSON::encode($config->get('other'))};
+  form.init(data);
+	form.setValue("other_reg_way[]",data['other_reg_way']);
+</script>

@@ -1,0 +1,19 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="nav-bar mt5">
+        <a  href="{url:/index/index}">首页 &gt;</a> 
+        <a  href="{url:/index/article_list}">文章中心 </a>
+    </div>
+<div class="mt10 clearfix" style="position: relative;">
+	<div class="content">
+		<div class="box help-content p20">
+            {query:name=article where=id eq $id}
+			<h1 class="title tc"><span class="f16">{$item['title']}</span></h1>
+            <div class="clearfix"><span class="fr">
+            {$item['publish_time']}</span></div>
+			<div class="mt10">
+                {$item['content']}
+			</div>
+            {/query}
+		</div>
+	</div>
+</div>

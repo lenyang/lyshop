@@ -1,0 +1,76 @@
+{echo:JS::import('form');}
+<style media="print" type="text/css">
+.bar{display:none}
+.content {
+	margin: 0px;
+	border: none;
+	margin-left: 0px;
+	margin-top: 0px;
+	background: none;
+}
+</style>
+<style type="text/css">
+.bar {
+	height: 40px;
+	padding-left: 60px;
+	line-height: 40px;
+	border-bottom: 1px solid #d2d2d2;
+	margin-bottom: 6px;
+	background-color: #f1f1f1;
+}
+
+.content {
+	margin: 4px;
+	position: relative;
+	overflow: hidden;
+	box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
+	-webkit-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
+	border: 1px solid #d2d2d2;
+	width: {$width}px;
+	height: {$height}px;
+	background: url({$background}) 0px 0px no-repeat;
+}
+
+.content .item {
+	line-height: 20px;
+	float: left;
+	position: absolute;
+	overflow: hidden;
+	word-wrap: break-word;
+	color: #000000;
+	font-size: 12pt;
+}
+
+.container pre {
+	float: left;
+}
+
+.content .item .resize {
+	display: none;
+}
+</style>
+<div class="bar form2">
+<form id="express_form" action="{url:/order/print_express/id/$id}" method="post">
+快递单模板:<select id="template_id" name="template_id">
+	<option value="">选择快递单模板</option>
+	{query:name=express_template}
+	<option value="{$item['id']}">{$item['name']}</option>{/query}</select> 发货地址:<select id="ship_id" name="ship_id">
+	<option value="">选择发货地址</option>
+	{query:name=ship}
+	<option value="{$item['id']}">{$item['ship_name']}</option>{/query}</select> &nbsp;&nbsp;&nbsp;&nbsp;<input class="focus_button noprint" type="submit" onclick="window.print();" value=" 打 印 " />  </form> </div>
+<div class="content">
+	{$content}
+</div>
+<script type="text/javascript">
+   var form =  new Form();
+form.setValue('template_id','{$template_id}');
+form.setValue('ship_id','{$ship_id}');
+
+$(document).ready(function() {
+	$("#template_id").add($("#ship_id")).change(function() {
+			$("#express_form").submit();
+	});
+});
+
+</script>

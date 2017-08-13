@@ -1,0 +1,96 @@
+<script type="text/javascript">
+if(screen.width >= 1200)$(".category>.group").css("display","block");
+</script>
+<div class="banner">
+			<!--S 轮播-->
+			<script type='text/javascript' src="{url:/index/js/id/qgiowmka-us4k-p0up-vs3c-blkqmtb7}"></script>
+			<!--E 轮播-->
+			</div>
+			<!--S 活动展示-->
+			<div class="clearfix mt10" style="position: relative;">
+				<div class="sidebar fr" style="width: 230px; ">
+					<div class="box">
+						<h2>商城动态</h2>
+						<div class="p5" style="height:356px;">
+							<ul class="list">
+							{query:name=article order=id desc limit=14}
+								<li><a href="{url:/index/article/id/$item[id]}" target="_blank">{echo:TString::msubstr($item['title'],0,15)}</a></li>
+							{/query}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="content tab" style="margin-right: 240px;">
+					<ul class="tab-head">
+						<li class="current">团购活动</li>
+						<li class="current">限时抢购</li>
+					</ul>
+					<div class="tab-body" style="border:none;height:362px;overflow: hidden;padding:0; position: relative;">
+						<!--S 团购-->
+						<dl class=" product_show clearfix" style="margin-left:-12.5px;">
+						    <dd>
+						        <ul>
+						        {query:name=groupbuy as gb fields=*,gb.id as id join=left join goods as go on gb.goods_id eq go.id order=is_end , goods_num desc limit=4 id=$groupbuy}
+						            <li class="mt10">
+						                <dl class="product">
+						                    <dt class="img tc"><a href="{url:/index/groupbuy/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],220,220);}" width="220"></a></dt>
+						                    <dd><a href="{url:/index/product/id/$item[id]}">{$item['title']}</a></dd>
+						                    <dd><span>团购价：<b class="red price">{$currency_symbol}{$item['price']}</b></span><span class="market_price fr">{$item['goods_num']}人购买</span></dd>
+						                    <dd class="tr"><a href="{url:/index/groupbuy/id/$item[id]}" class="btn btn-mini">团购</a></dd>
+						                </dl>
+						            </li>
+						            {/list}
+						        </ul>
+						    </dd>
+						</dl>
+						<!--S 团购-->
+						<!--S 抢购-->
+						<div class=" product_show clearfix" style="margin-left:-12.5px; ">
+						    <dd>
+						        <ul>
+						        {query:name=flash_sale as gb fields=*,gb.id as id join=left join goods as go on gb.goods_id eq go.id order=is_end , goods_num desc limit=4 id=$groupbuy}
+						            <li class="mt10">
+						                <dl class="product">
+						                    <dt class="img tc"><a href="{url:/index/flashbuy/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],220,220);}" width=220></a></dt>
+						                    <dd><a href="{url:/index/flashbuy/id/$item[id]}">{$item['title']}</a></dd>
+						                    <dd><span class="price">抢购价：<b class="red">{$currency_symbol}{$item['price']}</b></span><span class="market_price fr">{$item['goods_num']}人已购买</span></dd>
+						                    <dd class="tr"><a href="{url:/index/flashbuy/id/$item[id]}" class="btn btn-mini">抢购</a></dd>
+						                </dl>
+						            </li>
+						            {/list}
+						        </ul>
+						    </dd>
+						</div>
+						<!--S 抢购-->
+					</div>
+				</div>
+			</div>
+			<!--E 活动展示-->
+
+			<!--S 产品展示-->
+			<div class="mt10 product_show  ">
+				{list:items=$category item=$categ}
+				<dl class="clearfix">
+					<dt class="head-bar"><span class="title"><a href="{url:/index/category/cid/$categ[id]}">{$categ['title']}</a></span>
+						{list:items=$categ['child'] item=$child}
+						<span class="fr"><a href="{url:/index/category/cid/$child[id]}">{$child['title']}</a></span>
+						{/list}
+					</dt>
+					<dd class="mt5">
+						<ul >
+							{set:$path_like = "like '$categ[path]%'";}
+							{query:name=goods where= is_online eq 0 and category_id in (select id from tiny_goods_category where path $path_like) order=sort desc limit=10}
+							<li>
+								<dl class="product">
+									<dt class="img"><a href="{url:/index/product/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],220,220);}" width=220></a></dt>
+									<dd class="title"><a href="{url:/index/product/id/$item[id]}">{$item['name']}</a></dd>
+									<dd><span class="price">{$currency_symbol}{$item['sell_price']}</span><span class="market_price"><del>{$currency_symbol}{$item['market_price']}</del></span></dd>
+								</dl>
+							</li>
+							{/list}
+						</ul>
+					</dd>
+				</dl>
+				{/list}
+			</div>
+			<!--E 产品展示-->

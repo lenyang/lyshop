@@ -1,0 +1,185 @@
+<!--S 产品展示-->
+<link type="text/css" rel="stylesheet" href="{url:@static/css/product.css}" />
+<script type='text/javascript' src="{url:@static/js/jquery.enlarge.js}"></script>
+<script type="text/javascript">
+	//$("body").addClass("screen_960");
+</script>
+<div class="nav-bar mt5">
+    {list:items=$category_nav}
+    {if:$item != end($category_nav)}
+    <a class="category-{$key}" href="{url:/index/category/cid/$item[id]}">{$item['name']} &gt;</a>
+    {else:}
+    <span class="category-{$key}">{$item['name']}</span>
+    {/if}
+    {/list}
+</div>
+<div class="goods-detail mt10 clearfix" style="position: relative;">
+    <div class="sidebar" style="width:230px;">
+        {if:isset($category_child['child'])}
+        <div class="box">
+            {list:items=$category_child['child'] item=$child}
+            <h2><a href="{url:/index/category/cid/$child[id]}">{$child['title']}</a></h2>
+            <ul class="category-nav">
+                {list:items=$child['child'] item=$grandson}
+                <li><a href="{url:/index/category/cid/$grandson[id]}">{$grandson['title']}</a></li>
+                {/list}
+            </ul>
+            {/list}
+        </div>
+        {/if}
+        <div class="box mt10">
+            <h2>热销排行榜</h2>
+            <ul class="content child-category-list ">
+                {query:name=goods as go join=left join order_goods as ord on (go.id eq ord.goods_id) fields=go.*, sum(ord.goods_nums) as sell_num order = sell_num desc group=go.id limit=10}
+                <li>
+                    <dl>
+                        <dt class="img tc"><a href="{url:/index/product/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],220,220)}" width=220></a></dt>
+                        <dd><a href="{url:/index/product/id/$item[id]}">{$item['name']}</a></dd>
+                        <dd><span class="price">售价：<b class="red">{$currency_symbol}{$item['sell_price']}</b></span><span class="market_price fr">市场价：<s>{$currency_symbol}{$item['market_price']}</s></span></dd>
+                    </dl>
+                </li>
+                {/list} 
+            </ul>
+        </div>
+    </div>
+    <div class="content">
+        <!--S 筛选部分-->
+        <div id="selector">
+            
+            <div class="spec-attr box">
+                <h2><span class="red" style="font-size: 14px;">{$current_category['name']}</span> 商品筛选</h2>
+                <!--S 品牌-->
+                {if:$has_brand}
+                <dl class="attr clearfix">
+                    <dt class="attr-key">品牌：</dt>
+                    <dd class="attr-value">
+                        {list:items=$has_brand}
+                        <a {if:isset($selected['brand']) && $selected['brand']==$item['id']} class="select" {set:$url_tem=str_replace("/brand/$item[id]","",$url);}href="{url:$url_tem}" {else:}href="{url:$url/brand/$item[id]}" {/if} >{$item['name']}({$brand_num[$item['id']]})<i></i></a>
+                        {/list}
+                    </dd>
+                </dl>
+                {/if}
+                <!--E 品牌-->
+                <!--S 价格-->
+                {if:$price_range}
+                <dl class="attr clearfix">
+                    <dt class="attr-key">价格：</dt>
+                    <dd class="attr-value">
+                        {list:items=$price_range}
+                        <a {if:isset($selected['price']) && $selected['price']==$item} class="select" {set:$url_tem=str_replace("/price/$item","",$url);}href="{url:$url_tem}" {else:}href="{url:$url/price/$item}" {/if} >{if:strpos($item,'-')===false}{$item}以上{else:}{$item}{/if}<i></i></a>
+                        {/list}
+                    </dd>
+                </dl>
+                {/if}
+                <!--E 价格-->
+                
+                {list:items=$spec_attr}
+                <dl class="attr clearfix">
+                    <dt class="attr-key">{$item['name']}：</dt>
+                    <dd class="attr-value">
+                        {list:items=$item['values'] item=$value}
+                        <a {if:isset($selected[$item['id']]) && $selected[$item['id']]==$value['id']} class="select" {set:$url_tem=str_replace("/$item[id]/$value[id]","",$url);}href="{url:$url_tem}" {else:}href="{url:$url/$item[id]/$value[id]}" {/if} >{$value['name']}<i></i></a>
+                        {/list}
+                    </dd>
+                </dl>
+                {/list}
+            </div>
+            <div id="select-more">
+                <div class="attr-extra "><div></div></div>
+            </div>
+        </div>
+        <!--E 筛选部分-->
+        <!--S 商品部分-->
+        <div class="mt10 product_show  clearfix">
+            <div class="box " style="margin-left: 12.5px;padding: 4px 0;">
+                <div class="sort-bar">
+                    <span>排序：</span>
+                    <a href="{url:$url/sort/0}" {if:$sort==0}class="current"{/if}>默认<i></i></a>
+                    <a href="{url:$url/sort/1}" {if:$sort==1}class="current"{/if}>销量<i></i></a>
+                    <a href="{url:$url/sort/2}" {if:$sort==2}class="current"{/if}>评论数<i></i></a>
+                    <a {if:$sort==4} href="{url:$url/sort/3}" class="current-2" {elseif:$sort==3}href="{url:$url/sort/4}" class="current"{else:} href="{url:$url/sort/4}" {/if}>价格<i></i></a>
+                    <a href="{url:$url/sort/5}" {if:$sort==5}class="current"{/if}>最新<i></i></a>
+                </div>
+                <div class="page-nav"><b class=" red">共{$goods['page']['total']}个商品</b> {$topPageBar}</div>
+            </div>
+            <dl>
+                <dd>
+            <ul>
+                {if:isset($goods['data'])}
+                {list:items=$goods['data']}
+                <li>
+                    <dl class="product">
+                        <dt class="img"><a href="{url:/index/product/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],220,220)}" width=220></a></dt>
+                        <dd class="title"><a href="{url:/index/product/id/$item[id]}">{$item['name']}</a></dd>
+                        <dd><span class="price">{$currency_symbol}{$item['sell_price']}</span><span class="market_price">{$currency_symbol}{$item['market_price']}</span></dd>
+                    </dl>
+                </li>
+                {/list}
+                {/if}             
+            </ul>
+        </dd>
+        </dl>
+        </div>
+        <div class="page-nav">{$goods['html']}</div>
+        <!--E 商品部分-->
+    </div>
+</div>
+<script>
+    var attr_extra = '';
+    $(".attr").each(function(i){
+        var self = $(this);
+        if(i>3){
+            //self.css("display","none");
+           // attr_extra += self.find(".attr-key:eq(0)").text()+"、";
+        }
+        if(self.find(".attr-value").get(0).scrollHeight>self.height()){
+            var span = $("<div class='o-more'>更多<b></b></div>");
+            self.append(span);
+            if(self.find('.select').size()>0){
+                span.html('收起<b></b>');
+                span.parent().addClass("unflod");
+            }
+            span.on("click",function(){
+                if($(this).text()=='更多'){
+                    $(this).html('收起<b></b>');
+                    $(this).parent().addClass("unflod");
+                }
+                else {
+                    $(this).html('更多<b></b>');
+                    $(this).parent().removeClass("unflod");
+                }
+            });
+        }
+    });
+
+    attr_extra = $(".attr:gt(3) .attr-key").text();
+    attr_extra = attr_extra.replace(/：/gi,'、');
+    attr_extra = attr_extra.replace(/、$/gi,'');
+    if($(".attr:gt(3)").size()>0){
+        
+        if($(".attr:gt(3)").find(".select").size()>0){
+            $(".attr:gt(3)").css("display","block");
+            $(".attr-extra div:eq(0)").html('收起<b></b>');
+            $(".attr-extra").addClass("unflod");
+        }else{
+            $(".attr:gt(3)").css("display","none");
+            $(".attr-extra div:eq(0)").html('更多选项（'+attr_extra+'）<b></b>');
+            $(".attr-extra").removeClass("unflod");
+        }
+    }else{
+        $("#select-more").css("display","none");
+    }
+    $(".attr-extra:eq(0)").on("click",function(){
+        if($(".attr:hidden").size()>0){
+            $(".attr:gt(3)").css("display","block");
+            $(".attr-extra div:eq(0)").html('收起<b></b>');
+            $(".attr-extra").addClass("unflod");
+        }else{
+            $(".attr:gt(3)").css("display","none");
+            $(".attr-extra div:eq(0)").html('更多选项（'+attr_extra+'）<b></b>');
+            $(".attr-extra").removeClass("unflod");
+        }
+        
+    })
+
+</script>

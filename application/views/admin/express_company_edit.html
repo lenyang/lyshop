@@ -1,0 +1,36 @@
+{echo:JS::import('form');}
+<h1 class="page_title">快递公司编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/admin/express_company_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 快递公司：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" />
+        <label> </label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>别名：</dt>
+      <dd>
+        <input name="alias" type="text" class="small"  value="{$alias}"> 
+        <label>别名</label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>CODE：</dt>
+      <dd>
+        <input name="code" type="text" class="small"  value="{$code}"> 
+        <label>快递100的code</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>快递地址：</dt>
+      <dd>
+        <input name="url" type="text" class="big" pattern="url" value="{$url}">
+        <label>快递公司主页地址</label>
+      </dd>
+      </dl>
+
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>

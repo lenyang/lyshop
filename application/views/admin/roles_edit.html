@@ -1,0 +1,82 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{set:$controllers = array('Admin','Content','Count','Customer','Marketing','Order');}
+<h1 class="page_title">角色编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/admin/roles_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 角色名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" min=4 alt="角色名不能为空" />
+        <label> </label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>拥有权限：</dt>
+      <dd>
+      <label>&nbsp;</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dd>
+        {list:items=$resources}
+        {set:$group = $key}
+          <div class=lineD><b>{$mainMenu[$key]['name']}：</b><label><input type="checkbox" class="group" id="items_{$group}">全选</label></div>
+          <ul class="li_inline_list clearfix">
+            {list:items=$item item=$res_group}
+              {set:$res_items = $res_group['right'];$res_items = explode(',',$res_items);$flag=true;}
+              {list:items=$res_items item=$res_item}
+                {if:stripos($rights,$res_item)===false}
+                  {set:$flag=false;}
+                {/if}
+              {/list}
+            <li><label><input type="checkbox" class="items_{$group}" {if:$flag}checked = "checked"{/if} name="right[]" value="{$res_group['id']}">{$res_group['name']}</label></li>
+            {/list}
+          </ul>
+        {/list}
+      </dd>
+      </dl>
+    <div style="text-align:center;margin-top:20px;"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('group','{$group}');
+//全选
+$(".group").each(function(){
+  $(this).on("click",function(){
+    var id = $(this).attr('id');
+    var checked = !!$(this).attr("checked");
+    $("."+id).attr('checked',checked);
+  })
+});
+//单选某一个互动全选
+$("input[name='right[]']").on("change",function(){
+  var group = $(this).attr("class");
+  var flag = true;
+  $("."+group).each(function(){
+    var checked = !!$(this).attr("checked");
+    if(!checked){
+      flag = false;
+      return;
+    }
+  })
+  $("#"+group).attr('checked',flag);
+});
+//设置全选按钮状态
+$(".group").each(function(){
+  var id = $(this).attr('id');
+  var flag = true;
+  $("."+id).each(function(){
+    var checked = !!$(this).attr("checked");
+    if(!checked){
+      flag = false;
+      return;
+    }
+  });
+  $(this).attr('checked',flag);
+});
+</script> 

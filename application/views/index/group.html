@@ -1,0 +1,26 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<!--S 产品展示-->
+<link type="text/css" rel="stylesheet" href="{url:@static/css/product.css}" />
+<script type='text/javascript' src="{url:@static/js/jquery.enlarge.js}"></script>
+<script type="text/javascript"> //{ document.getElementsByTagName('body')[0].className = 'screen_960'; }</script>
+<div class="mt10 nav-header"><span class="title">商城▪团购</span><span class="caption">聚划算▪低价团</span></div>
+<dl class=" product_show clearfix" style="margin-left:-12px; position: relative;">
+    <dd class="row4" >
+        <ul class="mt10">
+        {query:name=groupbuy as gb fields=*,gb.id as id join=left join goods as go on gb.goods_id eq go.id  order=is_end , goods_num desc limit=12 page=1 id=$groupbuy}
+            <li >
+                <dl class="product">
+                    <dt class="img tc"><a href="{url:/index/groupbuy/id/$item[id]}"><img src="{url:@}{echo:Common::thumb($item['img'],367,367)}" width=280></a></dt>
+                    <dd><a href="{url:/index/product/id/$item[id]}">{$item['title']}</a></dd>
+                    <dd><span class="price">团购价：<b class="red">{$currency_symbol}{$item['price']}</b></span><span class="market_price fr">{$item['goods_num']}人已购买</span></dd>
+                    <dd class="tr"><a href="{url:/index/groupbuy/id/$item[id]}" class="btn btn-mini">团购</a></dd>
+                </dl>
+            </li>
+            {/list} 
+        </ul>
+    <dd>
+</dl>
+<div class=" mt10 page-nav">{echo:$groupbuy->pageBar();}</div>
+<!--E 产品展示-->

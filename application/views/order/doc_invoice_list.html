@@ -1,0 +1,57 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a><a class="icon-delicious" href="{url:/order/doc_invoice_list}"> 显示全部 </a>
+    
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+    
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">查看</th>
+        <th style="width:120px">发货单号</th>
+        <th style="width:120px">订单号</th>
+        
+        <th style="width:100px">物流单号</th>
+        <th style="width:100px">物流公司</th>
+        <th style="width:80px">收货人</th>
+        <th style="width:80px">收货人电话</th>
+        <th style="width:80px">创建时间</th>
+    </tr>
+    {query:name=doc_invoice as di fields=di.*,ec.name as ecname join=left join express_company as ec on di.express_company_id eq ec.id where=$where id=$obj page=1 order=id desc}
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+            <td style="width:70px"><a href="javascript:view({$item['id']})" class=" icon-eye"> 查看</a></td>
+            <td style="width:120px">{$item['invoice_no']}</td>
+            <td style="width:120px">{$item['order_no']}</td>
+            
+            <td style="width:100px">{$item['express_no']}</td>
+            <td style="width:100px">{$item['ecname']}</td>
+            <td style="width:80px">{$item['accept_name']}</td>
+            <td style="width:80px">{$item['mobile']}</td>
+            <td style="width:80px">{echo:substr($item['create_time'],0,10)}</td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<div id="status_dialog" style="display: none; position: relative;" class="form2">
+    <h3 id="order_title">备注信息：</h3>
+        <input type="hidden" name="id" id="order_id" value="">
+        <input type="hidden" name="status" id="order_status" value="">
+        <input type="hidden" name="op" id="order_op" value="">
+        <textarea id="order_remark" name="remark"></textarea>
+    <div class="tc"><button class="focus_button" onclick="submit_status()">保存</button></div>
+</div>
+<script type="text/javascript">
+    function view(id){
+        art.dialog.open("{url:/order/doc_invoice_view/id/}"+id,{id:'view_dialog',title:'查看发货单',resize:false,width:900,height:400});
+    }
+   
+    $("#condition").on("click",function(){
+  $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/order/doc_invoice_list}',method:'get'});},data:{order_no:{name:'订单编号'},accept_name:{name:'收货人'},invoice_no:{name:'发货单号'},mobile:{name:'手机号码'},express_no:{name:'物流单号'}
+}});
+})
+</script>

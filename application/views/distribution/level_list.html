@@ -1,0 +1,35 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/distribution/level_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a href='{url:/distribution/level_edit}' class="icon-plus" > 添加</a>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th >等级名</th>
+        <th>价格百分比(%)</th>
+        <th>升级满足代理数</th>
+        <th>升级满足订单数</th>
+        <th>允许升级</th>
+    </tr>
+    {query:name=level id=$obj page=1 desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                        <li><a class="icon-point-up" href="{url:/distribution/level_audit/is_alow/1/id/$item[id]}">允许</a></li>
+                <li><a class="icon-point-down" href="{url:/distribution/level_audit/is_alow/0/id/$item[id]}">禁止</a></li>
+                        <li><a class="icon-pencil" href="{url:/distribution/level_edit/id/$item[id]}"> 编辑</a></li>
+                        <li><a class="icon-remove-2" href="javascript:confirm_action('{url:/distribution/level_del/id/$item[id]}')"> 删除</a></li>
+                    </ul></div></div> </td>
+        <td>{$item['name']}</td><td>{$item['prize_percent']}</td><td>{$item['person']}</td><td>{$item['qty']}</td><td>{if:$item['is_alow']==1}<b class="green">允许</b>{else:}<b class="red">禁止</b>{/if}</td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+

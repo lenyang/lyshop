@@ -1,0 +1,27 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<div>
+    <form action="" method="post">
+    <table class="default" >
+        <tr>
+            <th>第三方</th>
+            <th>开启状态</th>
+            <th style="width:80px">操作</th>                
+        </tr>
+    </table>
+    <div style="overflow: auto; height: 480px;">
+    <table class="default" style="border-top: 0">
+        {query:name=class_config}
+        {if:class_exists($item['class_name'])}
+            <tr>
+              <td class="btn_min">{$item['name']}</td>
+              <td class="btn_min">{if:$item['status']==1}<b class="green">已开启</b>{else:}<b class="gray">未开启</b>{/if}</td>
+              <td style="width:80px;"><a href="{url:/admin/class_config_edit/class_name/$item[class_name]}">编辑</a></td></tr>
+        {/if}
+        {/query}
+    </table>
+    </div>
+    </form>
+</div>

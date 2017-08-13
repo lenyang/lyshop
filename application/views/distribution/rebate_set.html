@@ -1,0 +1,66 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('validator');}
+<h2 class="page_title">{$node_index['name']}</h2>
+<div class="form2">
+  	<form name="email_form" method="post" action="{url:/distribution/rebate_set_save/group/rebate}">
+    <dl class="lineD">
+      <dt>返利起始金额：</dt>
+      <dd>
+        <input name="rebate_line" pattern="int" type="text" id="textfield" value="">
+    <label>返利起始金额为开始返利的基本要求</label>
+    </dd></dl>
+    <dl class="lineD">
+      <dt>一级返利：</dt>
+      <dd>
+        <input name="rebate_one" pattern="int" type="text" id="textfield" value="">
+    </dd></dl>
+    <dl class="lineD">
+      <dt>二级返利：</dt>
+      <dd>
+        <input name="rebate_two" pattern="int" type="text" id="textfield" value="">
+    </dd></dl>
+    <dl class="lineD">
+      <dt>三级返利：</dt>
+      <dd>
+        <input name="rebate_three" pattern="int" type="text" id="textfield" value="">
+    </dd></dl>
+    <dl class="lineD">
+      <dt>返利等级条件：</dt>
+      <dd>
+		<select name="rebate_level">
+			<option value="1" selected="">总代</option>
+		</select>
+    </dd></dl>
+      <dl class="lineD">
+      <dt>启用返利：</dt>
+      <dd>
+        <label><input type="radio" name="rebate_status" value="1" checked="checked">是</label>
+        <label><input type="radio" name="rebate_status" value="0">否</label>
+    </dd></dl>
+    <div class="center">
+      <input type="submit" name="submit" class="button action fn" value="确 定">
+    </div>
+	</form>
+  </div>
+  <pre>
+        操作说明：
+        1.可选择返利等级，不选择默认只要上下级为同一级别都会实行三级返利
+        2.是否使用可通过是否开启选项控制
+        3.此处一级为下单代理的直属上级，二级为所属代理的上级的上级，以此类推。
+
+        执行流程：
+        1.如果开启，才会进行三级返利，如果开启按钮为关闭状态，则不会进行三级返利!
+        2.如果处于开启状态，系统会根据设置的返利金额进行对相应的代理返利
+        3.如果设置等级条件，则代理需要达到设置的等级才会进行返利，否则，会默认只要上下级达到同一等级之后，只要是开启的三级返利，都会对相应的代理进行返利.
+  </pre>
+<script>
+  {if:isset($message)}
+  art.dialog.tips('<p class="success">{$message}</p>');
+  {/if}
+  var form = new Form('email_form');
+  {set:$config = Config::getInstance();}
+  var data = {echo:JSON::encode($config->get('rebate'))};
+  form.init(data);
+</script>

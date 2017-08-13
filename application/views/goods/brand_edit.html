@@ -1,0 +1,120 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('editor');}
+<script>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="content"]', {
+          uploadJson : '{url:/admin/upload_image}'
+        });
+      });
+    </script>
+<h1 class="page_title">品牌编辑</h1>
+<!-- tab开始 -->
+<form action="{url:/goods/brand_save}" method="post" enctype="multipart/form-data" callback="check_invalid">
+        {if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+<div id="obj_form" class="form2 tab" >
+  <!-- tab头部分 start -->
+  <ul class="tab-head"><li>基本信息</li><li class="current">SEO信息</li><li class="current">详细信息</li></ul>
+  <!-- tab头部分 end -->
+  <!-- tab 内容部分开始 start -->
+    <div class="tab-body ">
+    <!-- 基本信息 start-->
+      <div>
+      <dl class="lineD">
+        <dt>品牌名称：</dt>
+        <dd>
+          <input name="name" type="text" pattern="required" value="{$name}" alt="名称不能为空">
+          <label>*品牌名称</label>
+        </dd>
+        </dl><dl class="lineD">
+        <dt>网址：</dt>
+        <dd>
+          <input name="url" type="text" pattern="url" value="{$url}" alt="Url地址格式错误">
+          <label>对应连接地址</label>
+        </dd>
+        </dl><dl class="lineD">
+        <dt>排序：</dt>
+        <dd>
+          <input name="sort" type="text" pattern="int" value="{$sort}" style="width:40px;" alt="必需为数字">
+          <label>数字</label>
+        </dd>
+        </dl><dl class="lineD">
+        <dt>Logo：</dt>
+        <dd>
+          {set:$path = Tiny::getPath('uploads_url');}
+          <input name="logo" type="hidden" id="logo" value="{$logo}" /><label></label><button class="button select_button">选择图片</button>
+        </dd>
+      </dl>
+      <dl >
+        <dt></dt>
+        <dd id="img-show" >
+          {if:isset($logo) && $logo!=''}
+            <img height="100" src="{url:@$logo}">
+          {/if}
+        </dd>
+      </dl>
+      </div>
+      <!-- 基本信息 end -->
+      <!-- SEO信息 start -->
+      <div>
+        <dl class="lineD">
+        <dt>页面标题：</dt>
+        <dd>
+          <input name="seo_title" type="text" value="{$seo_title}">
+          <label>页面标题(TITLE)</label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt>页面关键词：</dt>
+        <dd>
+          <input name="seo_keywords" type="text" value="{$seo_keywords}">
+          <label>页面关键词(META_KEYWORDS)</label>
+        </dd>
+        </dl>
+        <dl class="lineD">
+        <dt>页面描述：</dt>
+        <dd>
+          <input name="seo_description" type="text" value="{$seo_description}">
+          <label>页面描述(META_DESCRIPTION)</label>
+        </dd>
+        </dl>
+      </div>
+      <!-- SEO信息 end -->
+      <!-- 详细说明 start -->
+      <div>
+        <h1>详细描述：</h1>
+          <textarea id="content" pattern="required" name="content" style="width:700px;height:360px;visibility:hidden;">{$content}</textarea>
+      </div>
+      <!-- 详细说明 end -->
+    </div>
+    <!-- tab 内容部分开始 end -->
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    
+</div>
+</form>
+<script>
+$(".select_button").on("click",function(){
+      uploadFile();
+      return false;
+    });
+function uploadFile(){
+  art.dialog.open('{url:/admin/photoshop?type=2}',{id:'upimg_dialog',title:'选择图片',width:613,height:380});
+}
+function setImg(value){
+  $("#logo").val(value);
+  $("#img-show").html("<img height='100' src='{url:@}"+value+"'>");
+  art.dialog({id:'upimg_dialog'}).close();
+}
+function check_invalid(e){
+  if(e==null){
+    return true;
+  }
+  else{
+    var index = $('.tab-body > *').has(e).index();
+    tabs_select(0,index);
+    return false;
+  }  
+}
+</script>

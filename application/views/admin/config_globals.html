@@ -1,0 +1,120 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('validator');}
+<h2 class="page_title">{$node_index['name']}</h2>
+<div class="form2">
+	<form name="config_form" method="post" action="{url:/admin/config/group/globals}">
+    <dl class="lineD">
+      <dt>站点名称：</dt>
+      <dd>
+        <input name="site_name" type="text" value="">
+      </dd>
+    </dl>
+    <dl class="lineD">
+        <dt>Logo：</dt>
+        <dd>
+          <div id="img-show" >
+            {if:isset($site_logo)}
+              <img height='50' src="{url:@$site_logo}">
+            {/if}
+          </div>
+          <div>
+          {set:$path = Tiny::getPath('uploads_url');}
+          <input name="site_logo" type="hidden" id="logo" value="{$site_logo}" /><label></label><button class="button select_button">选择图片</button>
+          </div>
+        </dd>
+      </dl>
+    <dl class="lineD">
+      <dt>关键字：</dt>
+      <dd>
+        <input name="site_keywords" type="text" size=60 value="">
+        <label>多个使用英文的“|”分割</label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>描述信息：</dt>
+      <dd>
+        <input name="site_description" type="text" size=60 value="">
+        <label>多个使用英文的“|”分割 </label>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>公司/备案号：</dt>
+      <dd>
+        <input name="site_icp" type="text" size=40 value=""/>
+        <span> 例如：xxxxxx有限公司/鲁ICP备xxxxxxx号 </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>网址：</dt>
+      <dd>
+        <input name="site_url" type="text"  size=40 value=""/>
+        <span>  </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>邮箱：</dt>
+      <dd>
+        <input name="site_email" type="text" size=40 value=""/>
+        <span>  </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>手机：</dt>
+      <dd>
+        <input name="site_mobile" type="text" size=40 value=""/>
+        <span>  </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>联系电话：</dt>
+      <dd>
+        <input name="site_phone" type="text" size=40 value=""/>
+        <span>  </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>邮政编码：</dt>
+      <dd>
+        <input name="site_zip" type="text" size=40 value=""/>
+        <span>  </span>
+      </dd>
+    </dl>
+    <dl class="lineD">
+      <dt>联系地址：</dt>
+      <dd>
+        <input name="site_addr" type="text" size=40 value=""/>
+        <span></span>
+      </dd>
+    </dl>
+	   <div class="center">
+      <input type="submit" name="submit" class="button action fn" value="确 定">
+    </div>
+    </form>
+</div>
+
+<script>
+	{if:isset($message)}
+	art.dialog.tips('<p class="success">{$message}</p>');
+	{/if}
+	var form = new Form('config_form');
+	{set:$config = Config::getInstance();}
+	var data = {echo:JSON::encode($config->get('globals'))};
+	form.init(data);
+
+  $(".select_button").on("click",function(){
+      uploadFile();
+      return false;
+    });
+function uploadFile(){
+  art.dialog.open('{url:/admin/photoshop?type=2}',{id:'upimg_dialog',title:'选择图片',width:613,height:380});
+}
+function setImg(value){
+  $("#logo").val(value);
+  var img = "{url:@}"+value;
+  $("#img-show").html("<img height='50' src='"+img+"'>");
+  art.dialog({id:'upimg_dialog'}).close();
+}
+
+</script>

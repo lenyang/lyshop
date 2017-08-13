@@ -1,0 +1,41 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;"  onclick="tools_submit({action:'{url:/customer/ask_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a class="icon-delicious" href="{url:/customer/ask_list}"> 全部订单</a>
+
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th >咨询内容</th>
+        <th style="width:140px">咨询时间</th>
+        <th style="width:60px">是否回复</th>
+        <th style="width:140px">回复时间</th>
+
+    </tr>
+    {query:name=ask as a fields= a.*,a.id as aid join= left join user as u on a.user_id eq u.id id=$obj where= $where page=1 order= id desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['aid']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                <li><a class="icon-pencil" href="{url:/customer/ask_edit/id/$item[aid]}"> 回复</a></li>
+                <li><a class="icon-remove-2" href="javascript:confirm_action('{url:/customer/ask_del/id/$item[aid]}')"> 删除</a></li>
+            </ul></div></div> </td>
+        <td >{$item['question']}</td><td style="width:140px">{$item['ask_time']}</td><td style="width:60px">{if:$item['status']==1}<b class="green">已回复</b>{elseif:$item['status']==0}<span class="red">未回复</span>{else:}已关闭{/if}</td><td style="width:140px">{$item['reply_time']}</td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<script type="text/javascript">
+    $("#condition").on("click",function(){
+    $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/customer/ask_list}',method:'get'});},data:{'name':{name:'咨询人'},question:{name:'咨询内容'},'a.status':{name:'是否回复',values:{0:'未回复',1:'已回复'}},ask_time:{name:'注册时间'}
+    }});
+    });
+</script>

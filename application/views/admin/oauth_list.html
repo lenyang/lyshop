@@ -1,0 +1,36 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<div class="tab">
+<ul class="tab-head">
+    <li>第三方登录方式</li>
+</ul>
+<div class="tab-body">
+    <div>
+        <form action="" method="post">
+        <table class="default" >
+            <tr>
+                <th>第三方登录</th>
+                <th>图标</th>
+                <th>开启状态</th>
+                <th>排序</th>
+                <th style="width:80px">操作</th>                
+            </tr>
+        </table>
+        <div style="overflow: auto; height: 480px;">
+        <table class="default" style="border-top: 0">
+            {query:name=oauth order=id order=sort desc}
+                <tr>
+                  <td class="btn_min">{$item['name']}</td>
+                  <td class="btn_min"><img src="{url:@application/classes/oauth/logo/$item[icon]}"></td>
+                  <td class="btn_min">{if:$item['status']==1}<b class="green">已开启</b>{else:}<b class="gray">未开启</b>{/if}</td>
+                  <td class="btn_min">{$item['sort']}</td>
+                  <td style="width:80px;"><a href="{url:/admin/oauth_edit/id/$item[id]}">编辑</a></td></tr>
+            {/query}
+        </table>
+        </div>
+        </form>
+    </div>
+</div>
+</div>

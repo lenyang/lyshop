@@ -1,0 +1,36 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="nav-bar mt5">
+        <a  href="{url:/index/index}">首页 &gt;</a> 
+        <a  href="{url:/index}">帮助中心 </a>
+    </div>
+<div class="mt10 clearfix" style="position: relative;">
+    
+    <div class="sidebar fl" style="width:200px;">
+    <h2 class="header">帮助中心</h2>
+        <div class="box">
+
+            {set:$help_category=array()}
+            {query:name=help}
+            {set:$help_category[$item['category_id']][]=$item}
+            {/query}
+            {query:name=help_category}
+            <h2>{$item['name']}</h2>
+            <ul class="menu-list">
+                {if:isset($help_category[$item['id']])}
+                {list:items=$help_category[$item['id']]}
+                <li><a {if:$id==$item['id']}class="current"{/if}  href="{url:/index/help/id/$item[id]}">{$item['title']}<span class="l-triangle"></span></a></li>
+                {/list}
+                {/if}
+            </ul>
+            {/query} 
+        </div>
+    </div>
+	<div class="content" style="margin-left: 212px;">
+		<div class="box help-content p20">
+			<h1 class="title"><span class="f16">{$help['title']}</span></h1>
+			<div class="mt10">
+                {$help['content']}
+			</div>
+		</div>
+	</div>
+</div>

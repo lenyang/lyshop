@@ -1,0 +1,97 @@
+<!--S 产品展示-->
+{echo:JS::import('form')}
+<link type="text/css" rel="stylesheet" href="{url:@static/css/product.css}" />
+<link type="text/css" rel="stylesheet" href="{url:@static/js/stars/stars.css}" />
+<script type='text/javascript' src="{url:@static/js/stars/stars.js}"></script>
+<div class="layout-2col mt20 clearfix" >
+        <div class="sidebar">
+            <div class="box">
+                <h2 class="title">商品信息：</h2>
+                <div  style="width: 200px; padding:15px;" >
+                    <img class="big-pic" width="200px"  src="{url:@$review[img]}" source="{url:@$review[img]}">
+                    <h1><a href="{url:/index/product/id/$review[gid]}">{$review['name']}</a></h1>
+                    <p>销售价：<b class="red">{$currency_symbol}{$review['sell_price']}</b></p>
+                    <p class="tc"><a href="{url:/index/product/id/$review[gid]}" class="btn " target="_blank">前去购买</a></p>
+                </div>
+                
+            </div>
+        </div>
+        <div class="content">
+            <div class="spec-info mt10">
+                <h1 class="title"><span style="font-size: 14px;">我要评价：</span></h1>
+                <form action="{url:/index/review_act}" method="post">
+                <table class="form mt20">
+                    <tr><td class="label">*商品满意度</td> <td>
+                        <div class=rate-comm id='rate-comment'></div>
+                        <input type="hidden" name="id" value="{$review['id']}">
+                        <input style="visibility: hidden;width: 10px;" name="point" id="comment-point" pattern="int" alt="打分后才能提交！"><label></label>
+                    </td></tr>
+                    <tr><td class="label"></td> <td>
+                    </td></tr>
+                    <tr class="mt20"><td class="label"> </td> <td><textarea name="content" style="height: 140px; width:100%"></textarea></td></tr>
+                    <tr><td colspan="2" class="tc"><input type="submit" value="提交评价" class="btn"></td></tr>
+                </table>
+                </form>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+    $(function(){
+        var options = {
+        max : 5,
+        image:'{url:@static/js/stars/stars.jpg}',
+        imageAll:'{url:@static/js/stars/stars-all.gif}',
+        title_format    : function(value) {
+            var title = '';
+            switch (value) {
+                case 1 : 
+                    title   = '很不满意';
+                    break;
+                case 2 : 
+                    title   = '不满意';
+                    break;
+                case 3 : 
+                    title   = '一般';
+                    break;
+                case 4 : 
+                    title   = '满意';
+                    break;
+                case 5 : 
+                    title   = '非常满意';
+                    break;
+                default :
+                    title = comment_rank;
+                    break;
+            }
+            $('#comment-point').val(value);
+            FireEvent(document.getElementById('comment-point'),'click');
+            return title;
+        },
+            info_format : function(value) {
+            var info = '';
+            switch (value) {
+                case 1 : 
+                    info    = '<div class="info-box">1分&nbsp;很不满意<div>商品样式和质量都非常差，太令人失望了！</div></div>';
+                    break;
+                case 2 : 
+                    info    = '<div class="info-box">2分&nbsp;不满意<div>商品样式和质量不好，不能满足要求。</div></div>';
+                    break;
+                case 3 : 
+                    info    = '<div class="info-box">3分&nbsp;一般<div>商品样式和质量感觉一般。</div></div>';
+                    break;
+                case 4 : 
+                    info    = '<div class="info-box">4分&nbsp;满意<div>商品样式和质量都比较满意，符合我的期望。</div></div>';
+                    break;
+                case 5 : 
+                    info    = '<div class="info-box">5分&nbsp;非常满意<div>我很喜欢！商品样式和质量都很满意，太棒了！</div></div>';
+                    break;
+                default :
+                    info = value;
+                    break;
+            }
+            return info;
+        }
+    }
+        $('#rate-comment').rater(options);
+})
+</script>

@@ -1,0 +1,18 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+<table class="default" >
+    <tr>
+        <th >模板名称</th>
+        <th style="width:100px">操作</th>
+    </tr>
+    {query:name=msg_template id=$obj  page=1 desc }
+        <tr><td >{$item['name']}</td><td style="width:100px" class="btn_min"><a class="icon-pencil" href="{url:/admin/msg_template_edit/id/$item[id]}"> 编辑</a></td></tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+
+

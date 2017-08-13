@@ -1,0 +1,44 @@
+{echo:JS::import('form')}
+<div class="mt20 login box clearfix">
+	<div class="head">登录</div>
+<div class="fl login-form mt20">
+	<form action="{url:/simple/login_act}" method="post" callback="checkReadme">
+		<input type="hidden" name="redirectURL" value="{$redirectURL|$this->perPage()}">
+		<dl class="clearfix">
+			<dt>电子邮箱：</dt><dd><input class="input"  name="email" id="email"  pattern="email" alt="邮箱格式不正确"><label></label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>密&nbsp;&nbsp;&nbsp;&nbsp;码：</dt><dd><input type="password" class="input" name="password" pattern="required"><label></label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>&nbsp;</dt><dd><input name="autologin" id="readme" type="checkbox" value="1"><label>自动登录</label> <label>[<a href="{url:/simple/forget_password}">忘记密码?</a>]</label></dd>
+		</dl>
+		<dl class="clearfix">
+			<dt></dt><dd style="padding-left:200px;"><input type="submit" class="btn" value="登录"></dd>
+		</dl>
+	</form>
+</div>
+<div class="login-note mt20">
+	<ul>
+		<li><h1>还不是会员？ <a href="{url:/simple/reg}" class="red">免费注册</a></h1></li>
+		<li></li>
+	</ul>
+	<div class="tc"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$("input[name='email']").on("change",function(event){
+		if(autoValidate.validate(event)){
+			$.post("{url:/ajax/email/email/}"+$(this).val(),function(data){
+				var msg = '合法用户';
+				if(data['status']) msg = '用户不存在';
+			autoValidate.showMsg({id:document.getElementById('email'),error:data['status'],msg:msg});
+		},'json');
+		}
+	});
+	{if:isset($invalid)}
+		var form = new Form();
+		form.setValue('email', '{$email}');
+		autoValidate.showMsg({id:$("input[name='{$invalid['field']}']").get(0),error:true,msg:"{$invalid['msg']}"});
+	{/if}
+</script>

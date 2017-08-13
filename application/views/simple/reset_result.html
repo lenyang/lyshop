@@ -1,0 +1,23 @@
+<div class="mt20 dialog box clearfix tc">
+	<div class="head" style="font-size: 32px;line-height: 70px;height:70px;">{if:$status=='success'}
+		<img src="{url:@static/images/right.gif}">密码设置成功！{else:}<img src="{url:@static/images/error.gif}"> 密码设置失败！ {/if}</div>
+		{if:$status=='success'}
+	<div class="mt20 tl">
+		<h1>提示：</h1>
+		<p>
+			新密码已设置成功，可以用新密码登录了！
+		</p>
+	</div>
+	<div class="mt20"><a href="{url:/simple/login}" class="btn">登录</a></div>
+	{else:}
+		<div class="mt20 tl">
+		<h1>提示：</h1>
+		<p>
+			密码设置失败，连接地址已失效！
+		</p>
+
+	</div>
+	<div class="mt20"><a href="{url:/index/index}" class="btn btn-gray">返回首页</a></div>
+	{/if}
+	
+</div>

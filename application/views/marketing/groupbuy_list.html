@@ -1,0 +1,40 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+    <div class="tools_bar clearfix">
+        <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+        <a  class="icon-plus" href="{url:/marketing/groupbuy_edit}" title="添加"> 添加</a><a href="javascript:;" class="icon-loop-2"
+        onclick="tools_reload()"> 刷新</a></div>
+        <table class="default" >
+            <tr>
+                <th style="width:30px">选择</th>
+                <th style="width:70px">操作</th>
+                <th >活动名称</th>
+                <th style="width:70px">限购总量</th>
+                <th style="width:70px">商品数量</th>
+                <th style="width:70px">订单数量</th>
+                <th style="width:120px">开始时间</th>
+                <th style="width:120px">结束时间</th>
+                <th style="width:60px">状态</th>
+                
+            </tr>
+                {query:name=groupbuy as gr fields=gr.* , go.name as name join=left join goods as go on gr.goods_id eq go.id id=$obj order=is_end,id desc page=1}
+                <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+                  <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                    <li><a class="icon-pencil" href="{url:/marketing/groupbuy_edit/id/$item[id]}"> 编辑</a></li>
+                    <li><a class="icon-close" href="javascript:;" onclick="confirm_action('{url:/marketing/groupbuy_del/id/$item[id]}')"> 删除</a></li>
+                </ul></div></div> </td>
+                <td ><a href="{url:/index/groupbuy/id/$item[id]}" target="_blank">{$item['title']}</a></td><td style="width:70px;">{$item['max_num']}</td><td style="width:70px">{$item['goods_num']}</td><td style="width:70px">{$item['order_num']}</td><td style="width:120px">{echo:substr($item['start_time'],0,16)}</td><td style="width:120px">{echo:substr($item['end_time'],0,16)}</td><td style="width:60px">{if:$item['is_end']==1}<b class="gray">已结束</b>{else:}<b class="green">进行中</b>{/if}</td></tr>
+                {/query}
+            </table>
+    </form>
+    <div class="page_nav">
+        {echo:$obj->pageBar()}
+    </div>
+    <script type="text/javascript">
+      function goods_show(id){
+        art.dialog.open('{url:/marketing/goods_show}?id='+id,{id:'goods_select',title:'促销活动关联的商品:',width:760,height:380,padding: '10px'});
+    }
+</script>

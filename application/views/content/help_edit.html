@@ -1,0 +1,49 @@
+{echo:JS::import('form');}
+{echo:JS::import('editor');}
+<script>
+      var editor;
+      KindEditor.ready(function(K) {
+        editor = K.create('textarea[name="content"]', {
+          uploadJson : '{url:/admin/upload_image}',
+          extraFileUploadParams: {PHPSESSID: "{echo:$_COOKIE['PHPSESSID']}"}
+        });
+      });
+    </script>
+<h1 class="page_title">帮助编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/content/help_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt>标题：</dt>
+      <dd>
+        <input name="title" type="text" pattern="required" value="{$title}">
+        <label>帮助标题</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>分类：</dt>
+      <dd>
+        <select id="category_id"  name="category_id"   pattern="int">
+        {query:name=help_category order=path /}
+        {set:$help_category = Common::treeArray($items);}
+        {list:items=$help_category}
+        {set:$num = count(explode(',',$item['path']))-3;}
+        <option value="{$item['id']}">{if:$num>0}├{/if}{echo:str_repeat('──',$num)}{$item['name']}</option>
+        {/list}
+        </select>
+
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>内容：</dt>
+      <dd>
+        <textarea id="content" pattern="required" name="content" style="width:700px;height:360px;visibility:hidden;">{$content}</textarea>
+        <label></label>
+      </dd>
+    </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('category_id','{$category_id}');
+</script>

@@ -1,0 +1,52 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<h1 class="page_title">虚拟商品模板编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/goods/virtual_template_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b>创建方式</dt>
+      <dd>
+        <select name="auto">
+          <option value="0">自动创建</option>
+          <option value="1">人工添加</option>
+        </select>
+      </dd>
+      </dl>
+    <dl class="lineD">
+      <dt><b class="red">*</b> 模板名称：</dt>
+      <dd>
+        <input name="name" type="text" pattern="required" value="{$name}" />
+        <label> </label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>面值：</dt>
+      <dd>
+        <input name="value" type="text" class="small"  pattern="float" value="{$value}">
+        <label>在系统中所代表的金额</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>商品有效期：</dt>
+      <dd>
+        <input name="valid_days" type="text" class="small"  pattern="[1-9]\d*" value="{$valid_days|30}">
+        <label>购买日期起，有效的天数,至少是一天。</label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt><b class="red">*</b>说明：</dt>
+      <dd>
+        <textarea name="note">{$note}</textarea>
+      </dd>
+      </dl>
+
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('type_id','{$type_id}');
+form.setValue('auto','{$auto}');
+</script>

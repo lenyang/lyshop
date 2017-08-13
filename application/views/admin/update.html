@@ -1,0 +1,24 @@
+<div class="clearfix">
+	<div style="" >
+	    <h1><b>版本升级:</b></h1>
+	    <div class="mt20" style="border:1px #dbdbdb solid;padding:20px;vertical-align: top;margin:20px 5px;">
+	        {if:$status==0}
+	        <h2><b>升级提醒：</b></h2>
+	        <ul>
+	        	<li>1、做好数据备份</li>
+	        	<li>2、确定升级包已经完全上传</li>
+	        	<li>3、{$info}</li>
+	        </ul>
+	        <div class="tc">
+	        	<form action="{url:/admin/update}" method="post">
+	        	<input type="hidden" name="do" value="yes">
+	        	<button class="btn" >确认升级</button>
+	        	</form>
+	        </div>
+	        {else:}
+	        {$info}
+	        {/if}
+	        </div>
+	        
+	</div>
+</div>

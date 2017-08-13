@@ -1,0 +1,15 @@
+{echo:JS::import("form")}
+<div style="overflow: auto;width:900px;height: 320px;">
+	{query:name=doc_receiving as dr fields= dr.*,py.pay_name,us.name,us.email,od.order_no,dr.pay_status as pay_status,od.type as order_type join= left join user as us on dr.user_id eq us.id left join payment as py on dr.payment_id eq py.id left join order as od on dr.order_id eq od.id where=dr.id eq $id /}
+	{set:$item = $items[0];}
+		<h3 class="lineD ">收款单详情：</h3>
+
+		<table class="default">
+		<tr><th width="100">订单编号：</th><td colspan=3><i class="icon-order-{$item['order_type']}"></i>{$item['order_no']|'-'}</td></tr>
+		<tr><th width="100">类型：</th><td>{$item['doc_type']|'充值'|'订单支付'}</td><th width="100">支付方式：</th><td  class="golden">{$item['pay_name']}</td></tr>
+		<tr><th>支付状态：</th><td class="golden">{$item['pay_status']|'已支付'|'等待支付'}</td><th>金额：</th><td class="golden">{$item['amount']}</td></tr>
+		<tr><th width="100">用户：</th><td>{$item['name']}</td><th width="100">邮件：</th><td>{$item['email']}</td></tr>
+		<tr><th>创建时间：</th><td>{$item['create_time']}</td><th>付款时间：</th><td>{$item['payment_time']|'-'}</td></tr>
+		<tr><th>备注：</th><td colspan=3>{$item['note']}</td></tr>
+		</table>
+</div>

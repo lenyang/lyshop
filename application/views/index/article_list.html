@@ -1,0 +1,27 @@
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<div class="nav-bar mt5">
+    <a  href="{url:/index/index}">首页 &gt;</a>
+    <a  href="{url:/index/article_list}">文章中心 </a>
+</div>
+<div class="mt10 clearfix" style="position: relative;">
+    <div class="sidebar fl" style="width:200px;">
+        <h2 class="header">文章中心</h2>
+        <div class="box" style="min-height:200px;">
+            <ul class="menu-list">
+                {query:name=category order=sort desc}
+                <li><a {if:$id==$item['id']}class="current"{/if}  href="{url:/index/article_list/id/$item[id]}">{echo:TString::msubstr($item['name'],0,13)}<span class="l-triangle"></span></a></li>
+                {/query}
+            </ul>
+        </div>
+    </div>
+    <div class="content" style="margin-left: 212px;">
+      <div class="box help-content p20" style="min-height:200px;">
+        <ul class="list">
+            {query:name=article where=$where order=id desc page=1 id=$article}
+            <li><a href="{url:/index/article/id/$item[id]}">{$item['title']}</a><span class="fr">{$item['publish_time']}</span></li>
+            {/query}
+        </ul>
+        <div class="page-nav">{echo:$article->pageBar()}</div>
+    </div>
+</div>
+</div>

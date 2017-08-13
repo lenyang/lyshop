@@ -1,0 +1,54 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+    <a  class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/distribution/disorder_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a>
+    <a class="icon-delicious" href="{url:/distribution/disorder_list}"> 全部记录</a>
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px">选择</th>
+        <th style="width:70px">操作</th>
+        <th style="width:100px">订单编号</th>
+        <th style="width:80px">用户</th>
+        <th style="width:100px">商品</th>
+        <th style="width:80px">数量</th>
+        <th style="width:80px">总金额</th>
+        <th style="width:60px">状态</th> 
+        <th style="width:100px">时间</th>    
+    </tr>
+    {query:name=disorder as wd fields=wd.*,us.real_name as uname,dp.name as pname join= left join agent as us on wd.user_id eq us.id  left join dispro as dp on wd.dispro_id eq dp.id where= $where id=$obj page=1 desc }
+        <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+        <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                {if:$item['status']==0}
+                <li><a class="icon-pencil" href="javascript:withdrawAction({$item['id']});"> 审批</a></li>
+                {/if}
+                <li> <a class="icon-remove-2" href="javascript:confirm_action('{url:/distribution/disorder_del/id/$item[id]}')"> 删除</a></li>
+            </ul></div></div> </td>
+        <td style="width:100px">{$item['order_no']}</td><td style="width:80px">{$item['uname']}</td><td style="width:100px">{$item['pname']}</td><td style="width:80px">{$item['qty']}</td><td >{$item['totalmoney']}</td><td style="width:60px">{if:$item['status']==1}<b class="green">成功</b>{else:}<b class="red">等待</b>{/if}</td>
+        </tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<script type="text/javascript">
+    var form =  new Form();
+    $("#condition").on("click",function(){
+        $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/customer/withdraw_list}',method:'get'});},data:{'us.real_name':{name:'用户名'},'dp.name':{name:'商品名'},'wd.status':{name:'状态',values:{0:'等待',1:'成功'}}
+        }});
+    });
+    function withdrawAction(id)
+    {
+        art.dialog.open("{url:/distribution/disorder_audit/id/}"+id,{id:'withdraw-dialog',title:"审批",width:620});
+    }
+    function close_dialog()
+    {
+        art.dialog({id:"withdraw-dialog"}).close();
+        tools_reload();
+    }
+</script>

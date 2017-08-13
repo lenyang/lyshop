@@ -1,0 +1,57 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+    <div class="tools_bar clearfix">
+        <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+        <a class="icon-remove-2" href="javascript:;" onclick="tools_submit({action:'{url:/marketing/voucher_del}',msg:'删除后无法恢复，你真的删除吗？'})" title="删除"> 删除</a><a class="icon-stack" href="javascript:;" onclick="tools_submit({action:'{url:/marketing/voucher_send}'})" title="发放"> 发放</a><a href="javascript:;" class="icon-loop-2"
+        onclick="tools_reload()"> 刷新</a>
+        <a href="javascript:;" class="icon-download-2" onclick="show_export_dialog()"> 导出</a>
+        <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+    </div>
+    <table class="default" >
+        <tr>
+            <th style="width:30px">选择</th>
+            <th style="width:70px">操作</th>
+            <th >名称</th>
+            <th style="width:100px">账号</th>
+            <th style="width:100px">密码</th>
+            <th style="width:60px">面额</th>
+            <th style="width:60px">是否发放</th>
+            <th style="width:60px">状态</th>
+            <th style="width:160px">起止日期</th>
+
+        </tr>
+            {query:name=voucher id=$obj where=$where page=1 order=id desc}
+            <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+              <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                {if:$item['is_send']==0}
+                <li><a class="icon-stack" href="{url:/marketing/voucher_send/id/$item[id]}"> 发放</a></li>
+                {/if}
+                {if:$item['status']==0}
+                <li><a class="icon-blocked" href="{url:/marketing/voucher_disabled/id/$item[id]}"> 禁用</a></li>
+                {/if}
+                <li><a class="icon-close" href="javascript:;" onclick="confirm_action('{url:/marketing/voucher_del/id/$item[id]}')"> 删除</a></li>
+            </ul></div></div> </td>
+            <td >{$item['name']}</td><td style="width:100px;">{$item['account']}</td><td style="width:100px;">{$item['password']}</td><td style="width:60px;">{$item['value']}</td><td style="width:60px">{$item['is_send']|'<b>是</b>'|'<b class="green">否</b>'}</td><td style="width:60px">{$parse_status[$item['status']]}</td><td style="width:160px">{echo:substr($item['start_time'],0,10)}~{echo:substr($item['end_time'],0,10)}</td></tr>
+            {/query}
+        </table>
+</form>
+<div class="page_nav">
+    {echo:$obj->pageBar()}
+</div>
+{set:$fields_array = array('id'=>'ID编号', 'name'=>'名称 ', 'account'=>'账号 ', 'password'=>'密码 ', 'value'=>'面值 ', 'start_time'=>'开始时间', 'end_time'=>'到期时间 ', 'status'=>'状态 ', 'is_send'=>'发放情况');}
+{widget:name=exporter action=cvs url=/marketing/voucher_csv condition=$condition fields=$fields_array}
+<script type="text/javascript">
+    function Condition(id){
+        $("body").Condition({input:id,data:{store_nums:{name:'库存'},goods_id:{name:'商品ID'},'n.email':{name:'邮箱'},mobile:{name:'电话'}}});
+    }
+
+    $("#condition").on("click",function(){
+      $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/marketing/voucher_list}',method:'get'});},data:{name:{name:'代金券名称'},account:{name:'账号'},is_send:{name:'是否发放',values:{0:'未发放',1:'已发放'}},status:{name:'状态',values:{0:'未使用',1:'已使用',2:'临时锁定',3:'禁止'}}}});
+  });
+    function show_export_dialog(){
+        art.dialog({id:'export_dialog',title:'选择你要导出的字段:',content:document.getElementById('export_dialog')});
+    }
+</script>

@@ -1,0 +1,38 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+<form action="" method="post">
+    <div class="tools_bar clearfix">
+        <a class="icon-checkbox-checked icon-checkbox-unchecked" href="javascript:;" onclick="tools_select('id[]',this)" title="全选" data="true"> 全选 </a>
+        <a  class="icon-plus" href="{url:/marketing/prom_order_edit}" title="添加"> 添加</a><a href="javascript:;" class="icon-loop-2"
+        onclick="tools_reload()"> 刷新</a></div>
+        <table class="default" >
+            <tr>
+                <th style="width:30px">选择</th>
+                <th style="width:70px">操作</th>
+                <th style="width:200px">活动名称</th>
+                <th style="width:100px">活动类型</th>
+                <th >适合范围</th>
+                <th style="width:140px">开始时间</th>
+                <th style="width:140px">结束时间</th>
+                
+            </tr>
+                {query:name=prom_order id=$obj page=1}
+                <tr><td style="width:30px"><input type="checkbox" name="id[]" value="{$item['id']}"></td>
+                  <td style="width:70px" class="btn_min"><div class="operat hidden"><a  class="icon-cog action" href="javascript:;"> 处理</a><div class="menu_select"><ul>
+                    <li><a class="icon-pencil" href="{url:/marketing/prom_order_edit/id/$item[id]}"> 编辑</a></li>
+                    <li><a class="icon-close" href="javascript:;" onclick="confirm_action('{url:/marketing/prom_order_del/id/$item[id]}')"> 删除</a></li>
+                </ul></div></div> </td>
+                <td style="width:200px;">{$item['name']}</td><td style="width:100px;">{$parse_type[$item['type']]}</td><td >{set:$group = explode(',',$item['group'])}{list:items=$group item=$grad}{$grades[$grad]} {/list}</td><td style="width:140px">{$item['start_time']}</td><td style="width:140px">{$item['end_time']}</td></tr>
+                {/query}
+            </table>
+    </form>
+    <div class="page_nav">
+        {echo:$obj->pageBar()}
+    </div>
+    <script type="text/javascript">
+      function goods_show(id){
+        art.dialog.open('{url:/marketing/goods_show}?id='+id,{id:'goods_select',title:'促销活动关联的商品:',width:760,height:380,padding: '10px'});
+    }
+</script>

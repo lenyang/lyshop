@@ -1,0 +1,26 @@
+<div class="mt20 box p20">
+	<div class="fl" style="width:50%">
+		<div class="p20 tc">
+			<h1 style="font-size:10em;color:#7c0000;">4 0 4</h1>
+			<p style="font-size:2em;color:#666;">很抱歉，我要访问的页面不存在。</p>
+		</div>
+	</div>
+	<div class="fr" style="width:50%">
+		<div class="p20" style="border-left:#ccc 1px solid;height:220px;">
+			<h1 style="font-size:2em;">您可以：</h1>
+			<ul class="p20">
+				<li class="p10">检查输入的地址是否正确，然后输入正确的地址信息。</li>
+				<li class="p10">直接去： <a href="{url:@}" class="p10">商城首页</a> <a href="{url:/ucenter}" class="p10">我的商城</a> <a href="{url:/simple/cart}" class="p10">我的购物车</a></li>
+				<li class="p10"><span id="time" class="red"></span><span>后 将返回<b class="red">商城首页</b>，请稍后...</span></li>
+			</ul>
+			<div>
+				
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$("#time").countdown({end_time:"{echo:date('Y/m/d H:i:s',strtotime('+10 second',time()))}",format:'{s}秒',callback:function(){
+		location.href="{url:@}";
+}});
+</script>

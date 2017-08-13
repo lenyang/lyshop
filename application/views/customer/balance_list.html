@@ -1,0 +1,35 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<form action="" method="post">
+<div class="tools_bar clearfix">
+    <a class="icon-delicious" href="{url:/customer/balance_list}"> 全部记录</a>
+    <span class="fr"><a href='javascript:;' id="condition" class="icon-search" style="" > 筛选条件</a><input id="condition_input" type="hidden" name="condition" value="{$condition}"></span>
+</div>
+<table class="default" >
+    <tr>
+        <th style="width:30px;">序号</th>
+        <th style="width:140px">时间</th>
+        <th style="width:80px">金额</th>
+        <th style="width:100px">账户资金</th>
+        <th style="width:100px">用户</th>
+        <th >备注 </th>   
+    </tr>
+    {query:name=balance_log as bl fields=bl.*,us.name join=left join user as us on bl.user_id eq us.id where= $where order= bl.id desc id=$obj page=1 desc }
+        <tr class="{if:$key%2==1}odd{/if}">
+        <td style="width:30px;">{$item['id']}、</td>
+        <td style="width:140px">{$item['time']}</td><td style="width:80px">{$item['amount']}</td><td style="width:100px">{$item['amount_log']}</td><td style="width:100px">{$item['name']}</td><td >{$item['note']}</td>
+        </tr>
+    {/query}
+</table>
+</form>
+<div class="page_nav">
+{echo:$obj->pageBar()}
+</div>
+<script type="text/javascript">
+    var form =  new Form();
+    $("#condition").on("click",function(){
+        $("body").Condition({input:"#condition_input",okVal:'高级搜索',callback:function(data){tools_submit({action:'{url:/customer/balance_list}',method:'get'});},data:{'time':{name:'时间'},'name':{name:'用户名'},'note':{name:'备注'}
+        }});
+    });
+</script>

@@ -1,0 +1,75 @@
+{echo:JS::import("form")}
+{echo:JS::import('dialog?skin=simple');}
+<link type="text/css" rel="stylesheet" href="{url:@static/css/ucenter.css}" />
+<script type="text/javascript" charset="UTF-8" src="{url:@static/js/jquery.iframe-post-form.js}"></script>
+<div class="mt10 clearfix" style="position: relative;">
+	{widget:name=sub_navs action=ucsidebar sidebar=$sidebar act=$actionId}
+	<div class="content" style="margin-left: 212px;">
+		
+		<div class="box p20">
+			<dl class="dl-2 clearfix">
+				<dt class="clearfix">
+				{if:$user['head_pic']==''}
+					<img id="head-pic" src="{url:@static/images/no-img.png}" width="120" height="120">
+				{else:}
+					<img id="head-pic" src="{url:@$user[head_pic]}" width="120" height="120">
+				{/if}
+				<p style="padding: 10px 30px;"><a href="javascript:;" id="upload-link">修改头像</a></p>
+				</dt>
+				<dd>
+					<table width="100%" class="simple">
+						<tr>
+							<td colspan=2><b>{$user['name']}</b>，欢迎你！<span class="fr">最后一次登录：{$user['login_time']}</span></td>
+						</tr>
+						<tr>
+							<td width="50%">账户余额：{$currency_symbol}{$customer['balance']}</td>
+							<td width="50%">订单交易总金额：{$currency_symbol}{echo:sprintf("%01.2f",$order['amount'])}</td>
+						</tr>
+						<tr>
+							<td>我的积分：{$customer['point']}</td>
+							<td>会员级别：{$customer['gname']|'普通会员'}</td>
+						</tr>
+						<tr>
+							<td>进行中的订单：{$order['pending']} </td>
+							<td>待评价的商品：{$comment['num']}</td>
+						</tr>
+					</table>
+				</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+<div id="head-dialog" style="display: none">
+	<div class="box" style="width:400px;">
+		<h2>上传头像：</h2>
+		<div class="content mt20 p10">
+			<form enctype="multipart/form-data" action="{url:/ucenter/upload_head}" method="post"  id="uploadForm">
+				<p><input type="file" name="imgFile"></p>
+				<p class="mt20 tc"><button class="btn" id="upload-btn">上传</button></p>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$("#upload-link").on("click",function (){
+		art.dialog({id:'head-dialog',content:document.getElementById('head-dialog')});
+	});
+	
+	$("#uploadForm").iframePostForm({
+	    iframeID: 'iframe-post-form',
+	    json:true,
+	    post: function(){
+	        $("#upload-btn").text("上传中...")
+	    },
+	    complete: function(data){
+	        if(data['error']==1){
+	        	alert(data['message']);
+	        }else{
+	        	var root_url = "{url:@}"
+	        	$("#head-pic").attr("src",root_url+data['url']);
+	        	art.dialog({id:'head-dialog'}).close();
+	        }
+	        $("#upload-btn").text("上传");
+	    }
+	});
+</script>

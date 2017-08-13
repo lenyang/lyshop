@@ -1,0 +1,17 @@
+<div class="mt20 p20 " style="background: #FFF;">
+	<div class="message-box" >
+		<div class="message-head"><div class="message_{$type} ie6png">{$msg}</div><i class="{$type}"></i></div>
+		<div class="message-content">
+			{$content}
+		</div>
+		<p id="timmer" class="p10 tr red"></p>
+	</div>
+</div>
+{if:isset($redirect) && $redirect!=''}
+<script type="text/javascript">
+	$("#timmer").countdown({end_time:"{echo:date('Y/m/d H:i:s',strtotime('+6 second',time()))}",format:'{s}秒后自动跳转，请稍后...',callback:function(){
+		location.href="{url:$redirect}";
+	}
+});
+</script>
+{/if}

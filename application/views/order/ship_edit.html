@@ -1,0 +1,88 @@
+{echo:JS::import('form');}
+{echo:JS::import('date');}
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+<h1 class="page_title">发货点编辑</h1>
+<div id="obj_form" class="form2">
+    <form action="{url:/order/ship_save}" method="post" >
+        {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+    <dl class="lineD">
+      <dt><b class="red">*</b> 名称：</dt>
+      <dd>
+        <input name="ship_name" type="text" pattern="required" value="{$ship_name}" alt="发货点名称不能为空" />
+        <label>发货点名称（必填）</label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt><b class="red">*</b>联系人：</dt>
+      <dd>
+        <input name="ship_user_name" type="text"  pattern="required" value="{$ship_user_name}" alt="联系人必需填写">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>地区：</dt>
+      <dd>
+        <select id="province"  name="province" >
+        <option value="0">==省份/直辖市==</option>
+        </select>
+        <select id="city" name="city"><option value="0">==市==</option></select>
+        <select id="county" name="county"><option value="0">==县/区==</option></select><input pattern="^\d+,\d+,\d+$" id="test" type="text" style="visibility:hidden;width:0;" value="{$province},{$city},{$county}" alt="请选择完整地区信息！"><label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>地址：</dt>
+      <dd>
+        <input name="addr" type="text" empty  pattern="required" value="{$addr}">
+        <label></label>
+      </dd>
+      </dl>
+      <dl class="lineD">
+      <dt>邮编：</dt>
+      <dd>
+        <input name="zip" type="text" empty pattern="zip" value="{$zip}">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>固话：</dt>
+      <dd>
+        <input name="phone" type="text" empty pattern="phone" value="{$phone}">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>手机：</dt>
+      <dd>
+        <input name="mobile" type="text" empty pattern="mobi" value="{$mobile}">
+        <label></label>
+      </dd>
+      </dl><dl class="lineD">
+      <dt>是否默认：</dt>
+      <dd>
+        <input name="is_default" type="checkbox" value="1">
+      </dd>
+      </dl><dl class="lineD">
+      <dt>备注：</dt>
+      <dd>
+        <input name="note" type="text"  class="big"  value="{$note}">
+        <label></label>
+      </dd>
+      </dl>
+    <div style="text-align:center"><input type="submit" value="提交" class="button">&nbsp;&nbsp;&nbsp;&nbsp;<input type="reset" value="重置" class="button"></div>
+    </form>
+</div>
+<script type="text/javascript">
+var form =  new Form();
+form.setValue('parent_id','{$parent_id}');
+form.setValue('is_default','{$is_default}');
+
+
+  $("#areas").Linkage({ url:"{url:/ajax/area_data}",selected:[{$province|0},{$city|0},{$county|0}],callback:function(data){
+    var text = new Array();
+    var value = new Array();
+    for(i in data[0]){
+      if(data[0][i]!=0){
+        text.push(data[1][i]);
+        value.push(data[0][i]);
+      }
+    }
+    $("#test").val(value.join(','));
+    FireEvent(document.getElementById("test"),"change");
+    }});
+</script>

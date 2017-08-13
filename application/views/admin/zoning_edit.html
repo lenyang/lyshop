@@ -1,0 +1,34 @@
+{echo:JS::import('dialog?skin=brief');}
+{echo:JS::import('dialogtools');}
+{echo:JS::import('form');}
+<style type="text/css">
+  span.areas {
+display: inline-block;
+}
+</style>
+<form method="post" action="{url:/admin/zoning_save}" class="form2" >
+<div id="zoning_dialog" style="width:580px;position: relative; padding-bottom: 40px;" >
+  <div class="box" style="margin:10px;">
+    {if:isset($id)}<input type="hidden" name="id" id="objId" value="{$id}">{/if}
+  <dl class="lineD">
+  <dt><b class="red">*</b> 区域名称：</dt>
+  <dd>
+    <input name="name" id="zoning_name" type="text" pattern="required" value="{$name}" />
+    <label> </label>
+  </dd>
+  </dl>
+  <dl>
+  <dt><b class="red">*</b> 包含地区：</dt>
+  <dd>&nbsp;</dd>
+  </dl>
+  <div style="padding: 0 10px;" id="zoning_provinces" >
+      {query:name=area where=parent_id eq 0}
+      {if:isset($selected_provinces[$item['id']])}{set:$disabled = 'disabled="disabled"'; $class="gray"}{else:}{set:$disabled = ''; $class='';}{/if}
+      <span class="areas {$class}"><label><input class="province" {$disabled}  {if:isset($provinces) && stripos($provinces,$item['id'])!==false}checked="checked"{/if} type="checkbox" value="{$item['id']}" name="provinces[]">{$item['name']}</label></span>
+    {/query}
+  </div>
+</div>
+  <div class="alone_footer tc"><input type="submit" class="button" value="保存"></div>
+  
+</div>
+</form>
